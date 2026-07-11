@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 
-import art from "../assets/experience/art.png";
-import cocktail from "../assets/experience/cocktail.png";
-import music from "../assets/experience/music.png";
-import camera from "../assets/experience/camera.png";
-import paint from "../assets/experience/paint.png";
-import tattoo from "../assets/experience/tattoo.png";
-import performance from "../assets/experience/performance.png";
-import ride from "../assets/experience/ride.png";
+import art from "../assets/art.png";
+import cocktail from "../assets/cocktail.png";
+import music from "../assets/music.png";
+import camera from "../assets/camera.png";
+import paint from "../assets/paint.png";
+import tattoo from "../assets/tatto.png";
+import performance from "../assets/performance.png";
+import ride from "../assets/ride.png";
 
 const experiences = [
   { image: art, title: "Art Exhibition" },
