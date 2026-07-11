@@ -10,7 +10,7 @@ const sendTicketEmail = async ({
   qrCode,
 }) => {
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: process.env.MAIL_FROM,
 
     to: email,
 
