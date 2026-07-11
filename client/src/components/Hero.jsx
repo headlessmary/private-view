@@ -156,9 +156,9 @@ export default function HeroSection() {
 
             {/* CTA */}
            <div className="mt-8 flex flex-col sm:flex-row items-center lg:items-start gap-5 text-center lg:text-left">
-             <Link
+         <Link
   to="/buy-ticket"
-  className="w-full sm:w-auto bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 text-center"
+  className="inline-flex w-auto bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 justify-center"
 >
   Reserve Ticket
 </Link>
