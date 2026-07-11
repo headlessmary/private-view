@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { formatEventTime, getEventSettings } from "../services/eventSettings";
 
+import calendar from "../assets/icon-calendar.png";
+import location from "../assets/icon-location.png";
+import ticket from "../assets/ticket.png";
+import rides from "../assets/ride.png";
+
 export default function EventInfo() {
   const [settings, setSettings] = useState(getEventSettings);
 
@@ -12,25 +17,25 @@ export default function EventInfo() {
 
   const cards = [
     {
-      icon: "🗓️",
+      icon: calendar,
       label: "DATE",
       title: "8th August 2026",
       subtitle: `Doors open ${formatEventTime(settings.eventTime)} WAT`,
     },
     {
-      icon: "📍",
+      icon: location,
       label: "LOCATION",
       title: settings.venue,
       subtitle: "Exact venue revealed to ticket holders",
     },
     {
-      icon: "🎟️",
+      icon: ticket,
       label: "CAPACITY",
       title: `${settings.maxCapacity || 60} Guests`,
       subtitle: "Strictly limited",
     },
     {
-      icon: "🚘",
+      icon: rides,
       label: "RIDES",
       title: "Complimentary",
       subtitle: "For all guests",
@@ -76,8 +81,12 @@ export default function EventInfo() {
                 hover:-translate-y-1
               "
             >
-              <div className="text-[28px] mb-4">
-                {card.icon}
+              <div className="mb-4 flex items-center justify-center">
+                <img
+                  src={card.icon}
+                  alt={card.label}
+                  className="w-10 h-10 object-contain"
+                />
               </div>
 
               <p className="uppercase tracking-[0.35em] text-[11px] font-semibold text-[#C8922E]">
