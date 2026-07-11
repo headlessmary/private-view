@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 
+import artImage from "../assets/art.jpeg";
+import indulgenceImage from "../assets/indulgence.jpeg";
+
 export default function ReserveTicket() {
   const tickets = [
     {
       label: "THE FULL PRIVATE VIEW EXPERIENCE",
       title: "Art Ticket",
+      image: artImage,
       price: "₦55,000",
       button: "Reserve Art Ticket",
       features: [
@@ -20,6 +24,7 @@ export default function ReserveTicket() {
     {
       label: "EVERYTHING, ELEVATED",
       title: "Indulgence Ticket",
+      image: indulgenceImage,
       price: "₦70,000",
       button: "Reserve Indulgence Ticket",
       features: [
@@ -78,6 +83,12 @@ export default function ReserveTicket() {
               <p className="uppercase tracking-[0.35em] text-[11px] font-semibold text-[#C8922E]">
                 {ticket.label}
               </p>
+
+              <img
+                src={ticket.image}
+                alt={ticket.title}
+                className="mt-5 h-44 w-full rounded-xl object-cover"
+              />
 
               <h3 className="mt-4 font-['Cormorant_Garamond'] text-[#ECE6E0] text-[36px] lg:text-[42px] leading-none font-normal">
                 {ticket.title}
