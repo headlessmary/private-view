@@ -33,7 +33,7 @@ export default function ReserveTicket() {
               <img
                 src={ticket.image}
                 alt={ticket.title}
-                className="w-full rounded-2xl object-cover"
+                className="w-full rounded-2xl object-cover border border-[#24180D]"
               />
 
               <Link
