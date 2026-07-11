@@ -36,78 +36,50 @@ export default function Experience() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-
           {experiences.map((item) => (
             <div
               key={item.title}
               className="
-bg-[#120F0B]
-border border-[#23170E]
-rounded-2xl
-min-h-45
-px-6
-py-8
-flex
-flex-col
-justify-center
-transition-all
-duration-300
-hover:border-[#C8922E]
-hover:bg-[#17120D]
-hover:-translate-y-2
-"
+                bg-[#120F0B]
+                border border-[#23170E]
+                rounded-2xl
+                min-h-55
+                px-6
+                py-8
+                flex
+                flex-col
+                items-center
+                justify-center
+                text-center
+                transition-all
+                duration-300
+                hover:border-[#C8922E]
+                hover:bg-[#17120D]
+                hover:-translate-y-2
+              "
             >
-              <div className="mb-5">
-  <img
-  src={item.image}
-  alt={item.title}
-  className="w-16 h-16 object-contain mb-6"
-  style={{
-    filter:
-      "brightness(0) saturate(100%) invert(69%) sepia(35%) saturate(805%) hue-rotate(7deg) brightness(95%) contrast(90%)",
-  }}
-/>
-</div>
+              <img
+                src={item.image}
+                alt={item.title}
+                className="w-20 h-20 object-contain mb-6"
+                style={{
+                  filter:
+                    "brightness(0) saturate(100%) invert(69%) sepia(35%) saturate(805%) hue-rotate(7deg) brightness(95%) contrast(90%)",
+                }}
+              />
 
-              <h3 className="text-[18px] sm:text-[20px] leading-7 sm:leading-8 font-medium text-[#ECE7E1]">
+              <h3 className="text-[20px] sm:text-[22px] leading-7 font-medium text-[#ECE7E1]">
                 {item.title}
               </h3>
             </div>
           ))}
-
         </div>
 
         {/* Button */}
         <div className="flex justify-center mt-12 sm:mt-14 lg:mt-16">
           <Link
             to="/buy-ticket"
-            className="
-              w-full
-              sm:w-auto
-              flex
-              items-center
-              justify-center
-              px-8
-              sm:px-10
-              lg:px-12
-              h-12
-              sm:h-14
-              rounded-lg
-              bg-linear-to-r
-              from-[#C8922E]
-              via-[#E6B75A]
-              to-[#F4CC80]
-              text-black
-              uppercase
-              tracking-[0.2em]
-              sm:tracking-[0.3em]
-              text-xs
-              sm:text-sm
-              font-semibold
-              transition-all
-              duration-300
-              hover:brightness-110
-            "
+            className="w-full sm:w-auto flex items-center justify-center px-8 sm:px-10 lg:px-12 h-12 sm:h-14 rounded-lg bg-linear-to-r from-[#C8922E] via-[#E6B75A] to-[#F4CC80] text-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm font-semibold transition-all duration-300 hover:brightness-110"
           >
             Reserve My Seat
           </Link>
