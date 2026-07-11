@@ -24,11 +24,11 @@ export default function ReserveTicket() {
     >
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
-        <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-7">
+        <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-6 lg:gap-7">
           {tickets.map((ticket) => (
             <div
               key={ticket.title}
-              className="flex flex-col items-center gap-4"
+              className="flex flex-col items-center gap-4 sm:gap-5"
             >
               <img
                 src={ticket.image}
@@ -44,7 +44,7 @@ export default function ReserveTicket() {
                   max-w-55
                   sm:max-w-65
                   lg:max-w-[320px]
-                  rounded-full
+                  rounded-none
                   bg-linear-to-r
                   from-[#F3D084]
                   via-[#DFA03B]
