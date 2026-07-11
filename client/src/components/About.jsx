@@ -9,7 +9,7 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Section Label */}
-        <p className="uppercase tracking-[0.3em] text-[11px] sm:text-xs lg:text-sm font-semibold text-[#C89A3D] mb-8 lg:mb-12 text-center lg:text-left">
+        <p className="uppercase tracking-[0.35em] text-[12px] sm:text-[12px] lg:text-[13px] font-semibold text-[#C89A3D] mb-8 lg:mb-12 text-center lg:text-left">
   ABOUT THE EVENT
 </p>
 
