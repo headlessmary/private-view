@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  background: #000;
+  font-family: Inter, sans-serif;
+}
+
+.logo {
+  font-family: "Cormorant Garamond", serif;
+}
+
+.font-serif{
+    font-family: "Cormorant Garamond", serif;
+}
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
