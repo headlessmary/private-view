@@ -9,7 +9,7 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Section Label */}
-        <p className="uppercase tracking-[0.35em] text-[12px] sm:text-[12px] lg:text-[13px] font-semibold text-[#C89A3D] mb-8 lg:mb-12 text-center lg:text-left">
+  <p className="uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] mb-8 text-center lg:text-left">
   ABOUT THE EVENT
 </p>
 
@@ -26,7 +26,7 @@ export default function AboutSection() {
 
   <div className="mt-6 lg:mt-8 space-y-5">
 
-    <p className="text-left max-w-none lg:max-w-130 text-[16px] sm:text-[17px] lg:text-[18px] leading-8 text-[#D9D9D9]">
+    <p className="text-left max-w-none lg:max-w-130 text-[16px] sm:text-[18px] lg:text-[18px] leading-8 text-[#D9D9D9]">
       The Private View: Art & Indulgence is an exclusive escape into the world of art,
       elegance, and self-expression; a curated experience where creativity, culture,
       and luxury collide. From captivating artworks and immersive conversations to
@@ -35,7 +35,7 @@ export default function AboutSection() {
       finer side of life.
     </p>
 
-    <p className="text-left max-w-none lg:max-w-130 text-[16px] sm:text-[17px] lg:text-[18px] leading-8 text-[#A9A9A9]">
+    <p className="text-left max-w-none lg:max-w-130 text-[16px] sm:text-[18px] lg:text-[18px] leading-8 text-[#A9A9A9]">
       With complimentary rides to and from the event, every detail is curated to
       give you a seamless experience from arrival to the final moment. A private
       world of aesthetics, energy, and memories waiting to be captured.
