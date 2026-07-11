@@ -39,9 +39,10 @@ export default function ReserveTicket() {
               <Link
                 to="/buy-ticket"
                 className="
-                  h-13
+                  h-11
                   w-full
-                  max-w-70
+                  max-w-55
+                  sm:max-w-65
                   lg:max-w-[320px]
                   rounded-full
                   bg-linear-to-r
