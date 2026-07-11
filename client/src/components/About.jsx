@@ -19,9 +19,7 @@ export default function AboutSection() {
          <div className="max-w-full lg:max-w-155">
 
   <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left">
-    An escape into art,
-    <br />
-    elegance & self-expression
+    An escape into art,elegance & self-expression
   </h2>
 
   <div className="mt-6 lg:mt-8 space-y-5">
