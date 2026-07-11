@@ -59,10 +59,14 @@ hover:-translate-y-2
             >
               <div className="mb-5">
   <img
-    src={item.image}
-    alt={item.title}
-    className="w-12 h-12 object-contain"
-  />
+  src={item.image}
+  alt={item.title}
+  className="w-16 h-16 object-contain mb-6"
+  style={{
+    filter:
+      "brightness(0) saturate(100%) invert(69%) sepia(35%) saturate(805%) hue-rotate(7deg) brightness(95%) contrast(90%)",
+  }}
+/>
 </div>
 
               <h3 className="text-[18px] sm:text-[20px] leading-7 sm:leading-8 font-medium text-[#ECE7E1]">
