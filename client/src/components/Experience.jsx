@@ -64,7 +64,7 @@ export default function Experience() {
                 className="w-20 h-20 object-contain mb-6"
                 style={{
                   filter:
-                    "brightness(0) saturate(100%) invert(69%) sepia(35%) saturate(805%) hue-rotate(7deg) brightness(95%) contrast(90%)",
+                    "brightness(0) saturate(100%) invert(61%) sepia(93%) saturate(392%) hue-rotate(7deg) brightness(97%) contrast(92%)",
                 }}
               />
 
