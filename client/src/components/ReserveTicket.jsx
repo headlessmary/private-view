@@ -43,7 +43,8 @@ export default function ReserveTicket() {
                   w-full
                   max-w-55
                   sm:max-w-65
-                  lg:max-w-[320px]
+                  lg:max-w-90
+                  xl:max-w-95
                   rounded-none
                   bg-linear-to-r
                   from-[#F3D084]
