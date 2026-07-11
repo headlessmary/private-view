@@ -83,13 +83,6 @@ export default function BuyTicket() {
           <h1 className="mt-4 font-serif text-[#d4a24d] text-4xl sm:text-5xl lg:text-6xl">
             The Private View
           </h1>
-
-          <p className="mt-4 text-gray-400 text-base sm:text-lg">
-            <span className="text-white font-semibold">{settings.maxCapacity || 60}</span>{" "}
-            of{" "}
-            <span className="text-white font-semibold">{settings.maxCapacity || 60}</span>{" "}
-            tickets remaining.
-          </p>
         </div>
 
         <div className="mt-10 bg-[#0b0907] border border-[#22170a] rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(0,0,0,.45)]">
