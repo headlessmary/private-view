@@ -32,6 +32,10 @@ const login = async (req, res) => {
       },
     });
 
+
+console.log("Login email:", email);
+console.log("Admin found:", admin);
+
     if (!admin) {
       return res.status(401).json({
         success: false,
