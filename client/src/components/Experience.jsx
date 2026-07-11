@@ -17,13 +17,13 @@ export default function Experience() {
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <h4 className="uppercase tracking-[0.35em] text-[5px] sm:text-[12px] font-semibold text-[#C89A3D] mb-8 lg:mb-12 text-center lg:text-center">
-           Event Highlights
-        </h4>
-        
-        <p className="text-center font-['Cormorant_Garamond'] text-[#C8922E] text-[40px] sm:text-[48px] md:text-[56px] lg:text-[60px] leading-none font-normal mb-10 sm:mb-12 lg:mb-14">
-          The Experience
+        <p className="uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] mb-8 text-center lg:text-left">
+         Event Highlights
         </p>
+        
+        <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left">
+        The Experience
+        </h2>
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
