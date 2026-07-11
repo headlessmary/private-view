@@ -6,6 +6,8 @@ const ticketRoutes = require("./routes/ticketRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const path = require("path");
 const adminRoutes = require("./routes/adminRoutes");
+const testRoutes = require("./routes/testRoutes");
+
 
 const app = express();
 
@@ -51,6 +53,7 @@ app.post("/test", (req, res) => {
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api", testRoutes);
 
 
 // 404
