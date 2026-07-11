@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
+import API_URL from "../../config/api";
 
 export default function QRScanner() {
   const [message, setMessage] = useState("");
@@ -50,7 +51,7 @@ const playError = () => {
     try {
       const token = localStorage.getItem("adminToken");
 
-      const response = await fetch("http://localhost:5000/api/admin/check-in", {
+      const response = await fetch(`${API_URL}/api/admin/check-in`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

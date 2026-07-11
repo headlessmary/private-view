@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 
 export default function Attendees() {
   const [attendees, setAttendees] = useState([]);
@@ -10,14 +11,11 @@ export default function Attendees() {
     try {
       const token = localStorage.getItem("adminToken");
 
-      const response = await fetch(
-        "http://localhost:5000/api/admin/attendees",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+     const response = await fetch(`${API_URL}/api/admin/attendees`, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
       const data = await response.json();
 
@@ -47,19 +45,16 @@ export default function Attendees() {
     try {
       const token = localStorage.getItem("adminToken");
 
-      const response = await fetch(
-        "http://localhost:5000/api/admin/check-in",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            reference,
-          }),
-        }
-      );
+    const response = await fetch(`${API_URL}/api/admin/check-in`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({
+    reference,
+  }),
+});
 
       const data = await response.json();
 

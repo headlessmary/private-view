@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEventSettings } from "../services/eventSettings";
+import API_URL from "../config/api";
 
 export default function BuyTicket() {
   const [settings, setSettings] = useState(getEventSettings);
@@ -45,17 +46,17 @@ export default function BuyTicket() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/tickets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...form,
-          amount: selectedPrice,
-        }),
-      });
-
+     
+     const response = await fetch(`${API_URL}/api/tickets`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    ...form,
+    amount: selectedPrice,
+  }),
+});
       const data = await response.json();
 
       if (!response.ok) {

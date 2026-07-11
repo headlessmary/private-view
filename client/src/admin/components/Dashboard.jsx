@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import API_URL from "../../config/api";
 import {
   Area,
   AreaChart,
@@ -38,7 +39,7 @@ export default function Dashboard() {
   const fetchAttendees = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
 
-    const response = await fetch("http://localhost:5000/api/admin/attendees", {
+    const response = await fetch(`${API_URL}/api/admin/attendees`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -55,7 +56,7 @@ export default function Dashboard() {
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/admin/dashboard", {
+      const response = await fetch(`${API_URL}/api/admin/dashboard`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
@@ -85,7 +86,7 @@ export default function Dashboard() {
       await fetchAttendees();
     };
 
-    const socket = io("http://localhost:5000", {
+    const socket = io(API_URL, {
       transports: ["websocket"],
       reconnection: true,
     });
@@ -162,7 +163,7 @@ export default function Dashboard() {
   const checkInData = [{ name: "Check-in", value: checkInPercent, fill: "#f1ca7b" }];
 
   const downloadFile = async (type) => {
-    const response = await fetch(`http://localhost:5000/api/admin/export/${type}`, {
+    const response = await fetch(`${API_URL}/api/admin/export/${type}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
       },
@@ -191,7 +192,7 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000${selectedAttendee.qrCode}`, {
+      const response = await fetch(`${API_URL}${selectedAttendee.qrCode}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
@@ -221,7 +222,7 @@ export default function Dashboard() {
       setSendingEmail(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/admin/resend-ticket",
+        `${API_URL}/api/admin/resend-ticket`,
         {
           method: "POST",
           headers: {
@@ -255,7 +256,7 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/admin/resend-ticket", {
+      const response = await fetch(`${API_URL}/api/admin/resend-ticket`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

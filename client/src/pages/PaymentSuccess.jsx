@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import API_URL from "../config/api";
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -20,8 +21,8 @@ export default function PaymentSuccess() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/payment/verify/${reference}`
-        );
+  `${API_URL}/api/payment/verify/${reference}`
+);
 
         const data = await response.json();
 
