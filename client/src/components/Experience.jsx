@@ -76,13 +76,14 @@ export default function Experience() {
         </div>
 
         {/* Button */}
-        <div className="flex justify-center mt-12 sm:mt-14 lg:mt-16">
-          <Link
-            to="/buy-ticket"
-            className="w-full sm:w-auto flex items-center justify-center px-8 sm:px-10 lg:px-12 h-12 sm:h-14 rounded-lg bg-linear-to-r from-[#C8922E] via-[#E6B75A] to-[#F4CC80] text-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm font-semibold transition-all duration-300 hover:brightness-110"
-          >
-            Reserve My Seat
-          </Link>
+        <div className="mt-8 flex flex-col sm:flex-row items-center lg:items-start gap-5 text-center lg:text-left">
+         <Link
+  to="/buy-ticket"
+  className="inline-flex w-auto bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 justify-center"
+>
+  Reserve Ticket
+</Link>
+
         </div>
 
       </div>
