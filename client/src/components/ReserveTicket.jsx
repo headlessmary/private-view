@@ -41,7 +41,9 @@ export default function ReserveTicket() {
                 className="
                   h-13
                   w-full
-                  rounded-lg
+                  max-w-70
+                  lg:max-w-[320px]
+                  rounded-full
                   bg-linear-to-r
                   from-[#F3D084]
                   via-[#DFA03B]
@@ -50,14 +52,16 @@ export default function ReserveTicket() {
                   items-center
                   justify-center
                   uppercase
-                  tracking-[0.28em]
+                  tracking-[0.24em]
                   text-black
-                  text-xs
+                  text-[11px]
                   sm:text-sm
                   font-semibold
+                  shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_12px_30px_rgba(223,160,59,0.25)]
                   transition-all
                   duration-300
                   hover:brightness-110
+                  hover:-translate-y-0.5
                 "
               >
                 {ticket.button}
