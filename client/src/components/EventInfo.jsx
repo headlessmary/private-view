@@ -86,6 +86,10 @@ export default function EventInfo() {
                   src={card.icon}
                   alt={card.label}
                   className="w-10 h-10 object-contain"
+                  style={{
+                    filter:
+                      "brightness(0) saturate(100%) invert(69%) sepia(35%) saturate(805%) hue-rotate(7deg) brightness(95%) contrast(90%)",
+                  }}
                 />
               </div>
 
