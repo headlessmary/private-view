@@ -47,12 +47,13 @@ export default function EventInfo() {
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <p className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left">
-        EVENT INFORMATION
+        <p className="uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] mb-8 text-center lg:text-left">
+        
+         EVENT INFORMATION
         </p>
-
-        <h2 className="text-center font-['Cormorant_Garamond'] text-[#C8922E] text-[40px] sm:text-[48px] md:text-[56px] lg:text-[60px] leading-none font-normal mb-10 sm:mb-12 lg:mb-14">
-          Everything you need to know
+<h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left mb-10 lg:mb-14">
+ 
+         Everything you need to know
         </h2>
 
         {/* Cards */}
