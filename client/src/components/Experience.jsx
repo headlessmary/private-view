@@ -1,14 +1,23 @@
 import { Link } from "react-router-dom";
 
+import art from "../assets/experience/art.png";
+import cocktail from "../assets/experience/cocktail.png";
+import music from "../assets/experience/music.png";
+import camera from "../assets/experience/camera.png";
+import paint from "../assets/experience/paint.png";
+import tattoo from "../assets/experience/tattoo.png";
+import performance from "../assets/experience/performance.png";
+import ride from "../assets/experience/ride.png";
+
 const experiences = [
-  { icon: "🎨", title: "Art Exhibition" },
-  { icon: "🍸", title: "Signature Cocktails" },
-  { icon: "🎵", title: "Music by DJ Switchy" },
-  { icon: "📸", title: "360° Camera" },
-  { icon: "🖌️", title: "Sip & Paint" },
-  { icon: "🖋️", title: "Tattoos by Wicked Unclevee" },
-  { icon: "🎤", title: "Live Performances" },
-  { icon: "🚗", title: "Complimentary Rides" },
+  { image: art, title: "Art Exhibition" },
+  { image: cocktail, title: "Signature Cocktails" },
+  { image: music, title: "Music by DJ Switchy" },
+  { image: camera, title: "360° Camera" },
+  { image: paint, title: "Sip & Paint" },
+  { image: tattoo, title: "Tattoos by Wicked Unclevee" },
+  { image: performance, title: "Live Performances" },
+  { image: ride, title: "Complimentary Rides" },
 ];
 
 export default function Experience() {
@@ -21,9 +30,9 @@ export default function Experience() {
          Event Highlights
         </p>
         
-        <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left">
-        The Experience
-        </h2>
+       <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left mb-10 lg:mb-14">
+  The Experience
+</h2>
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -32,28 +41,29 @@ export default function Experience() {
             <div
               key={item.title}
               className="
-                bg-[#120F0B]
-                border
-                border-[#23170E]
-                rounded-2xl
-                min-h-35
-                sm:min-h-36.25
-                px-5
-                sm:px-6
-                py-6
-                sm:py-7
-                flex
-                flex-col
-                justify-center
-                transition-all
-                duration-300
-                hover:border-[#C8922E]
-                hover:-translate-y-1
-              "
+bg-[#120F0B]
+border border-[#23170E]
+rounded-2xl
+min-h-45
+px-6
+py-8
+flex
+flex-col
+justify-center
+transition-all
+duration-300
+hover:border-[#C8922E]
+hover:bg-[#17120D]
+hover:-translate-y-2
+"
             >
-              <div className="text-[28px] sm:text-[30px] mb-4 sm:mb-5">
-                {item.icon}
-              </div>
+              <div className="mb-5">
+  <img
+    src={item.image}
+    alt={item.title}
+    className="w-12 h-12 object-contain"
+  />
+</div>
 
               <h3 className="text-[18px] sm:text-[20px] leading-7 sm:leading-8 font-medium text-[#ECE7E1]">
                 {item.title}
