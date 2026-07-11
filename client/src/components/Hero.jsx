@@ -62,17 +62,20 @@ export default function HeroSection() {
           <div className="w-full max-w-xl mx-auto lg:mx-0">
 
             {/* Badge */}
-            <div className="inline-block border border-[#C89A3D]/40 px-4 py-2">
-  <p className="text-[10px] md:text-[11px] uppercase tracking-[0.28em] font-medium text-[#C89A3D]">
-                Exclusive Party • Limited Tickets
-              </p>
-            </div>
+               <div className="flex justify-center lg:justify-start">
+  <div className="inline-block border border-[#C89A3D]/40 px-4 py-2">
+    <p className="text-[10px] md:text-[11px] uppercase tracking-[0.28em] font-medium text-[#C89A3D] text-center">
+      Exclusive Party • Limited Tickets
+    </p>
+  </div>
+</div>
 
-            {/* Title */}
+            
              {/* Title */}
-<h1 className="mt-8 font-['Cormorant_Garamond'] text-[#C89A3D] leading-tight">
+
+       <h1 className="mt-8 font-['Cormorant_Garamond'] text-[#C89A3D] leading-tight text-center lg:text-left">
   {/* Mobile */}
-  <span className="block sm:hidden text-3xl">
+  <span className="block sm:hidden text-[28px] whitespace-nowrap">
     The Private View: Art & Indulgence
   </span>
 
@@ -86,12 +89,11 @@ export default function HeroSection() {
       Art & Indulgence
     </span>
   </>
-</h1>
-
+</h1>      
             {/* Event Details */}
            
            <div className="mt-6 space-y-5 text-center lg:text-left">
-<div className="mt-6 flex items-center justify-between sm:justify-start gap-4 sm:gap-6 text-[10px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium text-[#A6A6A6] whitespace-nowrap">
+<div className="mt-6 flex items-center justify-center lg:justify-start gap-3 sm:gap-6 text-[10px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.18em] font-medium text-[#A6A6A6] whitespace-nowrap">
  <div className="flex items-center gap-2">
     <img
       src={calendarIcon}
@@ -120,7 +122,7 @@ export default function HeroSection() {
 
 </div>
 
-  <p className="mx-auto lg:mx-0 max-w-md lg:max-w-xl text-base sm:text-lg lg:text-2xl leading-7 lg:leading-9 font-light text-[#D9D9D9]">
+  <p className="mx-auto lg:mx-0 max-w-md lg:max-w-xl text-center lg:text-left text-base sm:text-lg lg:text-2xl leading-7 lg:leading-9 font-light text-[#D9D9D9]">
     Only <span className="text-[#C89A3D] font-medium">{settings.maxCapacity || 60} guests.</span> One
     night of art, sound, ink and indulgence presented by{" "}
     <span className="text-[#C89A3D] font-medium">
