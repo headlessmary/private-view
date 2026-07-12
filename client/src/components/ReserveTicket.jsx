@@ -57,33 +57,35 @@ export default function ReserveTicket() {
               <Link
                 to="/buy-ticket"
                 className={`
-                  h-10
+                  flex
+                  h-12
                   w-full
-                  max-w-56
+                  max-w-[16rem]
+                  items-center
+                  justify-center
                   rounded-none
                   bg-linear-to-r
                   from-[#F3D084]
                   via-[#DFA03B]
                   to-[#F2D28D]
-                  flex
-                  items-center
-                  justify-center
-                  px-3
+                  px-4
                   text-center
+                  text-[10px]
+                  font-semibold
                   uppercase
                   tracking-[0.16em]
                   text-black
-                  text-[10px]
-                  sm:h-11
-                  sm:max-w-[16rem]
-                  sm:px-4
-                  sm:text-[11px]
-                  lg:max-w-[18rem]
-                  lg:text-sm
-                  font-semibold
                   shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_12px_30px_rgba(223,160,59,0.25)]
                   transition-all
                   duration-500
+                  sm:h-14
+                  sm:max-w-[18rem]
+                  sm:px-6
+                  sm:text-[11px]
+                  lg:h-14
+                  lg:max-w-[20rem]
+                  lg:px-8
+                  lg:text-sm
                   ${isVisible ? "translate-y-0 opacity-100 animate-[ticketFadeUp_0.95s_ease-out_both]" : "translate-y-6 opacity-0"}
                   hover:brightness-110
                   hover:-translate-y-0.5

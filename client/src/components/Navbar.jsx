@@ -54,7 +54,7 @@ export default function Navbar() {
   <div className="hidden lg:flex justify-end">
     <Link
       to="/buy-ticket"
-      className="bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.22em] text-[12px] font-semibold px-7 py-3 transition duration-300"
+      className="min-w-[14rem] rounded-none bg-[#D8A74E] px-8 py-4 text-center text-[12px] font-semibold uppercase tracking-[0.22em] text-black transition duration-300 hover:bg-[#C89A3D] sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[13px] lg:min-w-[16.5rem] lg:px-12 lg:py-5 lg:text-[14px]"
     >
       Reserve Ticket
     </Link>
@@ -112,7 +112,7 @@ export default function Navbar() {
           <Link
             to="/buy-ticket"
             onClick={() => setOpen(false)}
-           className="block w-full mt-8 bg-[#D8A74E] text-black text-center uppercase tracking-[0.22em] text-[12px] font-semibold py-3 hover:bg-[#C89A3D] transition"
+           className="mt-8 block w-full rounded-none bg-[#D8A74E] px-8 py-4 text-center text-[12px] font-semibold uppercase tracking-[0.22em] text-black transition hover:bg-[#C89A3D] sm:px-10 sm:py-4 sm:text-[13px]"
           >
             Reserve Ticket
           </Link>
