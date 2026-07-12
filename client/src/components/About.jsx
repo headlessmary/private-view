@@ -32,7 +32,7 @@ export default function AboutSection() {
           {/* Text */}
          <div className="max-w-full lg:max-w-155">
  
-       <h2 className="mb-10 font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] text-center sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[experienceFadeUp_0.7s_ease-out_0.1s_both]">
+       <h2 className="mb-10 font-['Cormorant_Garamond'] text-[28px] leading-tight text-[#C89A3D] text-center sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[experienceFadeUp_0.7s_ease-out_0.1s_both]">
     An escape into art,elegance & self-expression
   </h2>
 
@@ -62,7 +62,7 @@ export default function AboutSection() {
   <img
     src={flyer}
     alt="The Private View Flyer"
-    className="w-full max-w-[320px] rounded-3xl sm:max-w-90 sm:rounded-[28px] md:max-w-105 lg:max-w-140 lg:w-190 animate-[fadeInUp_1s_ease-out_0.25s_both]"
+    className="w-full max-w-90 rounded-3xl sm:max-w-105 sm:rounded-[28px] md:max-w-115 lg:max-w-140 lg:w-190 animate-[fadeInUp_1s_ease-out_0.25s_both]"
   />
 </div>
 
