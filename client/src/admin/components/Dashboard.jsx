@@ -333,9 +333,9 @@ export default function Dashboard() {
             : "Good Evening,"}
         </h2>
 
-        <p className="text-[#d4a24d] mt-2 text-lg">Administrator</p>
+        <p className="text-[#d4a24d] mt-2 text-lg sm:text-xl">Administrator</p>
 
-        <p className="text-gray-500 mt-1">
+        <p className="text-gray-500 mt-1 text-sm sm:text-base">
           {new Date().toLocaleDateString("en-NG", {
             weekday: "long",
             month: "long",
