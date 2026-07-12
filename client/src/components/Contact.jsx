@@ -34,7 +34,7 @@ export default function ContactPage() {
               {/* Phone */}
               <div className="bg-[#120F0B] border border-[#22170D] rounded-2xl p-5 flex items-center gap-4">
 
-                <FaPhoneAlt className="text-[#D83B8A] text-2xl sm:text-3xl shrink-0" />
+                <FaPhoneAlt className="text-[#C89A3D] text-2xl sm:text-3xl shrink-0" />
 
                 <div>
                   <p className="uppercase tracking-[0.28em] text-[11px] sm:text-[12px] text-[#C89A3D]">
@@ -59,7 +59,7 @@ export default function ContactPage() {
                 className="bg-[#120F0B] border border-[#22170D] rounded-2xl p-5 flex items-center gap-4 no-underline hover:border-[#C89A3D] transition"
               >
 
-                <FaWhatsapp className="text-[#7DDA6A] text-2xl sm:text-3xl shrink-0" />
+                <FaWhatsapp className="text-[#C89A3D] text-2xl sm:text-3xl shrink-0" />
 
                 <div>
                   <p className="uppercase tracking-[0.28em] text-[11px] sm:text-[12px] text-[#C89A3D]">
@@ -81,7 +81,7 @@ export default function ContactPage() {
                 className="bg-[#120F0B] border border-[#22170D] rounded-2xl p-5 flex items-center gap-4 no-underline hover:border-[#C89A3D] transition"
               >
 
-                <FaInstagram className="text-[#F56040] text-2xl sm:text-3xl shrink-0" />
+                <FaInstagram className="text-[#C89A3D] text-2xl sm:text-3xl shrink-0" />
 
                 <div>
                   <p className="uppercase tracking-[0.28em] text-[11px] sm:text-[12px] text-[#C89A3D]">
