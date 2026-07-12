@@ -50,7 +50,7 @@ export default function EventInfo() {
         @keyframes eventInfoFadeUp {
           from {
             opacity: 0;
-            transform: translateY(18px);
+            transform: translateY(24px);
           }
           to {
             opacity: 1;
@@ -63,10 +63,10 @@ export default function EventInfo() {
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[11px] font-semibold text-[#C89A3D] transition-all duration-700 sm:text-[12px] lg:text-left ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_0.6s_ease-out_both]" : "translate-y-6 opacity-0"}`}>
+        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[11px] font-semibold text-[#C89A3D] transition-all duration-1000 sm:text-[12px] lg:text-left ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_0.9s_ease-out_both]" : "translate-y-6 opacity-0"}`}>
           EVENT INFORMATION
         </p>
-        <h2 className={`mx-auto mb-10 max-w-3xl text-center font-['Cormorant_Garamond'] text-[30px] leading-tight text-[#C89A3D] transition-all duration-700 sm:text-[38px] md:text-[44px] lg:mx-0 lg:mb-14 lg:max-w-none lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_0.7s_ease-out_0.1s_both]" : "translate-y-6 opacity-0"}`}>
+        <h2 className={`mx-auto mb-10 max-w-3xl text-center font-['Cormorant_Garamond'] text-[30px] leading-tight text-[#C89A3D] transition-all duration-1000 sm:text-[38px] md:text-[44px] lg:mx-0 lg:mb-14 lg:max-w-none lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_1s_ease-out_0.1s_both]" : "translate-y-6 opacity-0"}`}>
           Everything you need to know
         </h2>
 
@@ -93,7 +93,7 @@ export default function EventInfo() {
                 sm:min-h-48
                 sm:px-6
                 lg:min-h-52
-                ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_0.8s_ease-out_both]" : "translate-y-6 opacity-0"}
+                ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_1.1s_ease-out_both]" : "translate-y-6 opacity-0"}
                 hover:-translate-y-1
                 hover:border-[#C8922E]
               `}

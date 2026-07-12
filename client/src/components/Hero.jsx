@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import image from "../assets/hero.jpg";
 import calendarIcon from "../assets/icon-calendar.png";
 import locationIcon from "../assets/icon-location.png";
-import { formatEventTime, getEventSettings } from "../services/eventSettings";
+import {  getEventSettings } from "../services/eventSettings";
 
 export default function HeroSection() {
   const [settings, setSettings] = useState(getEventSettings);
@@ -59,7 +59,7 @@ export default function HeroSection() {
         @keyframes heroFadeUp {
           from {
             opacity: 0;
-            transform: translateY(24px);
+            transform: translateY(28px);
           }
           to {
             opacity: 1;
@@ -68,11 +68,11 @@ export default function HeroSection() {
         }
 
         .hero-animate {
-          animation: heroFadeUp 0.8s ease-out both;
+          animation: heroFadeUp 1.05s ease-out both;
         }
 
         .hero-animate-delay {
-          animation: heroFadeUp 0.95s ease-out 0.15s both;
+          animation: heroFadeUp 1.2s ease-out 0.16s both;
         }
       `}</style>
 

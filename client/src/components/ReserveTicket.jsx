@@ -26,7 +26,7 @@ export default function ReserveTicket() {
         @keyframes ticketFadeUp {
           from {
             opacity: 0;
-            transform: translateY(16px);
+            transform: translateY(22px);
           }
           to {
             opacity: 1;
@@ -83,8 +83,8 @@ export default function ReserveTicket() {
                   font-semibold
                   shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_12px_30px_rgba(223,160,59,0.25)]
                   transition-all
-                  duration-300
-                  ${isVisible ? "translate-y-0 opacity-100 animate-[ticketFadeUp_0.6s_ease-out_both]" : "translate-y-6 opacity-0"}
+                  duration-500
+                  ${isVisible ? "translate-y-0 opacity-100 animate-[ticketFadeUp_0.95s_ease-out_both]" : "translate-y-6 opacity-0"}
                   hover:brightness-110
                   hover:-translate-y-0.5
                 `}

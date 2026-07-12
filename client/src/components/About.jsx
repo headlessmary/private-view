@@ -10,7 +10,7 @@ export default function AboutSection() {
         @keyframes fadeInUp {
           from {
             opacity: 0;
-            transform: translateY(24px);
+            transform: translateY(28px);
           }
           to {
             opacity: 1;
@@ -36,11 +36,11 @@ export default function AboutSection() {
           {/* Text */}
          <div className="max-w-full lg:max-w-155">
  
-       <h2 className={`mb-10 font-['Cormorant_Garamond'] text-[28px] leading-tight text-[#C89A3D] text-center transition-all duration-700 sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "translate-y-0 opacity-100 animate-[fadeInUp_0.7s_ease-out_0.1s_both]" : "translate-y-6 opacity-0"}`}>
+       <h2 className={`mb-10 font-['Cormorant_Garamond'] text-[28px] leading-tight text-[#C89A3D] text-center transition-all duration-1000 sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "translate-y-0 opacity-100 animate-[fadeInUp_0.95s_ease-out_0.1s_both]" : "translate-y-6 opacity-0"}`}>
     An escape into art,elegance & self-expression
   </h2>
 
-  <div className={`mt-6 space-y-5 transition-all duration-700 lg:mt-8 ${isVisible ? "translate-y-0 opacity-100 animate-[fadeInUp_1s_ease-out_0.15s_both]" : "translate-y-6 opacity-0"}`}>
+  <div className={`mt-6 space-y-5 transition-all duration-1000 lg:mt-8 ${isVisible ? "translate-y-0 opacity-100 animate-[fadeInUp_1.1s_ease-out_0.15s_both]" : "translate-y-6 opacity-0"}`}>
 
     <p className="max-w-none text-left text-[15px] leading-7 text-[#D9D9D9] sm:text-[16px] sm:leading-8 lg:max-w-130 lg:text-[18px]">
       The Private View: Art & Indulgence is an exclusive escape into the world of art,
@@ -66,7 +66,7 @@ export default function AboutSection() {
   <img
     src={flyer}
     alt="The Private View Flyer"
-    className={`w-full max-w-90 rounded-3xl transition-all duration-700 sm:max-w-105 sm:rounded-[28px] md:max-w-115 lg:max-w-140 lg:w-190 ${isVisible ? "translate-y-0 opacity-100 animate-[fadeInUp_1s_ease-out_0.25s_both]" : "translate-y-6 opacity-0"}`}
+    className={`w-full max-w-90 rounded-3xl transition-all duration-1000 sm:max-w-105 sm:rounded-[28px] md:max-w-115 lg:max-w-140 lg:w-190 ${isVisible ? "translate-y-0 opacity-100 animate-[fadeInUp_1.2s_ease-out_0.25s_both]" : "translate-y-6 opacity-0"}`}
   />
 </div>
 

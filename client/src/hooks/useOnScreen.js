@@ -2,32 +2,38 @@ import { useEffect, useRef, useState } from "react";
 
 export default function useOnScreen() {
   const ref = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 767px)").matches;
+  });
 
   useEffect(() => {
     const node = ref.current;
 
     if (!node) return undefined;
 
-    const handleScroll = () => {
-      const rect = node.getBoundingClientRect();
-      const shouldShow = rect.top < window.innerHeight * 0.9 && rect.bottom > 0;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    if (isMobile) {
+      setIsVisible(true);
+      return undefined;
+    }
 
-      if (shouldShow) {
-        setIsVisible(true);
-        window.removeEventListener("scroll", handleScroll);
-        window.removeEventListener("resize", handleScroll);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -6% 0px",
       }
-    };
+    );
 
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll);
+    observer.observe(node);
 
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
+    return () => observer.disconnect();
   }, []);
 
   return [ref, isVisible];
