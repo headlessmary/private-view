@@ -23,7 +23,7 @@ router.get("/test-email", async (req, res) => {
   try {
     await sendTicketEmail({
       fullName: "Joy Kuroko",
-      email: process.env.EMAIL_USER, 
+      email: process.env.MAIL_USER, 
       ticketType: "VIP",
       reference: "PV-TEST-001",
       qrCode: "/uploads/qr/test.png",
