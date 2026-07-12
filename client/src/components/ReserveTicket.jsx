@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 
 import artImage from "../assets/art.jpeg";
+import useOnScreen from "../hooks/useOnScreen";
 import indulgenceImage from "../assets/indulgence.jpeg";
 
 export default function ReserveTicket() {
+  const [ref, isVisible] = useOnScreen();
+
   const tickets = [
     {
       title: "Art Ticket",
@@ -34,6 +37,7 @@ export default function ReserveTicket() {
 
     <section
       id="tickets"
+      ref={ref}
       className="bg-black py-16 sm:py-20 lg:py-24"
     >
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
@@ -80,7 +84,7 @@ export default function ReserveTicket() {
                   shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_12px_30px_rgba(223,160,59,0.25)]
                   transition-all
                   duration-300
-                  animate-[ticketFadeUp_0.6s_ease-out_both]
+                  ${isVisible ? "animate-[ticketFadeUp_0.6s_ease-out_both]" : "opacity-0"}
                   hover:brightness-110
                   hover:-translate-y-0.5
                 "

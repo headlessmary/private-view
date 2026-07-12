@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import art from "../assets/art.png";
+import useOnScreen from "../hooks/useOnScreen";
 import cocktail from "../assets/cocktail.png";
 import music from "../assets/music.png";
 import camera from "../assets/camera.png";
@@ -21,6 +22,8 @@ const experiences = [
 ];
 
 export default function Experience() {
+  const [ref, isVisible] = useOnScreen();
+
   return (
     <>
       <style>{`
@@ -36,15 +39,15 @@ export default function Experience() {
         }
       `}</style>
 
-    <section id="experience" className="bg-black py-16 sm:py-20 lg:py-24 xl:py-20">
+    <section id="experience" ref={ref} className="bg-black py-16 sm:py-20 lg:py-24 xl:py-20">
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <p className="mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] lg:text-left animate-[experienceFadeUp_0.6s_ease-out_both]">
+        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] lg:text-left ${isVisible ? "animate-[experienceFadeUp_0.6s_ease-out_both]" : "opacity-0"}`}>
          Event Highlights
         </p>
         
-       <h2 className="mb-10 font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] text-center sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[experienceFadeUp_0.7s_ease-out_0.1s_both]">
+       <h2 className={`mb-10 font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] text-center sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "animate-[experienceFadeUp_0.7s_ease-out_0.1s_both]" : "opacity-0"}`}>
   The Experience
 </h2>
 
@@ -67,7 +70,7 @@ export default function Experience() {
                 text-center
                 transition-all
                 duration-300
-                animate-[experienceFadeUp_0.8s_ease-out_both]
+                ${isVisible ? "animate-[experienceFadeUp_0.8s_ease-out_both]" : "opacity-0"}
                 hover:border-[#C8922E]
                 hover:bg-[#17120D]
                 hover:-translate-y-2
@@ -94,7 +97,7 @@ export default function Experience() {
         <div className="mt-8 flex flex-col sm:flex-row items-center lg:items-start gap-5 text-center lg:text-left">
          <Link
   to="/buy-ticket"
-  className="inline-flex w-auto animate-[experienceFadeUp_0.9s_ease-out_0.2s_both] bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 justify-center"
+  className={`inline-flex w-auto ${isVisible ? "animate-[experienceFadeUp_0.9s_ease-out_0.2s_both]" : "opacity-0"} bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 justify-center`}
 >
   Reserve Ticket
 </Link>

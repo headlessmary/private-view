@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatEventTime, getEventSettings } from "../services/eventSettings";
+import useOnScreen from "../hooks/useOnScreen";
 
 import calendar from "../assets/icon-calendar.png";
 import location from "../assets/icon-location.png";
@@ -8,6 +9,7 @@ import rides from "../assets/ride.png";
 
 export default function EventInfo() {
   const [settings, setSettings] = useState(getEventSettings);
+  const [ref, isVisible] = useOnScreen();
 
   useEffect(() => {
     const handleSettingsUpdate = () => setSettings(getEventSettings());
@@ -57,15 +59,15 @@ export default function EventInfo() {
         }
       `}</style>
 
-    <section id="event-info" className="bg-black py-16 sm:py-20 lg:py-24">
+    <section id="event-info" ref={ref} className="bg-black py-16 sm:py-20 lg:py-24">
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <p className="mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] lg:text-left animate-[eventInfoFadeUp_0.6s_ease-out_both]">
+        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] lg:text-left ${isVisible ? "animate-[eventInfoFadeUp_0.6s_ease-out_both]" : "opacity-0"}`}>
         
          EVENT INFORMATION
         </p>
-<h2 className="mb-10 text-center font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[eventInfoFadeUp_0.7s_ease-out_0.1s_both]">
+<h2 className={`mb-10 text-center font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "animate-[eventInfoFadeUp_0.7s_ease-out_0.1s_both]" : "opacity-0"}`}>
  
          Everything you need to know
         </h2>
@@ -92,7 +94,7 @@ export default function EventInfo() {
                 text-center
                 transition-all
                 duration-300
-                animate-[eventInfoFadeUp_0.8s_ease-out_both]
+                ${isVisible ? "animate-[eventInfoFadeUp_0.8s_ease-out_both]" : "opacity-0"}
                 hover:border-[#C8922E]
                 hover:-translate-y-1
               "
