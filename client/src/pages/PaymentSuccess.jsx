@@ -11,18 +11,26 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     const verifyPayment = async () => {
-      const reference = searchParams.get("reference");
+      const status = searchParams.get("status");
+      const transactionId = searchParams.get("transaction_id");
 
-      if (!reference) {
-        setMessage("Payment reference is missing.");
+      if (!transactionId) {
+        setMessage("Transaction ID is missing.");
+        setLoading(false);
+        return;
+      }
+
+      // Flutterwave sends "cancelled" if user cancels payment
+      if (status === "cancelled") {
+        setMessage("Payment was cancelled.");
         setLoading(false);
         return;
       }
 
       try {
         const response = await fetch(
-  `${API_URL}/api/payment/verify/${reference}`
-);
+          `${API_URL}/api/payment/verify/${transactionId}`
+        );
 
         const data = await response.json();
 
@@ -30,13 +38,10 @@ export default function PaymentSuccess() {
           throw new Error(data.message || "Payment verification failed.");
         }
 
-        if (data.success) {
-          setSuccess(true);
-          setMessage(data.message || "Payment verified successfully.");
-        } else {
-          setSuccess(false);
-          setMessage(data.message || "Payment verification failed.");
-        }
+        setSuccess(true);
+        setMessage(
+          data.message || "Payment verified successfully."
+        );
       } catch (error) {
         console.error(error);
         setSuccess(false);
@@ -85,7 +90,7 @@ export default function PaymentSuccess() {
 
             <p className="mt-4 text-gray-400">
               Your QR ticket has been generated successfully.
-              Please check your inbox if email delivery is enabled.
+              Please check your email for your ticket.
             </p>
 
             <Link
@@ -103,9 +108,7 @@ export default function PaymentSuccess() {
               Payment Failed
             </h1>
 
-            <p className="mt-6 text-gray-400">
-              {message || "We couldn't verify your payment. Please contact support if your account has been debited."}
-            </p>
+            <p className="mt-6 text-gray-400">{message}</p>
 
             <Link
               to="/buy-ticket"

@@ -35,44 +35,44 @@ export default function BuyTicket() {
 
   const selectedPrice = ticketPrices[form.ticketType] || 0;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!form.ticketType) {
-      alert("Please select a ticket type");
-      return;
+  if (!form.ticketType) {
+    alert("Please select a ticket type");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(`${API_URL}/api/payment/initialize`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...form,
+        amount: selectedPrice,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
     }
 
-    setLoading(true);
+    // Redirect to Flutterwave payment page
+    window.location.href = data.payment_link;
 
-    try {
-     
-     const response = await fetch(`${API_URL}/api/tickets`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    ...form,
-    amount: selectedPrice,
-  }),
-});
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong.");
-      }
-
-      window.location.assign(data.authorization_url);
-
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <section className="min-h-screen bg-black flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
       <div className="w-full max-w-lg">
@@ -154,8 +154,6 @@ export default function BuyTicket() {
 
             <p className="text-center text-gray-500 text-xs sm:text-sm leading-6">
               Payment is securely processed by Paystack.
-              <br />
-              Your ticket is issued only after successful payment.
             </p>
           </form>
         </div>

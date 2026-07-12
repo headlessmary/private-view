@@ -7,7 +7,7 @@ const {
 } = require("../controllers/paymentController");
 
 router.get(
-  "/verify/:reference",
+  "/verify/:transactionId",
   verifyTransaction
 );
 

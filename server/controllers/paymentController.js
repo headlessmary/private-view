@@ -2,48 +2,56 @@ const prisma = require("../database/prisma");
 
 const {
   verifyPayment,
-} = require("../services/paystackService");
+} = require("../services/flutterwaveService");
 
 const {
   generateQRCode,
 } = require("../services/qrService");
 
+const {
+  sendTicketEmail,
+} = require("../services/emailService");
+
 const verifyTransaction = async (req, res) => {
   try {
-    const { reference } = req.params;
+    const { transactionId } = req.params;
 
-    if (!reference) {
+    if (!transactionId) {
       return res.status(400).json({
         success: false,
-        message: "Payment reference is required.",
+        message: "Transaction ID is required.",
       });
     }
 
-    const payment = await verifyPayment(reference);
+    const payment = await verifyPayment(transactionId);
 
-    if (payment.status !== "success") {
+    if (payment.status !== "successful") {
       return res.status(400).json({
         success: false,
         message: "Payment not successful.",
       });
     }
 
-    const existingAttendee = await prisma.attendee.findUnique({
+    // Flutterwave tx_ref becomes our attendee reference
+    const reference = payment.tx_ref;
+
+    const attendee = await prisma.attendee.findUnique({
       where: {
         reference,
       },
     });
 
-    if (!existingAttendee) {
+    if (!attendee) {
       return res.status(404).json({
         success: false,
         message: "Attendee not found.",
       });
     }
 
-    const qrCode = existingAttendee.qrCode || await generateQRCode(reference);
+    const qrCode =
+      attendee.qrCode || (await generateQRCode(reference));
 
-    const attendee = await prisma.attendee.update({
+    const updatedAttendee = await prisma.attendee.update({
       where: {
         reference,
       },
@@ -53,11 +61,18 @@ const verifyTransaction = async (req, res) => {
       },
     });
 
+    await sendTicketEmail({
+      fullName: updatedAttendee.fullName,
+      email: updatedAttendee.email,
+      ticketType: updatedAttendee.ticketType,
+      reference,
+      qrCode,
+    });
+
     return res.json({
       success: true,
       message: "Payment verified successfully.",
-      attendee,
-      qrCode,
+      attendee: updatedAttendee,
     });
 
   } catch (error) {
@@ -65,7 +80,8 @@ const verifyTransaction = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: error.response?.data?.message || error.message,
+      message:
+        error.response?.data?.message || error.message,
     });
   }
 };
