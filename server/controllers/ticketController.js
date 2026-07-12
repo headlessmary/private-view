@@ -4,7 +4,7 @@ const { v4: uuid } = require("uuid");
 const {
   initializePayment,
   verifyPayment,
-} = require("../services/paystackService");
+} = require("../services/flutterwaveService");
 
 const {
   generateQRCode,
