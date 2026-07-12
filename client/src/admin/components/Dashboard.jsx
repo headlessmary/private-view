@@ -286,35 +286,35 @@ export default function Dashboard() {
   }
 
   return (
-    <section className="min-h-screen bg-black text-white">
+    <section className="min-h-screen bg-black text-white p-3 sm:p-6 lg:p-8">
       <header className="border-b border-[#1c1308] bg-[#050505]">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
           <div>
-            <h1 className="text-4xl font-serif text-[#d4a24d] mt-2">
+            <h1 className="mt-2 text-2xl font-serif text-[#d4a24d] sm:text-3xl lg:text-4xl">
               The Private View
             </h1>
 
-            <p className="text-gray-500 mt-2">Art & Indulgence</p>
+            <p className="mt-2 text-sm text-gray-500 sm:text-base">Art & Indulgence</p>
           </div>
 
-          <div className="flex items-center gap-8">
+          <div className="flex flex-wrap items-center gap-3 text-sm sm:gap-6 sm:text-base">
             <button
               onClick={() => navigate("/admin/scanner")}
-              className="text-white hover:text-[#d4a24d] transition"
+              className="text-white transition hover:text-[#d4a24d]"
             >
               Check-in Scanner →
             </button>
 
             <button
               onClick={() => navigate("/admin/settings")}
-              className="text-white hover:text-[#d4a24d] transition"
+              className="text-white transition hover:text-[#d4a24d]"
             >
               Settings
             </button>
 
             <button
               onClick={logout}
-              className="text-gray-400 hover:text-red-400 transition"
+              className="text-gray-400 transition hover:text-red-400"
             >
               Sign out
             </button>
@@ -322,8 +322,8 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-8 pt-10">
-        <h2 className="text-4xl font-serif text-white">
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-10 lg:px-8">
+        <h2 className="text-2xl font-serif text-white sm:text-3xl lg:text-4xl">
           {new Date().getHours() < 12
             ? "Good Morning,"
             : new Date().getHours() < 17
@@ -343,8 +343,8 @@ export default function Dashboard() {
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-10">
-        <div className="grid xl:grid-cols-[280px_minmax(0,1fr)] gap-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8">
           <aside className="space-y-6">
             <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
               <p className="uppercase tracking-[0.35em] text-[#d4a24d] text-xs font-semibold">
@@ -391,8 +391,8 @@ export default function Dashboard() {
           </aside>
 
           <div className="space-y-6">
-            <div className="rounded-2xl border border-[#2d1e09] bg-linear-to-br from-[#1b1208] to-[#090706] p-8">
-              <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div className="rounded-2xl border border-[#2d1e09] bg-linear-to-br from-[#1b1208] to-[#090706] p-4 sm:p-6 lg:p-8">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                   <p className="uppercase tracking-[0.35em] text-[#d4a24d] text-xs font-semibold">
                     Dashboard overview
@@ -405,7 +405,7 @@ export default function Dashboard() {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-[#3a240d] bg-[#15110b] px-4 py-3 text-right">
+                <div className="rounded-2xl border border-[#3a240d] bg-[#15110b] px-4 py-3 text-left sm:text-right">
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
                     Capacity
                   </p>
@@ -416,7 +416,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <Card title="Tickets Sold" value={stats.totalTickets} subtitle="of 60" />
               <Card title="Remaining" value={stats.remainingTickets} subtitle="tickets" />
               <Card title="Checked In" value={stats.checkedIn} subtitle="guests" />
@@ -430,7 +430,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
+            <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
               <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -508,7 +508,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid xl:grid-cols-3 gap-6">
+            <div className="grid gap-6 xl:grid-cols-3">
               <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -609,8 +609,8 @@ export default function Dashboard() {
             </div>
 
             <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl overflow-hidden">
-              <div className="p-5 border-b border-[#1b1208]">
-                <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+              <div className="border-b border-[#1b1208] p-4 sm:p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
                       Recent check-ins
@@ -618,18 +618,18 @@ export default function Dashboard() {
                     <h3 className="mt-2 text-xl font-semibold text-white">Manage arrivals</h3>
                   </div>
 
-                  <div className="flex flex-col lg:flex-row gap-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:flex-row">
                     <input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search name, email, phone..."
-                      className="flex-1 bg-[#19130d] border border-[#24190d] rounded-lg h-14 px-5 text-white outline-none focus:border-[#d4a24d]"
+                      className="h-12 flex-1 rounded-lg border border-[#24190d] bg-[#19130d] px-4 text-white outline-none focus:border-[#d4a24d] sm:h-14 sm:px-5"
                     />
 
                     <select
                       value={filter}
                       onChange={(e) => setFilter(e.target.value)}
-                      className="h-14 bg-[#19130d] border border-[#24190d] rounded-lg px-5 text-white"
+                      className="h-12 rounded-lg border border-[#24190d] bg-[#19130d] px-4 text-white sm:h-14 sm:px-5"
                     >
                       <option value="ALL">All</option>
                       <option value="VIP">VIP</option>
@@ -638,14 +638,14 @@ export default function Dashboard() {
 
                     <button
                       onClick={() => downloadFile("excel")}
-                      className="h-14 px-7 rounded-lg border border-[#d4a24d] text-[#d4a24d] uppercase tracking-[0.2em]"
+                      className="h-12 rounded-lg border border-[#d4a24d] px-5 text-sm uppercase tracking-[0.2em] text-[#d4a24d] sm:h-14 sm:px-7"
                     >
                       Export Excel
                     </button>
 
                     <button
                       onClick={() => downloadFile("pdf")}
-                      className="h-14 px-7 rounded-lg border border-[#d4a24d] text-[#d4a24d] uppercase tracking-[0.2em]"
+                      className="h-12 rounded-lg border border-[#d4a24d] px-5 text-sm uppercase tracking-[0.2em] text-[#d4a24d] sm:h-14 sm:px-7"
                     >
                       Export PDF
                     </button>
@@ -654,16 +654,16 @@ export default function Dashboard() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="text-left text-gray-500 uppercase text-xs">
+                <table className="w-full min-w-190">
+                  <thead className="text-left text-xs uppercase text-gray-500">
                     <tr>
-                      <th className="p-5">Ticket</th>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Payment</th>
-                      <th>Reference</th>
-                      <th>Check-in</th>
+                      <th className="p-3 sm:p-5">Ticket</th>
+                      <th className="p-3 sm:p-5">Name</th>
+                      <th className="p-3 sm:p-5">Email</th>
+                      <th className="p-3 sm:p-5">Phone</th>
+                      <th className="p-3 sm:p-5">Payment</th>
+                      <th className="p-3 sm:p-5">Reference</th>
+                      <th className="p-3 sm:p-5">Check-in</th>
                     </tr>
                   </thead>
 
@@ -672,9 +672,9 @@ export default function Dashboard() {
                       <tr
                         key={person.id}
                         onClick={() => setSelectedAttendee(person)}
-                        className="border-t border-[#1b1208] hover:bg-[#120d08] cursor-pointer transition"
+                        className="cursor-pointer border-t border-[#1b1208] transition hover:bg-[#120d08]"
                       >
-                        <td className="p-5">
+                        <td className="p-3 sm:p-5">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-bold ${
                               person.ticketType === "VIP"
@@ -705,9 +705,9 @@ export default function Dashboard() {
       </div>
 
       {selectedAttendee && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6">
-          <div className="bg-[#0b0907] border border-[#d4a24d] rounded-2xl w-full max-w-xl">
-            <div className="flex justify-between items-center border-b border-[#2d1e09] p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6">
+          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#d4a24d] bg-[#0b0907]">
+            <div className="flex items-center justify-between border-b border-[#2d1e09] p-4 sm:p-6">
               <h2 className="text-3xl font-serif text-[#d4a24d]">
                 Attendee Details
               </h2>
@@ -720,7 +720,7 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <div className="p-8 space-y-5">
+            <div className="space-y-5 p-4 sm:p-8">
               <Detail label="Full Name" value={selectedAttendee.fullName} />
               <Detail label="Email" value={selectedAttendee.email} />
               <Detail label="Phone" value={selectedAttendee.phone} />
@@ -744,10 +744,10 @@ export default function Dashboard() {
                 </div>
               )}
 
-              <div className="flex gap-4 mt-8">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <button
                   onClick={handleDownloadTicket}
-                  className="flex-1 bg-[#d4a24d] text-black py-3 rounded-lg font-semibold"
+                  className="flex-1 rounded-lg bg-[#d4a24d] py-3 font-semibold text-black"
                 >
                   Download Ticket
                 </button>
@@ -757,16 +757,16 @@ export default function Dashboard() {
                   disabled={sendingEmail}
                   className="
                     flex-1
+                    rounded-lg
                     border
                     border-[#d4a24d]
-                    text-[#d4a24d]
                     py-3
-                    rounded-lg
+                    text-[#d4a24d]
+                    transition
                     hover:bg-[#d4a24d]
                     hover:text-black
-                    transition
-                    disabled:opacity-50
                     disabled:cursor-not-allowed
+                    disabled:opacity-50
                   "
                 >
                   {sendingEmail ? "Sending..." : "Resend Email"}
@@ -791,12 +791,12 @@ function Detail({ label, value }) {
 
 function Card({ title, value, subtitle }) {
   return (
-    <div className="bg-[#0c0906] border border-[#2d1e09] rounded-2xl p-8 hover:border-[#d4a24d] transition">
+    <div className="rounded-2xl border border-[#2d1e09] bg-[#0c0906] p-6 transition hover:border-[#d4a24d] sm:p-8">
       <p className="uppercase tracking-[0.45em] text-[#d4a24d] text-xs font-semibold">
         {title}
       </p>
 
-      <h2 className="mt-7 text-5xl font-serif text-[#e7bc67]">
+      <h2 className="mt-7 text-3xl font-serif text-[#e7bc67] sm:text-4xl lg:text-5xl">
         {value}
       </h2>
 
