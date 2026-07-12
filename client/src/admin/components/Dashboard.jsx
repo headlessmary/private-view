@@ -290,7 +290,7 @@ export default function Dashboard() {
   return (
     <section className="min-h-screen bg-black text-white p-3 sm:p-6 lg:p-8">
       <header className="border-b border-[#1c1308] bg-[#050505]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
           <div className="flex flex-col items-start">
             <h1 className="text-2xl font-serif text-[#d4a24d] sm:text-3xl lg:text-4xl">
               The Private View
@@ -299,7 +299,7 @@ export default function Dashboard() {
             <p className="mt-2 text-sm text-gray-500 sm:text-base">Art & Indulgence</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-sm sm:gap-6 sm:text-base">
+          <div className="flex flex-wrap items-center justify-end gap-2 text-sm sm:gap-6 sm:text-base">
             <button
               onClick={() => navigate("/admin/scanner")}
               className="text-white transition hover:text-[#d4a24d]"
