@@ -32,6 +32,16 @@ const initializeTransaction = async (req, res) => {
 
     const reference = `PV-${Date.now()}`;
 
+    // Initialize Flutterwave FIRST
+    const payment = await initializePayment({
+      fullName,
+      email,
+      phone,
+      amount,
+      reference,
+    });
+
+    // Only save attendee if Flutterwave succeeds
     await prisma.attendee.create({
       data: {
         fullName,
@@ -44,18 +54,11 @@ const initializeTransaction = async (req, res) => {
       },
     });
 
-    const payment = await initializePayment({
-      fullName,
-      email,
-      phone,
-      amount,
-      reference,
-    });
-
     return res.json({
       success: true,
       paymentLink: payment.link,
     });
+
   } catch (error) {
     console.error(error.response?.data || error);
 
