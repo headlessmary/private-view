@@ -7,6 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Attendee {
+  id            String        @id @default(cuid())
+  fullName      String
+  email         String        
+  phone         String
+  ticketType    TicketType
+  amount        Int
+  paymentStatus PaymentStatus @default(PENDING)
+  reference     String?       @unique
+  qrCode        String?
+  checkedIn     Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum TicketType {
   VIP
   REGULAR
@@ -16,31 +39,4 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
-}
-
-model Attendee {
-  id                String          @id @default(cuid())
-  fullName          String
-  email             String          @unique
-  phone             String
-  ticketType        TicketType
-  amount            Int
-
-  paymentStatus     PaymentStatus   @default(PENDING)
-
-  reference         String?         @unique
-
-  qrCode            String?
-
-  checkedIn         Boolean         @default(false)
-
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-}
-model Admin {
-  id        String   @id @default(cuid())
-  email     String   
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
