@@ -145,7 +145,8 @@ export default function Dashboard() {
   const vipCount = attendees.filter((person) => person.ticketType === "VIP").length;
   const regularCount = attendees.filter((person) => person.ticketType === "REGULAR").length;
   const capacityPercent = Math.min(100, Math.round((stats.checkedIn / 60) * 100));
-  const vipShare = attendees.length ? Math.round((vipCount / attendees.length) * 100) : 0;
+  
+  // eslint-disable-next-line no-unused-vars
   const regularShare = attendees.length ? Math.round((regularCount / attendees.length) * 100) : 0;
   const checkInPercent = Math.min(100, Math.round((stats.checkedIn / 60) * 100));
   const revenueSeries = [
@@ -249,6 +250,7 @@ export default function Dashboard() {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleResendTicketEmail = async () => {
     if (!selectedAttendee?.id) {
       alert("No attendee selected.");
@@ -805,16 +807,3 @@ function Card({ title, value, subtitle }) {
   );
 }
 
-function DistributionItem({ label, value, color }) {
-  return (
-    <div>
-      <div className="flex items-center justify-between text-sm text-gray-300">
-        <span>{label}</span>
-        <span>{value}%</span>
-      </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#1d150d]">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${value}%` }} />
-      </div>
-    </div>
-  );
-}

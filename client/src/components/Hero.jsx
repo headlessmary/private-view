@@ -54,12 +54,34 @@ export default function HeroSection() {
   }, [calculateTimeLeft]);
 
   return (
+    <>
+      <style>{`
+        @keyframes heroFadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(24px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .hero-animate {
+          animation: heroFadeUp 0.8s ease-out both;
+        }
+
+        .hero-animate-delay {
+          animation: heroFadeUp 0.95s ease-out 0.15s both;
+        }
+      `}</style>
+
     <section className="min-h-screen bg-black text-white pt-10 sm:pt-32 lg:pt-6">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-8 lg:px-12 py-10 md:py-16">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-14 xl:gap-24 items-center">
 
           {/* LEFT SIDE */}
-          <div className="w-full max-w-xl mx-auto lg:mx-0">
+          <div className="hero-animate w-full max-w-xl mx-auto lg:mx-0">
 
             {/* Badge */}
                <div className="flex justify-center lg:justify-start">
@@ -172,7 +194,7 @@ export default function HeroSection() {
           </div>
 
           {/* RIGHT SIDE */}
-          <div className="order-first lg:order-last flex justify-center mb-6 lg:mb-0 lg:justify-end">
+          <div className="hero-animate-delay order-first lg:order-last flex justify-center mb-6 lg:mb-0 lg:justify-end">
             <img
   src={settings.flyer || image}
   alt={settings.eventName || "The Private View"}
@@ -183,5 +205,6 @@ export default function HeroSection() {
         </div>
       </div>
     </section>
+    </>
   );
 }
