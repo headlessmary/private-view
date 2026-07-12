@@ -3,17 +3,17 @@ import { FaInstagram } from "react-icons/fa";
 export default function Footer() {
   return (
     <footer className="bg-black border-t border-[#15110D]">
-      <div className="max-w-280 mx-auto px-6 py-8">
+      <div className="mx-auto max-w-280 px-4 py-8 sm:px-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-start">
+        <div className="grid grid-cols-1 gap-8 items-start md:grid-cols-3 md:gap-10">
 
           {/* Left */}
           <div className="text-center md:text-left">
-            <h3 className="font-['Cormorant_Garamond'] text-[24px] leading-none text-[#C8922E]">
+            <h3 className="font-['Cormorant_Garamond'] text-[22px] leading-none text-[#C8922E] sm:text-[24px]">
               The Private View
             </h3>
 
-            <p className="mt-4 text-[15px] text-[#B8B0A8]">
+            <p className="mt-3 text-[14px] text-[#B8B0A8] sm:text-[15px]">
               Art & Indulgence
             </p>
           </div>
@@ -29,7 +29,7 @@ export default function Footer() {
               </span>
             </p>
 
-            <p className="mt-3 text-[15px] text-[#D8D2CB] flex items-center justify-center md:justify-start gap-2">
+            <p className="mt-3 flex flex-wrap items-center justify-center gap-2 text-[14px] text-[#D8D2CB] md:justify-start sm:text-[15px]">
               <span>Instagram ·</span>
 
               <FaInstagram className="text-[#C8922E] text-[16px]" />
@@ -42,11 +42,11 @@ export default function Footer() {
 
           {/* Right */}
           <div className="text-center md:text-right">
-            <p className="text-[15px] text-[#A89E93]">
+            <p className="text-[14px] text-[#A89E93] sm:text-[15px]">
               © 2026 Headless Mary Events. Strictly private.
             </p>
 
-            <p className="mt-2 text-[10px] text-[#C8922E] font-medium">
+            <p className="mt-2 text-[10px] font-medium text-[#C8922E] sm:text-[11px]">
               Powered by Picasso Media Hub
             </p>
           </div>

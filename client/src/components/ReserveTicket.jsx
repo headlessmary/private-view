@@ -18,6 +18,20 @@ export default function ReserveTicket() {
   ];
 
   return (
+    <>
+      <style>{`
+        @keyframes ticketFadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+
     <section
       id="tickets"
       className="bg-black py-16 sm:py-20 lg:py-24"
@@ -66,6 +80,7 @@ export default function ReserveTicket() {
                   shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_12px_30px_rgba(223,160,59,0.25)]
                   transition-all
                   duration-300
+                  animate-[ticketFadeUp_0.6s_ease-out_both]
                   hover:brightness-110
                   hover:-translate-y-0.5
                 "
@@ -78,5 +93,6 @@ export default function ReserveTicket() {
 
       </div>
     </section>
+    </>
   );
 }

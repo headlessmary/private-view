@@ -22,15 +22,29 @@ const experiences = [
 
 export default function Experience() {
   return (
+    <>
+      <style>{`
+        @keyframes experienceFadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+
     <section id="experience" className="bg-black py-16 sm:py-20 lg:py-24 xl:py-20">
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <p className="uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] mb-8 text-center lg:text-left">
+        <p className="mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] lg:text-left animate-[experienceFadeUp_0.6s_ease-out_both]">
          Event Highlights
         </p>
         
-       <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left mb-10 lg:mb-14">
+       <h2 className="mb-10 font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] text-center sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[experienceFadeUp_0.7s_ease-out_0.1s_both]">
   The Experience
 </h2>
 
@@ -53,6 +67,7 @@ export default function Experience() {
                 text-center
                 transition-all
                 duration-300
+                animate-[experienceFadeUp_0.8s_ease-out_both]
                 hover:border-[#C8922E]
                 hover:bg-[#17120D]
                 hover:-translate-y-2
@@ -79,7 +94,7 @@ export default function Experience() {
         <div className="mt-8 flex flex-col sm:flex-row items-center lg:items-start gap-5 text-center lg:text-left">
          <Link
   to="/buy-ticket"
-  className="inline-flex w-auto bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 justify-center"
+  className="inline-flex w-auto animate-[experienceFadeUp_0.9s_ease-out_0.2s_both] bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 justify-center"
 >
   Reserve Ticket
 </Link>
@@ -88,5 +103,6 @@ export default function Experience() {
 
       </div>
     </section>
+    </>
   );
 }
