@@ -16,39 +16,26 @@ const initializePayment = async ({
   amount,
   reference,
 }) => {
-  console.log({
-    fullName,
-    email,
-    phone,
+  const response = await flutterwave.post("/payments", {
+    tx_ref: reference,
     amount,
-    reference,
+    currency: "NGN",
     redirect_url: `${process.env.FRONTEND_URL}/payment-success`,
-    secretExists: !!process.env.FLUTTERWAVE_SECRET_KEY,
+
+    customer: {
+      email,
+      phonenumber: phone,
+      name: fullName,
+    },
+
+    customizations: {
+      title: "The Private View: Art & Indulgence",
+      description: "Event Ticket Purchase",
+      logo: `${process.env.FRONTEND_URL}/logo.png`,
+    },
   });
 
-  try {
-    const response = await flutterwave.post("/payments", {
-      tx_ref: reference,
-      amount,
-      currency: "NGN",
-      redirect_url: `${process.env.FRONTEND_URL}/payment-success`,
-      customer: {
-        email,
-        phonenumber: phone,
-        name: fullName,
-      },
-      customizations: {
-        title: "The Private View: Art & Indulgence",
-        description: "Event Ticket Purchase",
-        logo: `${process.env.FRONTEND_URL}/logo.png`,
-      },
-    });
-
-    return response.data.data;
-  } catch (error) {
-    console.log("Flutterwave Error:", error.response?.data);
-    throw error;
-  }
+  return response.data.data;
 };
 
 const verifyPayment = async (transactionId) => {
