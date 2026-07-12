@@ -64,7 +64,7 @@ export default function BuyTicket() {
     }
 
     // Redirect to Flutterwave payment page
-    window.location.href = data.payment_link;
+    window.location.assign(data.paymentLink);
 
   } catch (err) {
     console.error(err);

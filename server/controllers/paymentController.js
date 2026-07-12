@@ -1,6 +1,7 @@
 const prisma = require("../database/prisma");
 
 const {
+  initializePayment,
   verifyPayment,
 } = require("../services/flutterwaveService");
 
@@ -11,6 +12,59 @@ const {
 const {
   sendTicketEmail,
 } = require("../services/emailService");
+
+const initializeTransaction = async (req, res) => {
+  try {
+    const {
+      fullName,
+      email,
+      phone,
+      ticketType,
+      amount,
+    } = req.body;
+
+    if (!fullName || !email || !phone || !ticketType || !amount) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required.",
+      });
+    }
+
+    const reference = `PV-${Date.now()}`;
+
+    await prisma.attendee.create({
+      data: {
+        fullName,
+        email,
+        phone,
+        ticketType,
+        amount,
+        reference,
+        paymentStatus: "PENDING",
+      },
+    });
+
+    const payment = await initializePayment({
+      fullName,
+      email,
+      phone,
+      amount,
+      reference,
+    });
+
+    return res.json({
+      success: true,
+      paymentLink: payment.link,
+    });
+  } catch (error) {
+    console.error(error.response?.data || error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.message || error.message,
+    });
+  }
+};
 
 const verifyTransaction = async (req, res) => {
   try {
@@ -87,5 +141,6 @@ const verifyTransaction = async (req, res) => {
 };
 
 module.exports = {
+  initializeTransaction,
   verifyTransaction,
 };

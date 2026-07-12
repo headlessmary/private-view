@@ -12,20 +12,25 @@ export default function PaymentSuccess() {
   useEffect(() => {
     const verifyPayment = async () => {
       const status = searchParams.get("status");
-      const transactionId = searchParams.get("transaction_id");
+const transactionId = searchParams.get("transaction_id");
 
-      if (!transactionId) {
-        setMessage("Transaction ID is missing.");
-        setLoading(false);
-        return;
-      }
+if (!transactionId) {
+  setMessage("Transaction ID is missing.");
+  setLoading(false);
+  return;
+}
 
-      // Flutterwave sends "cancelled" if user cancels payment
-      if (status === "cancelled") {
-        setMessage("Payment was cancelled.");
-        setLoading(false);
-        return;
-      }
+if (status === "cancelled") {
+  setMessage("Payment was cancelled.");
+  setLoading(false);
+  return;
+}
+
+if (status !== "successful") {
+  setMessage("Payment was not successful.");
+  setLoading(false);
+  return;
+}
 
       try {
         const response = await fetch(
@@ -38,10 +43,13 @@ export default function PaymentSuccess() {
           throw new Error(data.message || "Payment verification failed.");
         }
 
-        setSuccess(true);
-        setMessage(
-          data.message || "Payment verified successfully."
-        );
+        setSuccess(data.success);
+setMessage(
+  data.message ||
+  (data.success
+    ? "Payment verified successfully."
+    : "Payment verification failed.")
+);
       } catch (error) {
         console.error(error);
         setSuccess(false);
