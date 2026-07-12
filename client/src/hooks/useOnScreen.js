@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function useOnScreen(options = {}) {
+export default function useOnScreen() {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -9,24 +9,26 @@ export default function useOnScreen(options = {}) {
 
     if (!node) return undefined;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      {
-        threshold: 0.15,
-        rootMargin: "0px 0px -40px 0px",
-        ...options,
+    const handleScroll = () => {
+      const rect = node.getBoundingClientRect();
+      const shouldShow = rect.top < window.innerHeight * 0.9 && rect.bottom > 0;
+
+      if (shouldShow) {
+        setIsVisible(true);
+        window.removeEventListener("scroll", handleScroll);
+        window.removeEventListener("resize", handleScroll);
       }
-    );
+    };
 
-    observer.observe(node);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
 
-    return () => observer.disconnect();
-  }, [options.threshold, options.rootMargin]);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   return [ref, isVisible];
 }

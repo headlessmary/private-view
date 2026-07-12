@@ -43,11 +43,11 @@ export default function Experience() {
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] lg:text-left ${isVisible ? "animate-[experienceFadeUp_0.6s_ease-out_both]" : "opacity-0"}`}>
+        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] transition-all duration-700 lg:text-left ${isVisible ? "translate-y-0 opacity-100 animate-[experienceFadeUp_0.6s_ease-out_both]" : "translate-y-6 opacity-0"}`}>
          Event Highlights
         </p>
         
-       <h2 className={`mb-10 font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] text-center sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "animate-[experienceFadeUp_0.7s_ease-out_0.1s_both]" : "opacity-0"}`}>
+       <h2 className={`mb-10 font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] text-center transition-all duration-700 sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "translate-y-0 opacity-100 animate-[experienceFadeUp_0.7s_ease-out_0.1s_both]" : "translate-y-6 opacity-0"}`}>
   The Experience
 </h2>
 
@@ -68,9 +68,8 @@ export default function Experience() {
                 items-center
                 justify-center
                 text-center
-                transition-all
-                duration-300
-                ${isVisible ? "animate-[experienceFadeUp_0.8s_ease-out_both]" : "opacity-0"}
+                transition-all duration-700
+                ${isVisible ? "translate-y-0 opacity-100 animate-[experienceFadeUp_0.8s_ease-out_both]" : "translate-y-6 opacity-0"}
                 hover:border-[#C8922E]
                 hover:bg-[#17120D]
                 hover:-translate-y-2
@@ -97,7 +96,7 @@ export default function Experience() {
         <div className="mt-8 flex flex-col sm:flex-row items-center lg:items-start gap-5 text-center lg:text-left">
          <Link
   to="/buy-ticket"
-  className={`inline-flex w-auto ${isVisible ? "animate-[experienceFadeUp_0.9s_ease-out_0.2s_both]" : "opacity-0"} bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 transition duration-300 justify-center`}
+  className={`inline-flex w-auto transition-all duration-700 ${isVisible ? "translate-y-0 opacity-100 animate-[experienceFadeUp_0.9s_ease-out_0.2s_both]" : "translate-y-6 opacity-0"} bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-6 py-3 justify-center`}
 >
   Reserve Ticket
 </Link>

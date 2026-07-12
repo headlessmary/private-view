@@ -63,11 +63,11 @@ export default function EventInfo() {
       <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] lg:text-left ${isVisible ? "animate-[eventInfoFadeUp_0.6s_ease-out_both]" : "opacity-0"}`}>
+        <p className={`mb-8 text-center uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] transition-all duration-700 lg:text-left ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_0.6s_ease-out_both]" : "translate-y-6 opacity-0"}`}>
         
          EVENT INFORMATION
         </p>
-<h2 className={`mb-10 text-center font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "animate-[eventInfoFadeUp_0.7s_ease-out_0.1s_both]" : "opacity-0"}`}>
+<h2 className={`mb-10 text-center font-['Cormorant_Garamond'] text-[34px] leading-tight text-[#C89A3D] transition-all duration-700 sm:text-[44px] md:text-[50px] lg:mb-14 lg:text-left lg:text-[55px] lg:leading-[0.92] ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_0.7s_ease-out_0.1s_both]" : "translate-y-6 opacity-0"}`}>
  
          Everything you need to know
         </h2>
@@ -94,7 +94,8 @@ export default function EventInfo() {
                 text-center
                 transition-all
                 duration-300
-                ${isVisible ? "animate-[eventInfoFadeUp_0.8s_ease-out_both]" : "opacity-0"}
+                transition-all duration-700
+                ${isVisible ? "translate-y-0 opacity-100 animate-[eventInfoFadeUp_0.8s_ease-out_both]" : "translate-y-6 opacity-0"}
                 hover:border-[#C8922E]
                 hover:-translate-y-1
               "
