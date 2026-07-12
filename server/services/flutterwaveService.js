@@ -16,7 +16,7 @@ const initializePayment = async ({
   amount,
   reference,
 }) => {
-  console.log("Flutterwave Request:", {
+  console.log({
     fullName,
     email,
     phone,
@@ -32,13 +32,11 @@ const initializePayment = async ({
       amount,
       currency: "NGN",
       redirect_url: `${process.env.FRONTEND_URL}/payment-success`,
-
       customer: {
         email,
         phonenumber: phone,
         name: fullName,
       },
-
       customizations: {
         title: "The Private View: Art & Indulgence",
         description: "Event Ticket Purchase",
@@ -48,9 +46,7 @@ const initializePayment = async ({
 
     return response.data.data;
   } catch (error) {
-    console.log("Flutterwave Error:");
-    console.log(error.response?.data);
-
+    console.log("Flutterwave Error:", error.response?.data);
     throw error;
   }
 };
