@@ -39,7 +39,7 @@ model Attendee {
 }
 model Admin {
   id        String   @id @default(cuid())
-  email     String   @unique
+  email     String   
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

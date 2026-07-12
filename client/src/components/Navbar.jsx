@@ -54,7 +54,7 @@ export default function Navbar() {
   <div className="hidden lg:flex justify-end">
     <Link
       to="/buy-ticket"
-      className="min-w-[14rem] rounded-none bg-[#D8A74E] px-8 py-4 text-center text-[12px] font-semibold uppercase tracking-[0.22em] text-black transition duration-300 hover:bg-[#C89A3D] sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[13px] lg:min-w-[16.5rem] lg:px-12 lg:py-5 lg:text-[14px]"
+      className="min-w-56 rounded-none bg-[#D8A74E] px-8 py-4 text-center text-[12px] font-semibold uppercase tracking-[0.22em] text-black transition duration-300 hover:bg-[#C89A3D] sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[13px] lg:min-w-66 lg:px-12 lg:py-5 lg:text-[14px]"
     >
       Reserve Ticket
     </Link>
