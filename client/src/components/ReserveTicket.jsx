@@ -39,12 +39,9 @@ export default function ReserveTicket() {
               <Link
                 to="/buy-ticket"
                 className="
-                  h-11
+                  h-10
                   w-full
-                  max-w-55
-                  sm:max-w-65
-                  lg:max-w-90
-                  xl:max-w-95
+                  max-w-56
                   rounded-none
                   bg-linear-to-r
                   from-[#F3D084]
@@ -53,11 +50,18 @@ export default function ReserveTicket() {
                   flex
                   items-center
                   justify-center
+                  px-3
+                  text-center
                   uppercase
-                  tracking-[0.24em]
+                  tracking-[0.16em]
                   text-black
-                  text-[11px]
-                  sm:text-sm
+                  text-[10px]
+                  sm:h-11
+                  sm:max-w-[16rem]
+                  sm:px-4
+                  sm:text-[11px]
+                  lg:max-w-[18rem]
+                  lg:text-sm
                   font-semibold
                   shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_12px_30px_rgba(223,160,59,0.25)]
                   transition-all

@@ -20,7 +20,7 @@ export default function AboutSection() {
       id="about"
       className="bg-black text-white py-16 lg:py-30"
     >
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Section Label */}
   <p className="uppercase tracking-[0.35em] text-[12px] font-semibold text-[#C89A3D] mb-8 text-center lg:text-left">
@@ -32,13 +32,13 @@ export default function AboutSection() {
           {/* Text */}
          <div className="max-w-full lg:max-w-155">
 
-  <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left animate-[fadeInUp_0.8s_ease-out]">
+  <h2 className="mx-auto max-w-[16rem] font-['Cormorant_Garamond'] text-[#C89A3D] text-[28px] leading-tight text-center sm:max-w-none sm:text-[40px] md:text-[46px] lg:max-w-none lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[fadeInUp_0.8s_ease-out]">
     An escape into art,elegance & self-expression
   </h2>
 
   <div className="mt-6 lg:mt-8 space-y-5 animate-[fadeInUp_1s_ease-out_0.15s_both]">
 
-    <p className="text-left max-w-none lg:max-w-130 text-[16px] sm:text-[18px] lg:text-[18px] leading-8 text-[#D9D9D9]">
+    <p className="max-w-none text-left text-[15px] leading-7 text-[#D9D9D9] sm:text-[16px] sm:leading-8 lg:max-w-130 lg:text-[18px]">
       The Private View: Art & Indulgence is an exclusive escape into the world of art,
       elegance, and self-expression; a curated experience where creativity, culture,
       and luxury collide. From captivating artworks and immersive conversations to
@@ -47,7 +47,7 @@ export default function AboutSection() {
       finer side of life.
     </p>
 
-    <p className="text-left max-w-none lg:max-w-130 text-[16px] sm:text-[18px] lg:text-[18px] leading-8 text-[#A9A9A9]">
+    <p className="max-w-none text-left text-[15px] leading-7 text-[#A9A9A9] sm:text-[16px] sm:leading-8 lg:max-w-130 lg:text-[18px]">
       With complimentary rides to and from the event, every detail is curated to
       give you a seamless experience from arrival to the final moment. A private
       world of aesthetics, energy, and memories waiting to be captured.
@@ -62,7 +62,7 @@ export default function AboutSection() {
   <img
     src={flyer}
     alt="The Private View Flyer"
-    className="w-full max-w-140 sm:max-w-155 md:max-w-170 lg:w-190 rounded-[28px] animate-[fadeInUp_1s_ease-out_0.25s_both]"
+    className="w-full max-w-[320px] rounded-3xl sm:max-w-90 sm:rounded-[28px] md:max-w-105 lg:max-w-140 lg:w-190 animate-[fadeInUp_1s_ease-out_0.25s_both]"
   />
 </div>
 
