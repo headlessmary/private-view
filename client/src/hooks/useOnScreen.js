@@ -2,21 +2,12 @@ import { useEffect, useRef, useState } from "react";
 
 export default function useOnScreen() {
   const ref = useRef(null);
-  const [isVisible, setIsVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(max-width: 767px)").matches;
-  });
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
 
     if (!node) return undefined;
-
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
-    if (isMobile) {
-      setIsVisible(true);
-      return undefined;
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -26,8 +17,8 @@ export default function useOnScreen() {
         }
       },
       {
-        threshold: 0.15,
-        rootMargin: "0px 0px -6% 0px",
+        threshold: window.innerWidth <= 767 ? 0.05 : 0.15,
+        rootMargin: "0px 0px -4% 0px",
       }
     );
 
