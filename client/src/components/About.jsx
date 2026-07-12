@@ -2,6 +2,20 @@ import flyer from "../assets/flyer.png";
 
 export default function AboutSection() {
   return (
+    <>
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(24px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+
     <section
       id="about"
       className="bg-black text-white py-16 lg:py-30"
@@ -18,11 +32,11 @@ export default function AboutSection() {
           {/* Text */}
          <div className="max-w-full lg:max-w-155">
 
-  <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left">
+  <h2 className="font-['Cormorant_Garamond'] text-[#C89A3D] text-[34px] sm:text-[44px] md:text-[50px] lg:text-[55px] leading-tight lg:leading-[0.92] text-center lg:text-left animate-[fadeInUp_0.8s_ease-out]">
     An escape into art,elegance & self-expression
   </h2>
 
-  <div className="mt-6 lg:mt-8 space-y-5">
+  <div className="mt-6 lg:mt-8 space-y-5 animate-[fadeInUp_1s_ease-out_0.15s_both]">
 
     <p className="text-left max-w-none lg:max-w-130 text-[16px] sm:text-[18px] lg:text-[18px] leading-8 text-[#D9D9D9]">
       The Private View: Art & Indulgence is an exclusive escape into the world of art,
@@ -48,7 +62,7 @@ export default function AboutSection() {
   <img
     src={flyer}
     alt="The Private View Flyer"
-    className="w-full max-w-140 sm:max-w-155 md:max-w-170 lg:w-190 rounded-[28px]"
+    className="w-full max-w-140 sm:max-w-155 md:max-w-170 lg:w-190 rounded-[28px] animate-[fadeInUp_1s_ease-out_0.25s_both]"
   />
 </div>
 
@@ -56,5 +70,6 @@ export default function AboutSection() {
 
       </div>
     </section>
+    </>
   );
 }
