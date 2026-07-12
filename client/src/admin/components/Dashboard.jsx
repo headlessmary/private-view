@@ -288,16 +288,16 @@ export default function Dashboard() {
   return (
     <section className="min-h-screen bg-black text-white p-3 sm:p-6 lg:p-8">
       <header className="border-b border-[#1c1308] bg-[#050505]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
-          <div>
-            <h1 className="mt-2 text-2xl font-serif text-[#d4a24d] sm:text-3xl lg:text-4xl">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
+          <div className="flex flex-col items-start">
+            <h1 className="text-2xl font-serif text-[#d4a24d] sm:text-3xl lg:text-4xl">
               The Private View
             </h1>
 
             <p className="mt-2 text-sm text-gray-500 sm:text-base">Art & Indulgence</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-sm sm:gap-6 sm:text-base">
+          <div className="flex flex-wrap items-center gap-2 text-sm sm:gap-6 sm:text-base">
             <button
               onClick={() => navigate("/admin/scanner")}
               className="text-white transition hover:text-[#d4a24d]"
@@ -610,7 +610,7 @@ export default function Dashboard() {
 
             <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl overflow-hidden">
               <div className="border-b border-[#1b1208] p-4 sm:p-5">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-col items-center gap-4 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
                   <div>
                     <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
                       Recent check-ins
@@ -618,7 +618,7 @@ export default function Dashboard() {
                     <h3 className="mt-2 text-xl font-semibold text-white">Manage arrivals</h3>
                   </div>
 
-                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:flex-row">
+                  <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:w-auto lg:justify-start">
                     <input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
@@ -654,16 +654,16 @@ export default function Dashboard() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full min-w-190">
+                <table className="w-full min-w-195 sm:min-w-180">
                   <thead className="text-left text-xs uppercase text-gray-500">
                     <tr>
-                      <th className="p-3 sm:p-5">Ticket</th>
-                      <th className="p-3 sm:p-5">Name</th>
-                      <th className="p-3 sm:p-5">Email</th>
-                      <th className="p-3 sm:p-5">Phone</th>
-                      <th className="p-3 sm:p-5">Payment</th>
-                      <th className="p-3 sm:p-5">Reference</th>
-                      <th className="p-3 sm:p-5">Check-in</th>
+                      <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Ticket</th>
+                      <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Name</th>
+                      <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Email</th>
+                      <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Phone</th>
+                      <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Payment</th>
+                      <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Reference</th>
+                      <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Check-in</th>
                     </tr>
                   </thead>
 
@@ -674,9 +674,9 @@ export default function Dashboard() {
                         onClick={() => setSelectedAttendee(person)}
                         className="cursor-pointer border-t border-[#1b1208] transition hover:bg-[#120d08]"
                       >
-                        <td className="p-3 sm:p-5">
+                        <td className="p-2 text-center text-xs sm:p-5 sm:text-base">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            className={`rounded-full px-2 py-1 text-[10px] font-bold sm:px-3 sm:text-sm ${
                               person.ticketType === "VIP"
                                 ? "bg-[#d4a24d] text-black"
                                 : "bg-gray-700"
@@ -686,14 +686,14 @@ export default function Dashboard() {
                           </span>
                         </td>
 
-                        <td>{person.fullName}</td>
-                        <td>{person.email}</td>
-                        <td>{person.phone}</td>
-                        <td>{person.paymentStatus}</td>
-                        <td className="text-[#d4a24d]">
+                        <td className="max-w-27.5 wrap-break-word text-center text-xs sm:max-w-none sm:text-base">{person.fullName}</td>
+                        <td className="max-w-35 wrap-break-word text-center text-xs sm:max-w-none sm:text-base">{person.email}</td>
+                        <td className="max-w-25 wrap-break-word text-center text-xs sm:max-w-none sm:text-base">{person.phone}</td>
+                        <td className="text-center text-xs sm:text-base">{person.paymentStatus}</td>
+                        <td className="text-center text-xs text-[#d4a24d] sm:text-base">
                           {person.reference?.slice(0, 8)}...
                         </td>
-                        <td>{person.checkedIn ? "Checked In" : "Waiting"}</td>
+                        <td className="text-center text-xs sm:text-base">{person.checkedIn ? "Checked In" : "Waiting"}</td>
                       </tr>
                     ))}
                   </tbody>

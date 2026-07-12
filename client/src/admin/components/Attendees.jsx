@@ -92,13 +92,12 @@ export default function Attendees() {
   return (
     <section className="min-h-screen bg-black text-white p-4 sm:p-6 lg:p-8">
 
-      <div className="max-w-7xl mx-auto">
-
-        <h1 className="text-3xl sm:text-4xl font-serif text-[#d4a24d]">
+      <div className="mx-auto max-w-7xl">
+        <h1 className="text-3xl font-serif text-[#d4a24d] sm:text-4xl lg:text-5xl">
           Attendees
         </h1>
 
-        <p className="text-gray-400 mt-2">
+        <p className="mt-3 text-base text-gray-400 sm:text-lg">
           Total Guests: {filtered.length}
         </p>
 
@@ -106,7 +105,7 @@ export default function Attendees() {
           placeholder="Search attendee..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-           className="w-full mt-6 mb-6 sm:mt-8 sm:mb-8 h-12 sm:h-14 rounded-lg bg-[#141414] border border-[#333] px-4 sm:px-5 text-sm sm:text-base"
+          className="mt-6 mb-6 h-14 w-full rounded-lg border border-[#333] bg-[#141414] px-4 text-base sm:mt-8 sm:mb-8 sm:h-14 sm:px-5 sm:text-lg"
         />
 
         <div className="overflow-x-auto rounded-xl border border-[#222]">
@@ -117,17 +116,17 @@ export default function Attendees() {
 
               <tr>
 
-                <th className="p-3 sm:p-4 text-left text-xs sm:text-sm uppercase tracking-wide whitespace-nowrap">Guest</th>
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Guest</th>
 
-                <th className="p-3 sm:p-4 text-left text-xs sm:text-sm uppercase tracking-wide whitespace-nowrap">Ticket</th>
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Ticket</th>
 
-                <th className="p-3 sm:p-4 text-left text-xs sm:text-sm uppercase tracking-wide whitespace-nowrap">Payment</th>
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Payment</th>
 
-                <th className="p-3 sm:p-4 text-left text-xs sm:text-sm uppercase tracking-wide whitespace-nowrap">Checked In</th>
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Checked In</th>
 
-                <th className="p-3 sm:p-4 text-left text-xs sm:text-sm uppercase tracking-wide whitespace-nowrap">Reference</th>
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Reference</th>
 
-                <th className="p-3 sm:p-4 text-center text-xs sm:text-sm uppercase tracking-wide whitespace-nowrap">Action</th>
+                <th className="whitespace-nowrap p-3 text-center text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Action</th>
 
               </tr>
 
@@ -142,26 +141,24 @@ export default function Attendees() {
                   className="border-t border-[#222]"
                 >
 
-                  <td className="p-3 sm:p-4 text-sm whitespace-nowrap">
-
-                    <div  className="font-semibold text-sm sm:text-base">
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
+                    <div className="font-semibold text-sm sm:text-base">
                       {guest.fullName}
                     </div>
 
-                    <div  className="text-xs sm:text-sm text-gray-400">
+                    <div className="text-xs text-gray-400 sm:text-sm">
                       {guest.email}
                     </div>
-
                   </td>
 
-                  <td className="p-3 sm:p-4 text-sm whitespace-nowrap">
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
                     {guest.ticketType}
                   </td>
 
-                  <td className="p-3 sm:p-4 text-sm whitespace-nowrap">
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
 
                     <span
-                      className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm ${
+                      className={`rounded-full px-2 py-1 text-xs sm:px-3 sm:text-sm ${
                         guest.paymentStatus === "SUCCESS"
                           ? "bg-green-700"
                           : "bg-red-700"
@@ -172,8 +169,7 @@ export default function Attendees() {
 
                   </td>
 
-                  <td className="p-3 sm:p-4 text-sm whitespace-nowrap">
-
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
                     {guest.checkedIn ? (
                       <span className="text-green-400">
                         ✔ Yes
@@ -186,18 +182,18 @@ export default function Attendees() {
 
                   </td>
 
-                  <td className="p-3 sm:p-4 text-sm whitespace-nowrap">
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
                     {guest.reference}
                   </td>
 
-                  <td className="p-3 sm:p-4 text-sm whitespace-nowrap">
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
 
                     {!guest.checkedIn && (
                       <button
                         onClick={() =>
                           checkIn(guest.reference)
                         }
-                        className="bg-[#d4a24d] text-black px-4 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap"
+                        className="whitespace-nowrap rounded-lg bg-[#d4a24d] px-4 py-2 text-sm font-medium text-black sm:px-5 sm:text-base"
                       >
                         Check In
                       </button>
