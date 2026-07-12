@@ -1,5 +1,5 @@
 const axios = require("axios");
-const flutterwave   = require("../config/flutterwave");
+
 
 const flutterwave = axios.create({
   baseURL: "https://api.flutterwave.com/v3",
