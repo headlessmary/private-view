@@ -32,7 +32,7 @@ export default function AboutSection() {
           {/* Text */}
          <div className="max-w-full lg:max-w-155">
 
-  <h2 className="mx-auto whitespace-nowrap font-['Cormorant_Garamond'] text-[#C89A3D] text-[26px] leading-tight text-center sm:max-w-none sm:text-[40px] md:text-[46px] lg:max-w-none lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[fadeInUp_0.8s_ease-out]">
+  <h2 className="mx-auto max-w-[12rem] font-['Cormorant_Garamond'] text-[22px] leading-tight text-center text-[#C89A3D] sm:max-w-none sm:text-[40px] md:text-[46px] lg:max-w-none lg:text-left lg:text-[55px] lg:leading-[0.92] animate-[fadeInUp_0.8s_ease-out]">
     An escape into art,elegance & self-expression
   </h2>
 
