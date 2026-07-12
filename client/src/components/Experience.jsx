@@ -56,7 +56,7 @@ export default function Experience() {
           {experiences.map((item) => (
             <div
               key={item.title}
-              className="
+              className={`
                 bg-[#120F0B]
                 border border-[#23170E]
                 rounded-2xl
@@ -73,7 +73,7 @@ export default function Experience() {
                 hover:border-[#C8922E]
                 hover:bg-[#17120D]
                 hover:-translate-y-2
-              "
+              `}
             >
               <img
                 src={item.image}
