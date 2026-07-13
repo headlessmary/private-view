@@ -103,70 +103,46 @@ const verifyTransaction = async (req, res) => {
     }
 
     // Verify with Flutterwave
-    const payment = await verifyPayment(transactionId);
+   console.log("STEP 1");
 
-    if (
-      !payment ||
-      payment.status.toLowerCase() !== "successful"
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment verification failed.",
-      });
-    }
+const payment = await verifyPayment(transactionId);
 
-    const reference = payment.tx_ref;
+console.log("STEP 2");
 
-    // Find attendee
-    const attendee = await prisma.attendee.findUnique({
-      where: {
-        reference,
-      },
-    });
+const attendee = await prisma.attendee.findUnique({
+  where: { reference: payment.tx_ref },
+});
 
-    if (!attendee) {
-      return res.status(404).json({
-        success: false,
-        message: "Attendee not found.",
-      });
-    }
+console.log("STEP 3");
 
-    // Prevent duplicate verification
-    if (attendee.paymentStatus === "SUCCESS") {
-      return res.json({
-        success: true,
-        message: "Payment already verified.",
-        attendee,
-        qrCode: attendee.qrCode,
-      });
-    }
+let qrCode = attendee.qrCode;
 
-    // Generate QR only once
-    let qrCode = attendee.qrCode;
+if (!qrCode) {
+  console.log("STEP 4");
+  qrCode = await generateQRCode(payment.tx_ref);
+}
 
-    if (!qrCode) {
-      qrCode = await generateQRCode(reference);
-    }
+console.log("STEP 5");
 
-    // Update attendee
-    const updatedAttendee = await prisma.attendee.update({
-      where: {
-        reference,
-      },
-      data: {
-        paymentStatus: "SUCCESS",
-        qrCode,
-      },
-    });
+const updatedAttendee = await prisma.attendee.update({
+  where: { reference: payment.tx_ref },
+  data: {
+    paymentStatus: "SUCCESS",
+    qrCode,
+  },
+});
 
-    // Send email
-    await sendTicketEmail({
-      fullName: updatedAttendee.fullName,
-      email: updatedAttendee.email,
-      ticketType: updatedAttendee.ticketType,
-      reference,
-      qrCode,
-    });
+console.log("STEP 6");
+
+await sendTicketEmail({
+  fullName: updatedAttendee.fullName,
+  email: updatedAttendee.email,
+  ticketType: updatedAttendee.ticketType,
+  reference: payment.tx_ref,
+  qrCode,
+});
+
+console.log("STEP 7");
 
     return res.json({
       success: true,
