@@ -89,6 +89,10 @@ const initializeTransaction = async (req, res) => {
 // VERIFY PAYMENT
 // =====================================
 const verifyTransaction = async (req, res) => {
+   console.log("=========== VERIFY START ===========");
+  console.log(req.query);
+  console.log(req.params);
+
   try {
     // Accept BOTH query params and route params
     const transactionId =
