@@ -9,34 +9,39 @@ const sendTicketEmail = async ({
   reference,
   qrCode,
 }) => {
-  await transporter.sendMail({
-    from: process.env.MAIL_FROM,
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.MAIL_FROM,
+      to: email,
+      subject: "Your Ticket - The Private View: Art & Indulgence",
 
-    to: email,
+      html: ticketTemplate({
+        fullName,
+        ticketType,
+        reference,
+      }),
 
-    subject: "Your Ticket - The Private View: Art & Indulgence",
+      attachments: [
+        {
+          filename: "flyer.jpg",
+          path: path.join(__dirname, "../uploads/flyer.jpg"),
+          cid: "flyer",
+        },
+        {
+          filename: "ticket.png",
+          path: path.join(__dirname, "..", qrCode),
+          cid: "qrcode",
+        },
+      ],
+    });
 
-    html: ticketTemplate({
-      fullName,
-      ticketType,
-      reference,
-    }),
-
-    attachments: [
-       {
-    filename: "flyer.png",
-    path: path.join(__dirname, "../uploads/flyer.jpg"),
-    cid: "flyer",
-  },
-      {
-        filename: "private-view-ticket.png",
-        path: path.join(__dirname, "..", qrCode),
-        cid: "qrcode",
-      },
-    ],
-  });
-
-  console.log(`✅ Ticket email sent to ${email}`);
+    console.log("EMAIL SENT");
+    console.log(info);
+  } catch (err) {
+    console.error("EMAIL FAILED");
+    console.error(err);
+    throw err;
+  }
 };
 
 module.exports = {
