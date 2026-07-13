@@ -96,7 +96,7 @@ export default function Experience() {
         <div className="mt-8 flex flex-col sm:flex-row items-center lg:items-start gap-5 text-center lg:text-left">
          <Link
   to="/buy-ticket"
-  className={`inline-flex min-w-[14rem] items-center justify-center rounded-none transition-all duration-1000 ${isVisible ? "translate-y-0 opacity-100 animate-[experienceFadeUp_1.2s_ease-out_0.2s_both]" : "translate-y-6 opacity-0"} bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-8 py-4 justify-center sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[12px] lg:min-w-[16.5rem] lg:px-12 lg:py-5 lg:text-[13px]`}
+  className={`inline-flex min-w-56 items-center justify-center rounded-none transition-all duration-1000 ${isVisible ? "translate-y-0 opacity-100 animate-[experienceFadeUp_1.2s_ease-out_0.2s_both]" : "translate-y-6 opacity-0"} bg-[#D8A74E] hover:bg-[#C89A3D] text-black uppercase tracking-[0.18em] text-[11px] font-semibold px-8 py-4 justify-center sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[12px] lg:min-w-66 lg:px-12 lg:py-5 lg:text-[13px]`}
 >
   Reserve Ticket
 </Link>

@@ -83,30 +83,76 @@ setMessage(
       <div className="max-w-xl w-full bg-[#0b0907] border border-[#2a1c08] rounded-3xl p-10 text-center">
         {success ? (
           <>
-            <div className="text-6xl mb-6">✅</div>
+            <div className="w-24 h-24 mx-auto rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+              <span className="text-5xl">✅</span>
+            </div>
 
-            <h1 className="text-5xl font-serif text-[#D4A24D]">
-              Payment Successful
+            <h1 className="mt-8 text-4xl md:text-5xl font-serif text-[#D4A24D]">
+              Ticket Confirmed!
             </h1>
 
-            <p className="mt-6 text-gray-300 leading-8">
+            <p className="mt-5 text-gray-300 leading-8 text-lg">
               Thank you for purchasing your ticket for
-              <span className="text-[#D4A24D]">
-                {" "}The Private View: Art & Indulgence.
+              <span className="text-[#D4A24D] font-medium">
+                {" "}
+                The Private View: Art & Indulgence.
               </span>
             </p>
 
-            <p className="mt-4 text-gray-400">
-              Your QR ticket has been generated successfully.
-              Please check your email for your ticket.
-            </p>
+            {/* Notification Card */}
 
-            <Link
-              to="/"
-              className="inline-block mt-10 bg-[#D4A24D] hover:bg-[#C89A3D] text-black px-8 py-4 uppercase tracking-[0.2em] font-semibold transition"
-            >
-              Back to Homepage
-            </Link>
+            <div className="mt-8 rounded-2xl border border-[#D4A24D]/20 bg-[#16110B] p-6 text-left">
+
+              <h3 className="text-[#D4A24D] text-lg font-semibold mb-4">
+                🎉 Your ticket has been successfully booked!
+              </h3>
+
+              <ul className="space-y-4 text-gray-300 text-sm leading-7">
+
+                <li className="flex gap-3">
+                  <span className="text-green-400">✔</span>
+                  <span>Your payment has been confirmed.</span>
+                </li>
+
+                <li className="flex gap-3">
+                  <span className="text-green-400">✔</span>
+                  <span>Your QR Code ticket has been generated.</span>
+                </li>
+
+                <li className="flex gap-3">
+                  <span className="text-green-400">✔</span>
+                  <span>
+                    A confirmation email containing your ticket has been sent to your
+                    email address.
+                  </span>
+                </li>
+
+                <li className="flex gap-3">
+                  <span className="text-green-400">✔</span>
+                  <span>
+                    If you don't receive it within a few minutes, please check your
+                    Spam or Promotions folder.
+                  </span>
+                </li>
+
+                <li className="flex gap-3">
+                  <span className="text-green-400">✔</span>
+                  <span>
+                    Save your QR Code. It will be scanned at the event entrance.
+                  </span>
+                </li>
+
+              </ul>
+            </div>
+
+            <div className="mt-10">
+              <Link
+                to="/"
+                className="inline-block bg-[#D4A24D] hover:bg-[#C89A3D] text-black px-10 py-4 rounded-lg uppercase tracking-[0.2em] font-semibold transition"
+              >
+                Return Home
+              </Link>
+            </div>
           </>
         ) : (
           <>
