@@ -147,7 +147,20 @@ try {
     qrCode,
   });
 } catch (err) {
-  console.error("EMAIL ERROR:", err);
+  console.error("=========== EMAIL ERROR ===========");
+  console.error(err);
+
+  if (err.response) {
+    console.error(err.response.data);
+  }
+
+  if (err.code) {
+    console.error("CODE:", err.code);
+  }
+
+  if (err.command) {
+    console.error("COMMAND:", err.command);
+  }
 }
 
 console.log("STEP 7");
