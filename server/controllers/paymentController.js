@@ -120,6 +120,14 @@ const verifyTransaction = async (req, res) => {
         message: "Attendee not found.",
       });
     }
+    if (attendee.paymentStatus === "SUCCESS") {
+  return res.json({
+    success: true,
+    message: "Payment already verified.",
+    attendee,
+    qrCode: attendee.qrCode,
+  });
+}
 
     const qrResult = attendee.qrCode
       ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }

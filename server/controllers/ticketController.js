@@ -76,17 +76,18 @@ const createTicket = async (req, res) => {
     });
 
     const payment = await initializePayment({
-      email,
-      amount,
-      reference,
-    });
+    fullName,
+    email,
+    phone,
+    amount,
+    reference,
+});
 
-    return res.status(201).json({
-      success: true,
-      authorization_url: payment.authorization_url,
-      access_code: payment.access_code,
-      reference,
-    });
+   return res.status(201).json({
+  success: true,
+  paymentLink: payment.link,
+  reference,
+});
 
   } catch (error) {
     console.error("CREATE TICKET ERROR:", error.response?.data || error);
@@ -103,7 +104,7 @@ const createTicket = async (req, res) => {
 // =========================
 const verifyTicketPayment = async (req, res) => {
   try {
-    const { reference } = req.params;
+    const { transactionId } = req.params;
 
     if (!reference) {
       return res.status(400).json({
@@ -112,20 +113,19 @@ const verifyTicketPayment = async (req, res) => {
       });
     }
 
-    const payment = await verifyPayment(reference);
+    const payment = await verifyPayment(transactionId);
 
-    if (payment.status !== "success") {
-      return res.status(400).json({
-        success: false,
-        message: "Payment verification failed.",
-      });
-    }
-
-    const attendee = await prisma.attendee.findUnique({
-      where: {
-        reference,
-      },
+    if (payment.status !== "successful") {
+    return res.status(400).json({
+        success:false,
+        message:"Payment verification failed."
     });
+}
+const attendee = await prisma.attendee.findUnique({
+    where:{
+        reference: payment.tx_ref,
+    },
+});
 
     if (!attendee) {
       return res.status(404).json({
