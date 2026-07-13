@@ -12,31 +12,41 @@ export default function PaymentSuccess() {
   useEffect(() => {
     const verifyPayment = async () => {
       const status = searchParams.get("status");
-const transactionId = searchParams.get("transaction_id");
+      const transactionId = searchParams.get("transaction_id") || searchParams.get("transactionId");
+      const txRef = searchParams.get("tx_ref") || searchParams.get("txRef") || searchParams.get("reference");
 
-if (!transactionId) {
-  setMessage("Transaction ID is missing.");
-  setLoading(false);
-  return;
-}
+      if (!transactionId && !txRef) {
+        setMessage("Payment reference is missing.");
+        setLoading(false);
+        return;
+      }
 
-if (status === "cancelled") {
-  setMessage("Payment was cancelled.");
-  setLoading(false);
-  return;
-}
+      if (status === "cancelled") {
+        setMessage("Payment was cancelled.");
+        setLoading(false);
+        return;
+      }
 
-if (status !== "successful") {
-  setMessage("Payment was not successful.");
-  setLoading(false);
-  return;
-}
+      if (status !== "successful") {
+        setMessage("Payment was not successful.");
+        setLoading(false);
+        return;
+      }
 
       try {
-        const response = await fetch(
-          `${API_URL}/api/payment/verify/${transactionId}`
-        );
+        const verifyUrl = new URL(`${API_URL}/api/payment/verify`);
 
+        if (transactionId) {
+          verifyUrl.searchParams.set("transaction_id", transactionId);
+        }
+
+        if (txRef) {
+          verifyUrl.searchParams.set("tx_ref", txRef);
+        }
+
+        verifyUrl.searchParams.set("status", status);
+
+        const response = await fetch(verifyUrl.toString());
         const data = await response.json();
 
         if (!response.ok) {
@@ -44,12 +54,12 @@ if (status !== "successful") {
         }
 
         setSuccess(data.success);
-setMessage(
-  data.message ||
-  (data.success
-    ? "Payment verified successfully."
-    : "Payment verification failed.")
-);
+        setMessage(
+          data.message ||
+          (data.success
+            ? "Payment verified successfully."
+            : "Payment verification failed.")
+        );
       } catch (error) {
         console.error(error);
         setSuccess(false);

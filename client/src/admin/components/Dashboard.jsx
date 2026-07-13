@@ -250,6 +250,29 @@ export default function Dashboard() {
     }
   };
 
+  const reverifyAllPending = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/admin/reverify-payment/bulk`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to recover pending attendees");
+      }
+
+      alert(data.message || "Pending attendees recovered successfully.");
+      await fetchDashboard();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   // eslint-disable-next-line no-unused-vars
   const handleResendTicketEmail = async () => {
     if (!selectedAttendee?.id) {
@@ -651,6 +674,13 @@ export default function Dashboard() {
                     >
                       Export PDF
                     </button>
+
+                    <button
+                      onClick={reverifyAllPending}
+                      className="h-12 rounded-lg bg-[#d4a24d] px-5 text-sm uppercase tracking-[0.2em] text-black sm:h-14 sm:px-7"
+                    >
+                      Re-verify Pending
+                    </button>
                   </div>
                 </div>
               </div>
@@ -695,7 +725,17 @@ export default function Dashboard() {
                         <td className="text-center text-xs text-[#d4a24d] sm:text-base">
                           {person.reference?.slice(0, 8)}...
                         </td>
-                        <td className="text-center text-xs sm:text-base">{person.checkedIn ? "Checked In" : "Waiting"}</td>
+                        <td className="text-center text-xs sm:text-base">
+                          {person.checkedIn ? (
+                            <span className="inline-flex items-center rounded-full bg-green-700/30 px-2 py-1 text-[10px] font-semibold text-green-400 sm:text-sm">
+                              Used
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-yellow-700/30 px-2 py-1 text-[10px] font-semibold text-yellow-400 sm:text-sm">
+                              Waiting
+                            </span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

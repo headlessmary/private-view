@@ -45,16 +45,16 @@ export default function Attendees() {
     try {
       const token = localStorage.getItem("adminToken");
 
-    const response = await fetch(`${API_URL}/api/admin/check-in`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify({
-    reference,
-  }),
-});
+      const response = await fetch(`${API_URL}/api/admin/check-in`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reference,
+        }),
+      });
 
       const data = await response.json();
 
@@ -65,7 +65,37 @@ export default function Attendees() {
       alert("Guest checked in successfully.");
 
       loadAttendees();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
+  const reverifyPayment = async (guest) => {
+    if (!window.confirm("Re-verify this payment and generate the QR code?")) return;
+
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      const response = await fetch(`${API_URL}/api/admin/reverify-payment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reference: guest.reference,
+          transactionId: guest.reference,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      alert("Payment re-verified successfully.");
+      loadAttendees();
     } catch (err) {
       alert(err.message);
     }
@@ -171,15 +201,14 @@ export default function Attendees() {
 
                   <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
                     {guest.checkedIn ? (
-                      <span className="text-green-400">
-                        ✔ Yes
+                      <span className="inline-flex items-center rounded-full bg-green-700/30 px-3 py-1 text-sm font-medium text-green-400">
+                        ✔ Used
                       </span>
                     ) : (
-                      <span className="text-yellow-400">
+                      <span className="inline-flex items-center rounded-full bg-yellow-700/30 px-3 py-1 text-sm font-medium text-yellow-400">
                         Waiting
                       </span>
                     )}
-
                   </td>
 
                   <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
@@ -187,18 +216,25 @@ export default function Attendees() {
                   </td>
 
                   <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {!guest.checkedIn && (
+                        <button
+                          onClick={() => checkIn(guest.reference)}
+                          className="whitespace-nowrap rounded-lg bg-[#d4a24d] px-4 py-2 text-sm font-medium text-black sm:px-5 sm:text-base"
+                        >
+                          Check In
+                        </button>
+                      )}
 
-                    {!guest.checkedIn && (
-                      <button
-                        onClick={() =>
-                          checkIn(guest.reference)
-                        }
-                        className="whitespace-nowrap rounded-lg bg-[#d4a24d] px-4 py-2 text-sm font-medium text-black sm:px-5 sm:text-base"
-                      >
-                        Check In
-                      </button>
-                    )}
-
+                      {guest.paymentStatus !== "SUCCESS" && (
+                        <button
+                          onClick={() => reverifyPayment(guest)}
+                          className="whitespace-nowrap rounded-lg border border-[#d4a24d] px-4 py-2 text-sm font-medium text-[#d4a24d] sm:px-5 sm:text-base"
+                        >
+                          Re-verify
+                        </button>
+                      )}
+                    </div>
                   </td>
 
                 </tr>

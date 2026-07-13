@@ -14,9 +14,7 @@ router.post(
 );
 
 // Verify Payment
-router.get(
-  "/verify/:transactionId",
-  verifyTransaction
-);
+router.get("/verify", verifyTransaction);
+router.get("/verify/:transactionId", verifyTransaction);
 
 module.exports = router;

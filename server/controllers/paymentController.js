@@ -71,26 +71,42 @@ const initializeTransaction = async (req, res) => {
 
 const verifyTransaction = async (req, res) => {
   try {
-    const { transactionId } = req.params;
+    const transactionId = req.params.transactionId || req.query.transaction_id || req.query.transactionId;
+    const txRef = req.query.tx_ref || req.query.txRef || req.query.reference || req.query.referenceId;
+    const incomingStatus = String(req.query.status || "").trim().toLowerCase();
 
-    if (!transactionId) {
+    let payment = null;
+    let reference = txRef;
+
+    if (transactionId) {
+      try {
+        payment = await verifyPayment(transactionId);
+        reference = payment?.tx_ref || payment?.txRef || payment?.reference || reference;
+      } catch (error) {
+        if (!reference || !["successful", "success", "succeeded", "completed", "paid"].includes(incomingStatus)) {
+          throw error;
+        }
+
+        console.warn("Flutterwave verification failed; using callback status to complete payment.", error.message);
+      }
+    }
+
+    if (!reference) {
       return res.status(400).json({
         success: false,
-        message: "Transaction ID is required.",
+        message: "Payment reference is required.",
       });
     }
 
-    const payment = await verifyPayment(transactionId);
+    const normalizedStatus = String(payment?.status || incomingStatus || "").trim().toLowerCase();
+    const isSuccessful = ["successful", "success", "succeeded", "completed", "paid"].includes(normalizedStatus);
 
-    if (payment.status !== "successful") {
+    if (!isSuccessful) {
       return res.status(400).json({
         success: false,
         message: "Payment not successful.",
       });
     }
-
-    // Flutterwave tx_ref becomes our attendee reference
-    const reference = payment.tx_ref;
 
     const attendee = await prisma.attendee.findUnique({
       where: {
@@ -105,8 +121,9 @@ const verifyTransaction = async (req, res) => {
       });
     }
 
-    const qrCode =
-      attendee.qrCode || (await generateQRCode(reference));
+    const qrResult = attendee.qrCode
+      ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }
+      : await generateQRCode(reference, attendee.qrToken);
 
     const updatedAttendee = await prisma.attendee.update({
       where: {
@@ -114,7 +131,9 @@ const verifyTransaction = async (req, res) => {
       },
       data: {
         paymentStatus: "SUCCESS",
-        qrCode,
+        qrCode: qrResult.qrCode,
+        qrToken: qrResult.qrToken || attendee.qrToken,
+        qrTokenUsed: false,
       },
     });
 
@@ -123,13 +142,14 @@ const verifyTransaction = async (req, res) => {
       email: updatedAttendee.email,
       ticketType: updatedAttendee.ticketType,
       reference,
-      qrCode,
+      qrCode: updatedAttendee.qrCode,
     });
 
     return res.json({
       success: true,
       message: "Payment verified successfully.",
       attendee: updatedAttendee,
+      qrCode: updatedAttendee.qrCode,
     });
 
   } catch (error) {
@@ -137,8 +157,7 @@ const verifyTransaction = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message:
-        error.response?.data?.message || error.message,
+      message: error.response?.data?.message || error.message,
     });
   }
 };

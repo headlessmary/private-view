@@ -11,6 +11,14 @@ const {
   sendTicketEmail,
 } = require("../services/emailService");
 
+const {
+  verifyPayment,
+} = require("../services/flutterwaveService");
+
+const {
+  generateQRCode,
+} = require("../services/qrService");
+
 // ==============================
 // Admin Login
 // ==============================
@@ -264,20 +272,28 @@ const filterAttendees = async (req, res) => {
 // ==============================
 const checkIn = async (req, res) => {
   try {
-    const { reference } = req.body;
+    const reference = String(req.body?.reference || "").trim();
+    const qrToken = String(req.body?.qrToken || "").trim();
 
-    if (!reference) {
+    if (!reference && !qrToken) {
       return res.status(400).json({
         success: false,
         message: "Ticket reference is required.",
       });
     }
 
-    const attendee = await prisma.attendee.findUnique({
-      where: {
-        reference,
-      },
-    });
+    const attendee = qrToken
+      ? await prisma.attendee.findFirst({
+          where: {
+            qrToken,
+            qrTokenUsed: false,
+          },
+        })
+      : await prisma.attendee.findUnique({
+          where: {
+            reference,
+          },
+        });
 
     if (!attendee) {
       return res.status(404).json({
@@ -302,10 +318,11 @@ const checkIn = async (req, res) => {
 
     const updatedAttendee = await prisma.attendee.update({
       where: {
-        reference,
+        reference: attendee.reference,
       },
       data: {
         checkedIn: true,
+        qrTokenUsed: true,
       },
     });
 
@@ -491,6 +508,168 @@ const resendTicket = async (req, res) => {
   }
 };
 
+const reverifyPendingPayment = async (req, res) => {
+  try {
+    const { reference, transactionId } = req.body;
+
+    if (!reference && !transactionId) {
+      return res.status(400).json({
+        success: false,
+        message: "A ticket reference or transaction ID is required.",
+      });
+    }
+
+    const attendee = await prisma.attendee.findUnique({
+      where: {
+        reference: reference || transactionId,
+      },
+    });
+
+    if (!attendee) {
+      return res.status(404).json({
+        success: false,
+        message: "Attendee not found.",
+      });
+    }
+
+    if (attendee.paymentStatus === "SUCCESS") {
+      return res.status(200).json({
+        success: true,
+        message: "Payment already completed.",
+        attendee,
+      });
+    }
+
+    let payment = null;
+    let verifiedReference = reference || transactionId;
+
+    if (transactionId) {
+      payment = await verifyPayment(transactionId);
+      verifiedReference = payment?.tx_ref || payment?.txRef || payment?.reference || verifiedReference;
+    }
+
+    const normalizedStatus = String(payment?.status || "").trim().toLowerCase();
+    const isSuccessful = ["successful", "success", "succeeded", "completed", "paid"].includes(normalizedStatus);
+
+    if (transactionId && !isSuccessful) {
+      return res.status(400).json({
+        success: false,
+        message: "Flutterwave reported that the payment is not successful.",
+      });
+    }
+
+    const qrResult = attendee.qrCode
+      ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }
+      : await generateQRCode(verifiedReference, attendee.qrToken);
+
+    const updatedAttendee = await prisma.attendee.update({
+      where: {
+        reference: attendee.reference,
+      },
+      data: {
+        paymentStatus: "SUCCESS",
+        qrCode: qrResult.qrCode,
+        qrToken: qrResult.qrToken || attendee.qrToken,
+        qrTokenUsed: false,
+        reference: verifiedReference,
+      },
+    });
+
+    await sendTicketEmail({
+      fullName: updatedAttendee.fullName,
+      email: updatedAttendee.email,
+      ticketType: updatedAttendee.ticketType,
+      reference: updatedAttendee.reference,
+      qrCode: updatedAttendee.qrCode,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment re-verified successfully.",
+      attendee: updatedAttendee,
+      qrCode,
+    });
+  } catch (error) {
+    console.error(error.response?.data || error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+const reverifyPendingPayments = async (req, res) => {
+  try {
+    const pendingAttendees = await prisma.attendee.findMany({
+      where: {
+        paymentStatus: {
+          not: "SUCCESS",
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!pendingAttendees.length) {
+      return res.status(200).json({
+        success: true,
+        message: "No pending attendees found.",
+        count: 0,
+      });
+    }
+
+    const results = [];
+
+    for (const attendee of pendingAttendees) {
+      try {
+        const qrResult = attendee.qrCode
+          ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }
+          : await generateQRCode(attendee.reference || attendee.id, attendee.qrToken);
+
+        const updatedAttendee = await prisma.attendee.update({
+          where: {
+            id: attendee.id,
+          },
+          data: {
+            paymentStatus: "SUCCESS",
+            qrCode: qrResult.qrCode,
+            qrToken: qrResult.qrToken || attendee.qrToken,
+            qrTokenUsed: false,
+          },
+        });
+
+        await sendTicketEmail({
+          fullName: updatedAttendee.fullName,
+          email: updatedAttendee.email,
+          ticketType: updatedAttendee.ticketType,
+          reference: updatedAttendee.reference,
+          qrCode: updatedAttendee.qrCode,
+        });
+
+        results.push(updatedAttendee);
+      } catch (error) {
+        console.error(`Failed to recover attendee ${attendee.reference}`, error);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Recovered ${results.length} pending attendee(s).`,
+      count: results.length,
+      attendees: results,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   login,
   dashboard,
@@ -502,4 +681,6 @@ module.exports = {
   exportExcel,
   exportPDF,
   resendTicket,
+  reverifyPendingPayment,
+  reverifyPendingPayments,
 };

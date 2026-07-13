@@ -44,6 +44,15 @@ const playError = () => {
   const verifyTicket = async (reference) => {
     if (loading) return;
 
+    const normalizedReference = String(reference || "").trim();
+
+    if (!normalizedReference) {
+      setErrorState("No ticket reference found in QR code.");
+      setMessage("❌ No ticket reference found in QR code.");
+      playError();
+      return;
+    }
+
     setLoading(true);
     setMessage("");
     setErrorState("");
@@ -57,13 +66,13 @@ const playError = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ reference }),
+        body: JSON.stringify({ qrToken: normalizedReference }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        playSuccess();
+        playError();
         throw new Error(data.message || "Unable to verify ticket");
       }
 
@@ -93,7 +102,7 @@ const playError = () => {
   const handleScan = (results) => {
     if (!results?.length) return;
 
-    const reference = results[0].rawValue;
+    const reference = String(results[0]?.rawValue || "").trim();
 
     if (!reference || loading || reference === lastScanned) return;
 

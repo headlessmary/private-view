@@ -17,6 +17,8 @@ model Attendee {
   paymentStatus PaymentStatus @default(PENDING)
   reference     String?       @unique
   qrCode        String?
+  qrToken       String?
+  qrTokenUsed   Boolean       @default(false)
   checkedIn     Boolean       @default(false)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt

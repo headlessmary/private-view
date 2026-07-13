@@ -14,6 +14,8 @@ const {
   exportExcel,
   exportPDF,
   resendTicket,
+  reverifyPendingPayment,
+  reverifyPendingPayments,
 } = require("../controllers/adminController");
 
 router.post("/login", login);
@@ -43,5 +45,6 @@ router.get(
 );
 
 router.post("/resend-ticket", protectAdmin, resendTicket);
+router.post("/reverify-payment", protectAdmin, reverifyPendingPayment);
 
 module.exports = router;

@@ -134,7 +134,9 @@ const verifyTicketPayment = async (req, res) => {
       });
     }
 
-    const qrCode = attendee.qrCode || await generateQRCode(reference);
+    const qrResult = attendee.qrCode
+      ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }
+      : await generateQRCode(reference, attendee.qrToken);
 
     const updatedAttendee = await prisma.attendee.update({
       where: {
@@ -142,7 +144,9 @@ const verifyTicketPayment = async (req, res) => {
       },
       data: {
         paymentStatus: "SUCCESS",
-        qrCode,
+        qrCode: qrResult.qrCode,
+        qrToken: qrResult.qrToken || attendee.qrToken,
+        qrTokenUsed: false,
       },
     });
 
