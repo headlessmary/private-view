@@ -134,13 +134,17 @@ const updatedAttendee = await prisma.attendee.update({
 
 console.log("STEP 6");
 
-await sendTicketEmail({
-  fullName: updatedAttendee.fullName,
-  email: updatedAttendee.email,
-  ticketType: updatedAttendee.ticketType,
-  reference: payment.tx_ref,
-  qrCode,
-});
+try {
+  await sendTicketEmail({
+    fullName: updatedAttendee.fullName,
+    email: updatedAttendee.email,
+    ticketType: updatedAttendee.ticketType,
+    reference: payment.tx_ref,
+    qrCode,
+  });
+} catch (err) {
+  console.error("EMAIL ERROR:", err);
+}
 
 console.log("STEP 7");
 
@@ -150,22 +154,21 @@ console.log("STEP 7");
       attendee: updatedAttendee,
       qrCode,
     });
+} catch (error) {
+  console.log("========== VERIFY ERROR ==========");
+  console.log(error);
 
-  } catch (error) {
-    console.error(
-      "VERIFY PAYMENT ERROR:",
-      error.response?.data || error
-    );
-
-    return res.status(500).json({
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Payment verification failed",
-    });
+  if (error.response) {
+    console.log("STATUS:", error.response.status);
+    console.log("DATA:", error.response.data);
   }
-};
+
+  return res.status(500).json({
+    success: false,
+    message: error.message,
+  });
+}
+}
 
 module.exports = {
   initializeTransaction,
