@@ -90,7 +90,10 @@ const initializeTransaction = async (req, res) => {
 // =====================================
 const verifyTransaction = async (req, res) => {
   try {
-    const { transactionId } = req.params;
+    // Accept BOTH query params and route params
+    const transactionId =
+      req.params.transactionId ||
+      req.query.transaction_id;
 
     if (!transactionId) {
       return res.status(400).json({
@@ -99,6 +102,7 @@ const verifyTransaction = async (req, res) => {
       });
     }
 
+    // Verify with Flutterwave
     const payment = await verifyPayment(transactionId);
 
     if (
@@ -113,6 +117,7 @@ const verifyTransaction = async (req, res) => {
 
     const reference = payment.tx_ref;
 
+    // Find attendee
     const attendee = await prisma.attendee.findUnique({
       where: {
         reference,
@@ -126,9 +131,9 @@ const verifyTransaction = async (req, res) => {
       });
     }
 
-    // Already verified
+    // Prevent duplicate verification
     if (attendee.paymentStatus === "SUCCESS") {
-      return res.status(200).json({
+      return res.json({
         success: true,
         message: "Payment already verified.",
         attendee,
@@ -137,10 +142,13 @@ const verifyTransaction = async (req, res) => {
     }
 
     // Generate QR only once
-    const qrCode = attendee.qrCode
-      ? attendee.qrCode
-      : await generateQRCode(reference);
+    let qrCode = attendee.qrCode;
 
+    if (!qrCode) {
+      qrCode = await generateQRCode(reference);
+    }
+
+    // Update attendee
     const updatedAttendee = await prisma.attendee.update({
       where: {
         reference,
@@ -151,7 +159,7 @@ const verifyTransaction = async (req, res) => {
       },
     });
 
-    // Send ticket email
+    // Send email
     await sendTicketEmail({
       fullName: updatedAttendee.fullName,
       email: updatedAttendee.email,
@@ -160,7 +168,7 @@ const verifyTransaction = async (req, res) => {
       qrCode,
     });
 
-    return res.status(200).json({
+    return res.json({
       success: true,
       message: "Payment verified successfully.",
       attendee: updatedAttendee,
