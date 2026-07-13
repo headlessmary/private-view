@@ -14,9 +14,10 @@ const {
   sendTicketEmail,
 } = require("../services/emailService");
 
-// =========================
-// Create Ticket
-// =========================
+
+// ==========================================
+// CREATE TICKET
+// ==========================================
 const createTicket = async (req, res) => {
   try {
     const {
@@ -25,7 +26,7 @@ const createTicket = async (req, res) => {
       phone,
       ticketType,
       amount,
-    } = req.body || {};
+    } = req.body;
 
     if (
       !fullName ||
@@ -49,21 +50,19 @@ const createTicket = async (req, res) => {
       });
     }
 
-    const existing = await prisma.attendee.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "Email has already been used.",
-      });
-    }
-
+    // Generate unique ticket reference
     const reference = uuid();
 
+    // FIRST initialize payment
+    const payment = await initializePayment({
+      fullName,
+      email,
+      phone,
+      amount,
+      reference,
+    });
+
+    // ONLY create attendee if Flutterwave succeeds
     await prisma.attendee.create({
       data: {
         fullName,
@@ -71,61 +70,64 @@ const createTicket = async (req, res) => {
         phone,
         ticketType: normalizedTicketType,
         amount: Number(amount),
+        paymentStatus: "PENDING",
         reference,
       },
     });
 
-    const payment = await initializePayment({
-    fullName,
-    email,
-    phone,
-    amount,
-    reference,
-});
-
-   return res.status(201).json({
-  success: true,
-  paymentLink: payment.link,
-  reference,
-});
+    return res.status(201).json({
+      success: true,
+      paymentLink: payment.link,
+      reference,
+    });
 
   } catch (error) {
-    console.error("CREATE TICKET ERROR:", error.response?.data || error);
+    console.error(
+      "CREATE TICKET ERROR:",
+      error.response?.data || error
+    );
 
     return res.status(500).json({
       success: false,
-      message: error.response?.data?.message || error.message,
+      message:
+        error.response?.data?.message || error.message,
     });
   }
 };
 
-// =========================
-// Verify Payment
-// =========================
+
+// ==========================================
+// VERIFY PAYMENT
+// ==========================================
 const verifyTicketPayment = async (req, res) => {
   try {
     const { transactionId } = req.params;
 
-    if (!reference) {
+    if (!transactionId) {
       return res.status(400).json({
         success: false,
-        message: "Payment reference is required.",
+        message: "Transaction ID is required.",
       });
     }
 
+    // Verify payment with Flutterwave
     const payment = await verifyPayment(transactionId);
 
     if (payment.status !== "successful") {
-    return res.status(400).json({
-        success:false,
-        message:"Payment verification failed."
+      return res.status(400).json({
+        success: false,
+        message: "Payment was not successful.",
+      });
+    }
+
+    // tx_ref is the reference we generated
+    const reference = payment.tx_ref;
+
+    const attendee = await prisma.attendee.findUnique({
+      where: {
+        reference,
+      },
     });
-}
-const attendee = await prisma.attendee.findUnique({
-    where:{
-        reference: payment.tx_ref,
-    },
-});
 
     if (!attendee) {
       return res.status(404).json({
@@ -134,9 +136,19 @@ const attendee = await prisma.attendee.findUnique({
       });
     }
 
-    const qrResult = attendee.qrCode
-      ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }
-      : await generateQRCode(reference, attendee.qrToken);
+    // Prevent duplicate verification
+    if (attendee.paymentStatus === "SUCCESS") {
+      return res.status(200).json({
+        success: true,
+        message: "Payment already verified.",
+        attendee,
+      });
+    }
+
+    // Generate QR only once
+    const qrCode = attendee.qrCode
+      ? attendee.qrCode
+      : await generateQRCode(reference);
 
     const updatedAttendee = await prisma.attendee.update({
       where: {
@@ -144,33 +156,36 @@ const attendee = await prisma.attendee.findUnique({
       },
       data: {
         paymentStatus: "SUCCESS",
-        qrCode: qrResult.qrCode,
-        qrToken: qrResult.qrToken || attendee.qrToken,
-        qrTokenUsed: false,
+        qrCode,
       },
     });
 
+    // Send ticket email
     await sendTicketEmail({
       fullName: updatedAttendee.fullName,
       email: updatedAttendee.email,
       ticketType: updatedAttendee.ticketType,
       reference: updatedAttendee.reference,
-      qrCode: updatedAttendee.qrCode,
+      qrCode,
     });
 
     return res.status(200).json({
       success: true,
       message: "Payment verified successfully.",
       attendee: updatedAttendee,
-      qrCode: updatedAttendee.qrCode,
+      qrCode,
     });
 
   } catch (error) {
-    console.error("VERIFY PAYMENT ERROR:", error.response?.data || error);
+    console.error(
+      "VERIFY PAYMENT ERROR:",
+      error.response?.data || error
+    );
 
     return res.status(500).json({
       success: false,
-      message: error.response?.data?.message || error.message,
+      message:
+        error.response?.data?.message || error.message,
     });
   }
 };
