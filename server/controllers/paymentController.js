@@ -140,18 +140,7 @@ const updatedAttendee = await prisma.attendee.update({
 console.log("STEP 6");
 
 try {
-  console.log("STEP 6A - Sending email...");
-
-  const info = await sendTicketEmail({
-    fullName: updatedAttendee.fullName,
-    email: updatedAttendee.email,
-    ticketType: updatedAttendee.ticketType,
-    reference: payment.tx_ref,
-    qrCode,
-  });
-
-  console.log("STEP 6B - Email sent successfully");
-  console.log(info);
+ 
 
 } catch (err) {
   console.error("========== EMAIL ERROR ==========");

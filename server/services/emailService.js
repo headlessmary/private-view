@@ -1,6 +1,5 @@
-const transporter = require("../config/mail");
+const axios = require("axios");
 const ticketTemplate = require("./emailTemplates/ticketTemplate");
-const path = require("path");
 
 const sendTicketEmail = async ({
   fullName,
@@ -9,38 +8,58 @@ const sendTicketEmail = async ({
   reference,
   qrCode,
 }) => {
+  try {
+    // Make QR code URL absolute
+    const qrUrl = `${process.env.API_URL}${qrCode}`;
 
-  console.log("EMAIL SERVICE START");
-
-  const info = await transporter.sendMail({
-    from: process.env.MAIL_FROM,
-    to: email,
-    subject: "Your Ticket - The Private View: Art & Indulgence",
-
-    html: ticketTemplate({
-      fullName,
-      ticketType,
-      reference,
-    }),
-
-    attachments: [
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
       {
-        filename: "flyer.jpg",
-        path: path.join(__dirname, "../uploads/flyer.jpg"),
-        cid: "flyer",
+        sender: {
+          name: "Private View",
+          email: process.env.MAIL_FROM,
+        },
+
+        to: [
+          {
+            email,
+            name: fullName,
+          },
+        ],
+
+        subject: "Your Ticket - The Private View: Art & Indulgence",
+
+        htmlContent: ticketTemplate({
+          fullName,
+          ticketType,
+          reference,
+          qrCode: qrUrl,
+        }),
       },
       {
-        filename: "ticket.png",
-        path: path.join(__dirname, "..", qrCode),
-        cid: "qrcode",
-      },
-    ],
-  });
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
 
-  console.log("EMAIL SERVICE END");
-  console.log(info);
+    console.log("✅ Email sent successfully");
+    console.log(response.data);
 
-  return info;
+    return response.data;
+  } catch (error) {
+    console.error("❌ Brevo Email Error");
+
+    if (error.response) {
+      console.error(error.response.data);
+    } else {
+      console.error(error.message);
+    }
+
+    throw error;
+  }
 };
 
 module.exports = {
