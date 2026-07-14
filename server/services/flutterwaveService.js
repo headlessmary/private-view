@@ -36,15 +36,15 @@ const initializePayment = async ({
   phone,
   amount,
   reference,
-  redirectUrl,
+  redirectUrl: redirectUrlInput,
 }) => {
   const frontendUrl = toAbsoluteUrl(process.env.FRONTEND_URL);
   const configuredRedirectUrl = toAbsoluteUrl(process.env.FLW_REDIRECT_URL);
-  const requestRedirectUrl = toAbsoluteUrl(redirectUrl);
+  const requestRedirectUrl = toAbsoluteUrl(redirectUrlInput);
 
   const safeFallbackRedirectUrl = "https://www.headlessmary.com/payment-success";
 
-  const redirectUrl =
+  const finalRedirectUrl =
     requestRedirectUrl ||
     configuredRedirectUrl ||
     (frontendUrl
@@ -69,7 +69,7 @@ const initializePayment = async ({
     tx_ref: reference,
     amount: normalizedAmount,
     currency: "NGN",
-    redirect_url: toAbsoluteUrl(redirectUrl) || safeFallbackRedirectUrl,
+    redirect_url: toAbsoluteUrl(finalRedirectUrl) || safeFallbackRedirectUrl,
 
     customer: {
       email: customerEmail,
