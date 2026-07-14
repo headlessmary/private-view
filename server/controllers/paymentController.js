@@ -91,16 +91,23 @@ const initializeTransaction = async (req, res) => {
       amount,
     } = req.body;
 
+    const normalizedFullName = (fullName || "").trim();
+    const normalizedEmail = (email || "").trim();
+    const normalizedPhone = String(phone || "").trim();
+    const normalizedTicketType = (ticketType || "").trim().toUpperCase();
+    const normalizedAmount = Number(amount);
+
     if (
-      !fullName ||
-      !email ||
-      !phone ||
-      !ticketType ||
-      !amount
+      !normalizedFullName ||
+      !normalizedEmail ||
+      !normalizedPhone ||
+      !normalizedTicketType ||
+      !Number.isFinite(normalizedAmount) ||
+      normalizedAmount <= 0
     ) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required.",
+        message: "Invalid payment request. Please provide valid attendee details and ticket amount.",
       });
     }
 
@@ -108,21 +115,21 @@ const initializeTransaction = async (req, res) => {
 
     // Create payment link first
     const payment = await initializePayment({
-      fullName,
-      email,
-      phone,
-      amount,
+      fullName: normalizedFullName,
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      amount: normalizedAmount,
       reference,
     });
 
     // Save attendee after Flutterwave succeeds
     await prisma.attendee.create({
       data: {
-        fullName,
-        email,
-        phone,
-        ticketType,
-        amount: Number(amount),
+        fullName: normalizedFullName,
+        email: normalizedEmail,
+        phone: normalizedPhone,
+        ticketType: normalizedTicketType,
+        amount: normalizedAmount,
         reference,
         paymentStatus: "PENDING",
       },

@@ -43,6 +43,11 @@ export default function BuyTicket() {
     return;
   }
 
+  if (!Number.isFinite(selectedPrice) || selectedPrice <= 0) {
+    alert("Selected ticket amount is invalid. Please reselect your ticket.");
+    return;
+  }
+
   setLoading(true);
 
   try {
@@ -53,7 +58,7 @@ export default function BuyTicket() {
       },
       body: JSON.stringify({
         ...form,
-        amount: selectedPrice,
+        amount: Number(selectedPrice),
       }),
     });
 
