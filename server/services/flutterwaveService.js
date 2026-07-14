@@ -16,27 +16,41 @@ const initializePayment = async ({
   amount,
   reference,
 }) => {
+  const frontendUrl = (process.env.FRONTEND_URL || "").replace(/\/$/, "");
   const redirectUrl =
     process.env.FLW_REDIRECT_URL ||
-    `${process.env.FRONTEND_URL}/payment-success`;
+    (frontendUrl
+      ? `${frontendUrl}/payment-success`
+      : "https://www.headlessmary.com/payment-success");
+
+  const customerName = (fullName || "").trim();
+  const customerEmail = (email || "").trim();
+  const customerPhone = String(phone || "").trim();
+  const normalizedAmount = Number(amount);
+
+  const customizations = {
+    title: "The Private View: Art & Indulgence",
+    description: "Event Ticket Purchase",
+  };
+
+  if (frontendUrl) {
+    customizations.logo = `${frontendUrl}/logo.png`;
+  }
 
   const response = await flutterwave.post("/payments", {
     tx_ref: reference,
-    amount,
+    amount: normalizedAmount,
     currency: "NGN",
     redirect_url: redirectUrl,
 
     customer: {
-      email,
-      phonenumber: phone,
-      name: fullName,
+      email: customerEmail,
+      phonenumber: customerPhone,
+      phone_number: customerPhone,
+      name: customerName,
     },
 
-    customizations: {
-      title: "The Private View: Art & Indulgence",
-      description: "Event Ticket Purchase",
-      logo: `${process.env.FRONTEND_URL}/logo.png`,
-    },
+    customizations,
   });
 
   return response.data.data;
