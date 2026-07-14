@@ -50,7 +50,21 @@ const verifyPayment = async (transactionId) => {
   return response.data.data;
 };
 
+const verifyPaymentByReference = async (reference) => {
+  const response = await flutterwave.get(
+    "/transactions/verify_by_reference",
+    {
+      params: {
+        tx_ref: reference,
+      },
+    }
+  );
+
+  return response.data.data;
+};
+
 module.exports = {
   initializePayment,
   verifyPayment,
+  verifyPaymentByReference,
 };

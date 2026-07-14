@@ -3,6 +3,7 @@ const prisma = require("../database/prisma");
 const {
   initializePayment,
   verifyPayment,
+  verifyPaymentByReference,
 } = require("../services/flutterwaveService");
 
 const {
@@ -12,6 +13,60 @@ const {
 const {
   sendTicketEmail,
 } = require("../services/emailService");
+
+const finalizeVerifiedPayment = async (payment) => {
+  if (payment.status !== "successful") {
+    const error = new Error("Payment was not successful.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const attendee = await prisma.attendee.findUnique({
+    where: { reference: payment.tx_ref },
+  });
+
+  if (!attendee) {
+    const error = new Error("Attendee not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  let qrCode = attendee.qrCode;
+
+  if (!qrCode) {
+    qrCode = await generateQRCode(payment.tx_ref);
+  }
+
+  if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
+    return {
+      attendee,
+      qrCode: attendee.qrCode,
+      emailSent: false,
+    };
+  }
+
+  const updatedAttendee = await prisma.attendee.update({
+    where: { reference: payment.tx_ref },
+    data: {
+      paymentStatus: "SUCCESS",
+      qrCode,
+    },
+  });
+
+  await sendTicketEmail({
+    fullName: updatedAttendee.fullName,
+    email: updatedAttendee.email,
+    ticketType: updatedAttendee.ticketType,
+    reference: updatedAttendee.reference,
+    qrCode,
+  });
+
+  return {
+    attendee: updatedAttendee,
+    qrCode,
+    emailSent: true,
+  };
+};
 
 // =====================================
 // INITIALIZE PAYMENT
@@ -94,21 +149,57 @@ const verifyTransaction = async (req, res) => {
   console.log(req.params);
 
   try {
-    // Accept BOTH query params and route params
+    const txRef =
+      req.query.tx_ref ||
+      req.query.txRef ||
+      req.query.reference;
+
+    if (txRef) {
+      const existingAttendee = await prisma.attendee.findUnique({
+        where: { reference: txRef },
+      });
+
+      if (
+        existingAttendee?.paymentStatus === "SUCCESS" &&
+        existingAttendee.qrCode
+      ) {
+        return res.json({
+          success: true,
+          message: "Payment already verified.",
+          attendee: existingAttendee,
+          qrCode: existingAttendee.qrCode,
+        });
+      }
+    }
+
     const transactionId =
       req.params.transactionId ||
       req.query.transaction_id;
 
-    if (!transactionId) {
+    if (!transactionId && !txRef) {
       return res.status(400).json({
         success: false,
-        message: "Transaction ID is required.",
+        message: "Transaction ID or payment reference is required.",
       });
     }
 
     console.log("STEP 1");
 
-    const payment = await verifyPayment(transactionId);
+    let payment;
+
+    try {
+      if (transactionId) {
+        payment = await verifyPayment(transactionId);
+      } else {
+        payment = await verifyPaymentByReference(txRef);
+      }
+    } catch (error) {
+      if (!txRef) {
+        throw error;
+      }
+
+      payment = await verifyPaymentByReference(txRef);
+    }
 
     if (payment.status !== "successful") {
       return res.status(400).json({
@@ -119,54 +210,17 @@ const verifyTransaction = async (req, res) => {
 
     console.log("STEP 2");
 
-    const attendee = await prisma.attendee.findUnique({
-      where: { reference: payment.tx_ref },
-    });
-
-    if (!attendee) {
-      return res.status(404).json({
-        success: false,
-        message: "Attendee not found.",
-      });
-    }
-
-    console.log("STEP 3");
-
-    let qrCode = attendee.qrCode;
-
-    if (!qrCode) {
-      console.log("STEP 4");
-      qrCode = await generateQRCode(payment.tx_ref);
-    }
-
-    console.log("STEP 5");
-
-    const updatedAttendee = attendee.paymentStatus === "SUCCESS"
-      ? attendee
-      : await prisma.attendee.update({
-          where: { reference: payment.tx_ref },
-          data: {
-            paymentStatus: "SUCCESS",
-            qrCode,
-          },
-        });
-
-    console.log("STEP 6");
-
-    await sendTicketEmail({
-      fullName: updatedAttendee.fullName,
-      email: updatedAttendee.email,
-      ticketType: updatedAttendee.ticketType,
-      reference: updatedAttendee.reference,
+    const {
+      attendee,
       qrCode,
-    });
+    } = await finalizeVerifiedPayment(payment);
 
     console.log("STEP 7");
 
     return res.json({
       success: true,
       message: "Payment verified successfully.",
-      attendee: updatedAttendee,
+      attendee,
       qrCode,
     });
   } catch (error) {
@@ -185,7 +239,62 @@ const verifyTransaction = async (req, res) => {
   }
 };
 
+const handleFlutterwaveWebhook = async (req, res) => {
+  try {
+    const signature = req.headers["verif-hash"];
+
+    if (!process.env.FLW_WEBHOOK_SECRET) {
+      return res.status(500).json({
+        success: false,
+        message: "FLW_WEBHOOK_SECRET is not configured.",
+      });
+    }
+
+    if (signature !== process.env.FLW_WEBHOOK_SECRET) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid webhook signature.",
+      });
+    }
+
+    const event = req.body;
+    const transactionId = event?.data?.id;
+
+    if (!transactionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Webhook transaction ID is missing.",
+      });
+    }
+
+    const payment = await verifyPayment(transactionId);
+
+    if (payment.status !== "successful") {
+      return res.status(200).json({
+        success: true,
+        message: "Webhook received for non-successful payment.",
+      });
+    }
+
+    await finalizeVerifiedPayment(payment);
+
+    return res.status(200).json({
+      success: true,
+      message: "Webhook processed successfully.",
+    });
+  } catch (error) {
+    console.error("========== WEBHOOK ERROR ==========");
+    console.error(error.response?.data || error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   initializeTransaction,
   verifyTransaction,
+  handleFlutterwaveWebhook,
 };
