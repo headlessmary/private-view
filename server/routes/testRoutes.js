@@ -1,6 +1,7 @@
 const express = require("express");
 
 const {
+  getEmailDiagnostics,
   sendTicketEmail,
 } = require("../services/emailService");
 
@@ -57,6 +58,13 @@ router.get("/test-email", async (req, res) => {
       response: err.response,
     });
   }
+});
+
+router.get("/email-diagnostics", (req, res) => {
+  return res.json({
+    success: true,
+    diagnostics: getEmailDiagnostics(),
+  });
 });
 
 module.exports = router;

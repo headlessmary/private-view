@@ -1,26 +1,52 @@
 const axios = require("axios");
 const ticketTemplate = require("./emailTemplates/ticketTemplate");
 
+const sanitizeEnvValue = (value) => {
+  if (!value || typeof value !== "string") {
+    return "";
+  }
+
+  return value.trim().replace(/^"|"$/g, "");
+};
+
 const parseSender = (senderValue) => {
-  if (!senderValue) {
+  const normalizedSender = sanitizeEnvValue(senderValue);
+
+  if (!normalizedSender) {
     return {
       name: "Private View",
       email: "",
     };
   }
 
-  const senderMatch = senderValue.match(/^(.*)<(.+)>$/);
+  const senderMatch = normalizedSender.match(/^(.*)<(.+)>$/);
 
   if (!senderMatch) {
     return {
       name: "Private View",
-      email: senderValue.trim(),
+      email: normalizedSender,
     };
   }
 
   return {
     name: senderMatch[1].trim().replace(/^"|"$/g, "") || "Private View",
     email: senderMatch[2].trim(),
+  };
+};
+
+const getEmailDiagnostics = () => {
+  const sender = parseSender(process.env.MAIL_FROM);
+  const baseUrl = sanitizeEnvValue(process.env.BASE_URL);
+  const brevoApiKey = sanitizeEnvValue(process.env.BREVO_API_KEY);
+
+  return {
+    mailFromConfigured: Boolean(sender.email),
+    normalizedSenderName: sender.name,
+    normalizedSenderEmail: sender.email,
+    baseUrlConfigured: Boolean(baseUrl),
+    baseUrl,
+    brevoApiKeyPresent: Boolean(brevoApiKey),
+    brevoApiKeyLength: brevoApiKey.length,
   };
 };
 
@@ -33,7 +59,8 @@ const sendTicketEmail = async ({
 }) => {
   try {
     const sender = parseSender(process.env.MAIL_FROM);
-    const baseUrl = process.env.BASE_URL;
+    const baseUrl = sanitizeEnvValue(process.env.BASE_URL);
+    const brevoApiKey = sanitizeEnvValue(process.env.BREVO_API_KEY);
 
     if (!sender.email) {
       throw new Error("MAIL_FROM is not configured correctly.");
@@ -43,7 +70,7 @@ const sendTicketEmail = async ({
       throw new Error("BASE_URL must be set for email QR links.");
     }
 
-    if (!process.env.BREVO_API_KEY) {
+    if (!brevoApiKey) {
       throw new Error("BREVO_API_KEY is not configured.");
     }
 
@@ -74,7 +101,7 @@ const sendTicketEmail = async ({
       },
       {
         headers: {
-          "api-key": process.env.BREVO_API_KEY,
+          "api-key": brevoApiKey,
           "Content-Type": "application/json",
           Accept: "application/json",
         },
@@ -90,14 +117,22 @@ const sendTicketEmail = async ({
 
     if (error.response) {
       console.error(error.response.data);
+      const providerMessage =
+        error.response.data?.message ||
+        error.response.data?.code ||
+        error.message;
+
+      const wrappedError = new Error(providerMessage);
+      wrappedError.response = error.response;
+      throw wrappedError;
     } else {
       console.error(error.message);
+      throw error;
     }
-
-    throw error;
   }
 };
 
 module.exports = {
+  getEmailDiagnostics,
   sendTicketEmail,
 };

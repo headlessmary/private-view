@@ -42,6 +42,7 @@ const finalizeVerifiedPayment = async (payment) => {
       attendee,
       qrCode: attendee.qrCode,
       emailSent: false,
+      emailError: null,
     };
   }
 
@@ -53,18 +54,27 @@ const finalizeVerifiedPayment = async (payment) => {
     },
   });
 
-  await sendTicketEmail({
-    fullName: updatedAttendee.fullName,
-    email: updatedAttendee.email,
-    ticketType: updatedAttendee.ticketType,
-    reference: updatedAttendee.reference,
-    qrCode,
-  });
+  let emailSent = true;
+  let emailError = null;
+
+  try {
+    await sendTicketEmail({
+      fullName: updatedAttendee.fullName,
+      email: updatedAttendee.email,
+      ticketType: updatedAttendee.ticketType,
+      reference: updatedAttendee.reference,
+      qrCode,
+    });
+  } catch (error) {
+    emailSent = false;
+    emailError = error.message;
+  }
 
   return {
     attendee: updatedAttendee,
     qrCode,
-    emailSent: true,
+    emailSent,
+    emailError,
   };
 };
 
@@ -164,23 +174,33 @@ const verifyTransaction = async (req, res) => {
         existingAttendee?.paymentStatus === "SUCCESS" &&
         existingAttendee.qrCode
       ) {
+        let resendError = null;
+
         if (resendEmail) {
-          await sendTicketEmail({
-            fullName: existingAttendee.fullName,
-            email: existingAttendee.email,
-            ticketType: existingAttendee.ticketType,
-            reference: existingAttendee.reference,
-            qrCode: existingAttendee.qrCode,
-          });
+          try {
+            await sendTicketEmail({
+              fullName: existingAttendee.fullName,
+              email: existingAttendee.email,
+              ticketType: existingAttendee.ticketType,
+              reference: existingAttendee.reference,
+              qrCode: existingAttendee.qrCode,
+            });
+          } catch (error) {
+            resendError = error.message;
+          }
         }
 
         return res.json({
           success: true,
           message: resendEmail
-            ? "Ticket email resent successfully."
+            ? resendError
+              ? "Payment verified, but the ticket email could not be resent right now."
+              : "Ticket email resent successfully."
             : "Payment already verified.",
           attendee: existingAttendee,
           qrCode: existingAttendee.qrCode,
+          emailSent: !resendError,
+          emailError: resendError,
         });
       }
     }
@@ -226,15 +246,21 @@ const verifyTransaction = async (req, res) => {
     const {
       attendee,
       qrCode,
+      emailSent,
+      emailError,
     } = await finalizeVerifiedPayment(payment);
 
     console.log("STEP 7");
 
     return res.json({
       success: true,
-      message: "Payment verified successfully.",
+      message: emailSent
+        ? "Payment verified successfully."
+        : "Payment verified successfully, but the ticket email could not be sent right now.",
       attendee,
       qrCode,
+      emailSent,
+      emailError,
     });
   } catch (error) {
     console.log("========== VERIFY ERROR ==========");
