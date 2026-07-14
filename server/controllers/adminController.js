@@ -274,26 +274,33 @@ const checkIn = async (req, res) => {
   try {
     const reference = String(req.body?.reference || "").trim();
     const qrToken = String(req.body?.qrToken || "").trim();
+    const scannedValue = qrToken || reference;
 
-    if (!reference && !qrToken) {
+    if (!scannedValue) {
       return res.status(400).json({
         success: false,
         message: "Ticket reference is required.",
       });
     }
 
-    const attendee = qrToken
-      ? await prisma.attendee.findFirst({
-          where: {
-            qrToken,
-            qrTokenUsed: false,
-          },
-        })
-      : await prisma.attendee.findUnique({
-          where: {
-            reference,
-          },
-        });
+    let matchedByQrToken = false;
+
+    let attendee = await prisma.attendee.findFirst({
+      where: {
+        qrToken: scannedValue,
+        qrTokenUsed: false,
+      },
+    });
+
+    if (attendee) {
+      matchedByQrToken = true;
+    } else {
+      attendee = await prisma.attendee.findUnique({
+        where: {
+          reference: scannedValue,
+        },
+      });
+    }
 
     if (!attendee) {
       return res.status(404).json({
@@ -322,7 +329,7 @@ const checkIn = async (req, res) => {
       },
       data: {
         checkedIn: true,
-        qrTokenUsed: true,
+        qrTokenUsed: matchedByQrToken ? true : attendee.qrTokenUsed,
       },
     });
 
