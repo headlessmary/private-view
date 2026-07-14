@@ -87,11 +87,11 @@ console.log("Admin found:", admin);
     });
 
   } catch (error) {
-    console.error(error);
+    console.error(error.response?.data || error);
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.response?.data?.message || error.message,
     });
   }
 };
@@ -144,11 +144,11 @@ const dashboard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error(error.response?.data || error);
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.response?.data?.message || error.message,
     });
   }
 };

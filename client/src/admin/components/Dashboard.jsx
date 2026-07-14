@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
 import API_URL from "../../config/api";
 import {
   Area,
@@ -35,6 +34,18 @@ export default function Dashboard() {
     remainingTickets: 0,
     revenue: 0,
   });
+
+  const getAssetUrl = useCallback((assetPath) => {
+    if (!assetPath) {
+      return "";
+    }
+
+    if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
+      return assetPath;
+    }
+
+    return `${API_URL}${assetPath}`;
+  }, []);
 
   const fetchAttendees = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
@@ -86,39 +97,14 @@ export default function Dashboard() {
       await fetchAttendees();
     };
 
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    socket.on("connect", () => {
-      loadDashboard();
-    });
-
-    const refreshDashboard = () => {
-      loadDashboard();
-    };
-
-    const events = [
-      "attendee:created",
-      "attendee:registered",
-      "attendee:updated",
-      "attendee:checked-in",
-      "checkin:updated",
-      "check-in:updated",
-      "dashboard:updated",
-      "dashboard:refresh",
-      "admin:dashboard:update",
-      "admin:attendee:update",
-    ];
-
-    events.forEach((eventName) => socket.on(eventName, refreshDashboard));
-
     loadDashboard();
 
+    const refreshInterval = window.setInterval(() => {
+      loadDashboard();
+    }, 30000);
+
     return () => {
-      events.forEach((eventName) => socket.off(eventName, refreshDashboard));
-      socket.disconnect();
+      window.clearInterval(refreshInterval);
     };
   }, [fetchAttendees, fetchDashboard]);
 
@@ -779,7 +765,7 @@ export default function Dashboard() {
               {selectedAttendee.qrCode && (
                 <div className="pt-6 flex justify-center">
                   <img
-                    src={`http://localhost:5000${selectedAttendee.qrCode}`}
+                    src={getAssetUrl(selectedAttendee.qrCode)}
                     alt="QR Code"
                     className="w-56 border border-[#d4a24d] rounded-xl bg-white p-3"
                   />
