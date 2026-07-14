@@ -149,6 +149,7 @@ const verifyTransaction = async (req, res) => {
   console.log(req.params);
 
   try {
+    const resendEmail = req.query.resend_email === "1";
     const txRef =
       req.query.tx_ref ||
       req.query.txRef ||
@@ -163,9 +164,21 @@ const verifyTransaction = async (req, res) => {
         existingAttendee?.paymentStatus === "SUCCESS" &&
         existingAttendee.qrCode
       ) {
+        if (resendEmail) {
+          await sendTicketEmail({
+            fullName: existingAttendee.fullName,
+            email: existingAttendee.email,
+            ticketType: existingAttendee.ticketType,
+            reference: existingAttendee.reference,
+            qrCode: existingAttendee.qrCode,
+          });
+        }
+
         return res.json({
           success: true,
-          message: "Payment already verified.",
+          message: resendEmail
+            ? "Ticket email resent successfully."
+            : "Payment already verified.",
           attendee: existingAttendee,
           qrCode: existingAttendee.qrCode,
         });

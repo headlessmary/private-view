@@ -8,95 +8,118 @@ export default function PaymentSuccess() {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
-useEffect(() => {
-  console.log("Current URL:", window.location.href);
-  console.log("Search Params:", Object.fromEntries(searchParams.entries()));
-  console.log("API_URL:", API_URL);
 
-  const verifyPayment = async () => {
-    const status = searchParams.get("status");
-    const transactionId =
-      searchParams.get("transaction_id") ||
-      searchParams.get("transactionId");
+  useEffect(() => {
+    console.log("Current URL:", window.location.href);
+    console.log("Search Params:", Object.fromEntries(searchParams.entries()));
+    console.log("API_URL:", API_URL);
 
-    const txRef =
-      searchParams.get("tx_ref") ||
-      searchParams.get("txRef") ||
-      searchParams.get("reference");
+    const verifyPayment = async () => {
+      const status = searchParams.get("status");
+      const transactionId =
+        searchParams.get("transaction_id") ||
+        searchParams.get("transactionId");
 
-    console.log({
-      status,
-      transactionId,
-      txRef,
-    });
+      const txRef =
+        searchParams.get("tx_ref") ||
+        searchParams.get("txRef") ||
+        searchParams.get("reference");
 
-    if (!transactionId && !txRef) {
-      setMessage("Payment reference is missing.");
-      setLoading(false);
-      return;
-    }
+      console.log({
+        status,
+        transactionId,
+        txRef,
+      });
 
-    if (status === "cancelled") {
-      setMessage("Payment was cancelled.");
-      setLoading(false);
-      return;
-    }
-
-    if (status !== "successful") {
-      setMessage("Payment was not successful.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const verifyUrl = new URL(`${API_URL}/api/payment/verify`);
-
-      if (transactionId) {
-        verifyUrl.searchParams.set(
-          "transaction_id",
-          transactionId
-        );
+      if (!transactionId && !txRef) {
+        setMessage("Payment reference is missing.");
+        setLoading(false);
+        return;
       }
 
-      if (txRef) {
-        verifyUrl.searchParams.set(
-          "tx_ref",
-          txRef
-        );
+      if (status === "cancelled") {
+        setMessage("Payment was cancelled.");
+        setLoading(false);
+        return;
       }
 
-      verifyUrl.searchParams.set("status", status);
-
-      console.log("VERIFY URL:", verifyUrl.toString());
-
-      const response = await fetch(verifyUrl.toString());
-
-      console.log("STATUS:", response.status);
-
-      const data = await response.json();
-
-      console.log("DATA:", data);
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Payment verification failed."
-        );
+      if (status !== "successful") {
+        setMessage("Payment was not successful.");
+        setLoading(false);
+        return;
       }
 
-      setSuccess(true);
-      setMessage(data.message);
+      const createVerifyUrl = (resendEmail = false) => {
+        const verifyUrl = new URL(`${API_URL}/api/payment/verify`);
 
-    } catch (error) {
-      console.error(error);
-      setSuccess(false);
-      setMessage(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (transactionId) {
+          verifyUrl.searchParams.set(
+            "transaction_id",
+            transactionId
+          );
+        }
 
-  verifyPayment();
-}, [searchParams]);
+        if (txRef) {
+          verifyUrl.searchParams.set(
+            "tx_ref",
+            txRef
+          );
+        }
+
+        verifyUrl.searchParams.set("status", status);
+
+        if (resendEmail) {
+          verifyUrl.searchParams.set("resend_email", "1");
+        }
+
+        return verifyUrl;
+      };
+
+      try {
+        const verifyUrl = createVerifyUrl();
+
+        console.log("VERIFY URL:", verifyUrl.toString());
+
+        let response = await fetch(verifyUrl.toString());
+
+        console.log("STATUS:", response.status);
+
+        let data = await response.json();
+
+        console.log("DATA:", data);
+
+        if (!response.ok && txRef) {
+          const resendUrl = createVerifyUrl(true);
+
+          console.log("RESEND VERIFY URL:", resendUrl.toString());
+
+          response = await fetch(resendUrl.toString());
+          console.log("RESEND STATUS:", response.status);
+
+          data = await response.json();
+          console.log("RESEND DATA:", data);
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Payment verification failed."
+          );
+        }
+
+        setSuccess(true);
+        setMessage(data.message);
+
+      } catch (error) {
+        console.error(error);
+        setSuccess(false);
+        setMessage(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyPayment();
+  }, [searchParams]);
 
   if (loading) {
     return (
