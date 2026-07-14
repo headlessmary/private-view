@@ -9,19 +9,47 @@ const flutterwave = axios.create({
   },
 });
 
+const toAbsoluteUrl = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  const trimmed = String(value).trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  try {
+    return new URL(trimmed).toString().replace(/\/$/, "");
+  } catch {
+    try {
+      return new URL(`https://${trimmed}`).toString().replace(/\/$/, "");
+    } catch {
+      return "";
+    }
+  }
+};
+
 const initializePayment = async ({
   fullName,
   email,
   phone,
   amount,
   reference,
+  redirectUrl,
 }) => {
-  const frontendUrl = (process.env.FRONTEND_URL || "").replace(/\/$/, "");
+  const frontendUrl = toAbsoluteUrl(process.env.FRONTEND_URL);
+  const configuredRedirectUrl = toAbsoluteUrl(process.env.FLW_REDIRECT_URL);
+  const requestRedirectUrl = toAbsoluteUrl(redirectUrl);
+
+  const safeFallbackRedirectUrl = "https://www.headlessmary.com/payment-success";
+
   const redirectUrl =
-    process.env.FLW_REDIRECT_URL ||
+    requestRedirectUrl ||
+    configuredRedirectUrl ||
     (frontendUrl
       ? `${frontendUrl}/payment-success`
-      : "https://www.headlessmary.com/payment-success");
+      : safeFallbackRedirectUrl);
 
   const customerName = (fullName || "").trim();
   const customerEmail = (email || "").trim();
@@ -41,7 +69,7 @@ const initializePayment = async ({
     tx_ref: reference,
     amount: normalizedAmount,
     currency: "NGN",
-    redirect_url: redirectUrl,
+    redirect_url: toAbsoluteUrl(redirectUrl) || safeFallbackRedirectUrl,
 
     customer: {
       email: customerEmail,

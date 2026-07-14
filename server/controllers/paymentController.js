@@ -112,6 +112,10 @@ const initializeTransaction = async (req, res) => {
     }
 
     const reference = `PV-${Date.now()}`;
+    const requestOrigin = String(req.headers.origin || "").trim().replace(/\/$/, "");
+    const runtimeRedirectUrl = requestOrigin
+      ? `${requestOrigin}/payment-success`
+      : undefined;
 
     // Create payment link first
     const payment = await initializePayment({
@@ -120,6 +124,7 @@ const initializeTransaction = async (req, res) => {
       phone: normalizedPhone,
       amount: normalizedAmount,
       reference,
+      redirectUrl: runtimeRedirectUrl,
     });
 
     // Save attendee after Flutterwave succeeds
