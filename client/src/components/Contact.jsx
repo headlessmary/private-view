@@ -2,6 +2,7 @@ import {
   FaPhoneAlt,
   FaWhatsapp,
   FaInstagram,
+  FaSnapchatGhost,
 } from "react-icons/fa";
 
 export default function ContactPage() {
@@ -90,6 +91,28 @@ export default function ContactPage() {
 
                   <p className="text-base sm:text-[18px] text-[#ECE7E1] font-medium break-all sm:break-normal">
                     @headlessmaryevents
+                  </p>
+                </div>
+
+              </a>
+
+              {/* Snapchat */}
+              <a
+                href="https://www.snapchat.com/add/headlessmary"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#120F0B] border border-[#22170D] rounded-2xl p-5 flex items-center gap-4 no-underline hover:border-[#C89A3D] transition"
+              >
+
+                <FaSnapchatGhost className="text-[#C89A3D] text-2xl sm:text-3xl shrink-0" />
+
+                <div>
+                  <p className="uppercase tracking-[0.28em] text-[11px] sm:text-[12px] text-[#C89A3D]">
+                    Snapchat
+                  </p>
+
+                  <p className="text-base sm:text-[18px] text-[#ECE7E1] font-medium break-all sm:break-normal">
+                    @headlessmary
                   </p>
                 </div>
 

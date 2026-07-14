@@ -1,4 +1,4 @@
-import { FaInstagram } from "react-icons/fa";
+import { FaInstagram, FaSnapchatGhost } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -37,6 +37,21 @@ export default function Footer() {
               <span className="text-[#C8922E]">
                 @headlessmaryevents
               </span>
+            </p>
+
+            <p className="mt-2 flex flex-wrap items-center justify-center gap-2 text-[14px] text-[#D8D2CB] md:justify-start sm:text-[15px]">
+              <span>Snapchat ·</span>
+
+              <FaSnapchatGhost className="text-[#C8922E] text-[16px]" />
+
+              <a
+                href="https://www.snapchat.com/add/headlessmary"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#C8922E] no-underline"
+              >
+                @headlessmary
+              </a>
             </p>
           </div>
 

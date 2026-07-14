@@ -192,6 +192,8 @@ text-align:center;
 .event-row{
 display:flex;
 justify-content:space-between;
+align-items:flex-start;
+gap:16px;
 padding:12px 0;
 border-bottom:1px solid rgba(255,255,255,.08);
 color:white;
@@ -205,6 +207,23 @@ border-bottom:none;
 .left{
 color:#D4A24D;
 font-weight:bold;
+flex:0 0 110px;
+}
+
+.event-value{
+flex:1;
+text-align:right;
+line-height:1.5;
+white-space:normal;
+word-break:break-word;
+}
+
+.venue-address-line{
+display:block;
+font-size:14px;
+line-height:1.45;
+opacity:.9;
+margin-top:2px;
 }
 
 .notice{
@@ -360,17 +379,18 @@ Each ticket is valid for one admission only.
 
 <div class="event-row">
 <span class="left">Venue</span>
-<span>Headless Mary Event Centre</span>
+<span class="event-value">MainStay Villa
+<span class="venue-address-line">No 5 Micheal Njokanma Street, opposite liberty estate, GRA, Asaba</span></span>
 </div>
 
 <div class="event-row">
 <span class="left">Time</span>
-<span>8:00 PM</span>
+<span class="event-value">8:00 PM</span>
 </div>
 
 <div class="event-row">
 <span class="left">Dress Code</span>
-<span>Elegant / Smart Casual</span>
+<span class="event-value">Elegant / Smart Casual</span>
 </div>
 
 </div>
