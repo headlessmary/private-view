@@ -106,60 +106,62 @@ const verifyTransaction = async (req, res) => {
       });
     }
 
-    // Verify with Flutterwave
-   console.log("STEP 1");
+    console.log("STEP 1");
 
-const payment = await verifyPayment(transactionId);
+    const payment = await verifyPayment(transactionId);
 
-console.log("STEP 2");
+    if (payment.status !== "successful") {
+      return res.status(400).json({
+        success: false,
+        message: "Payment was not successful.",
+      });
+    }
 
-const attendee = await prisma.attendee.findUnique({
-  where: { reference: payment.tx_ref },
-});
+    console.log("STEP 2");
 
-console.log("STEP 3");
+    const attendee = await prisma.attendee.findUnique({
+      where: { reference: payment.tx_ref },
+    });
 
-let qrCode = attendee.qrCode;
+    if (!attendee) {
+      return res.status(404).json({
+        success: false,
+        message: "Attendee not found.",
+      });
+    }
 
-if (!qrCode) {
-  console.log("STEP 4");
-  qrCode = await generateQRCode(payment.tx_ref);
-}
+    console.log("STEP 3");
 
-console.log("STEP 5");
+    let qrCode = attendee.qrCode;
 
-const updatedAttendee = await prisma.attendee.update({
-  where: { reference: payment.tx_ref },
-  data: {
-    paymentStatus: "SUCCESS",
-    qrCode,
-  },
-});
+    if (!qrCode) {
+      console.log("STEP 4");
+      qrCode = await generateQRCode(payment.tx_ref);
+    }
 
+    console.log("STEP 5");
 
-console.log("STEP 6");
+    const updatedAttendee = attendee.paymentStatus === "SUCCESS"
+      ? attendee
+      : await prisma.attendee.update({
+          where: { reference: payment.tx_ref },
+          data: {
+            paymentStatus: "SUCCESS",
+            qrCode,
+          },
+        });
 
-try {
- 
+    console.log("STEP 6");
 
-} catch (err) {
-  console.error("========== EMAIL ERROR ==========");
-  console.error(err);
+    await sendTicketEmail({
+      fullName: updatedAttendee.fullName,
+      email: updatedAttendee.email,
+      ticketType: updatedAttendee.ticketType,
+      reference: updatedAttendee.reference,
+      qrCode,
+    });
 
-  if (err.response) {
-    console.error(err.response.data);
-  }
-
-  if (err.code) {
-    console.error("CODE:", err.code);
-  }
-
-  if (err.command) {
-    console.error("COMMAND:", err.command);
-  }
-}
-
-console.log("STEP 7");
+    console.log("STEP 7");
 
     return res.json({
       success: true,
@@ -167,21 +169,21 @@ console.log("STEP 7");
       attendee: updatedAttendee,
       qrCode,
     });
-} catch (error) {
-  console.log("========== VERIFY ERROR ==========");
-  console.log(error);
+  } catch (error) {
+    console.log("========== VERIFY ERROR ==========");
+    console.log(error);
 
-  if (error.response) {
-    console.log("STATUS:", error.response.status);
-    console.log("DATA:", error.response.data);
+    if (error.response) {
+      console.log("STATUS:", error.response.status);
+      console.log("DATA:", error.response.data);
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
-
-  return res.status(500).json({
-    success: false,
-    message: error.message,
-  });
-}
-}
+};
 
 module.exports = {
   initializeTransaction,

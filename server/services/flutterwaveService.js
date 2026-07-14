@@ -16,11 +16,15 @@ const initializePayment = async ({
   amount,
   reference,
 }) => {
+  const redirectUrl =
+    process.env.FLW_REDIRECT_URL ||
+    `${process.env.FRONTEND_URL}/payment-success`;
+
   const response = await flutterwave.post("/payments", {
     tx_ref: reference,
     amount,
     currency: "NGN",
-    redirect_url: `${process.env.FRONTEND_URL}/payment-success`,
+    redirect_url: redirectUrl,
 
     customer: {
       email,

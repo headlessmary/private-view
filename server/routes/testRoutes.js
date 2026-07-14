@@ -1,19 +1,41 @@
 const express = require("express");
 
+const {
+  sendTicketEmail,
+} = require("../services/emailService");
+
 
 const router = express.Router();
+
+const getTestRecipient = (email) => {
+  if (email) {
+    return email;
+  }
+
+  const senderMatch = process.env.MAIL_FROM?.match(/<(.+)>$/);
+  return senderMatch ? senderMatch[1].trim() : process.env.MAIL_FROM;
+};
 
 router.get("/test-email", async (req, res) => {
   console.log("📧 Testing email...");
 
   try {
     console.log("Sending email...");
+    const recipient = getTestRecipient(req.query.email);
 
-    const info = await transporter.sendMail({
-      from: process.env.MAIL_FROM,
-      to: process.env.MAIL_USER,
-      subject: "Private View Test",
-      text: "This is a test email.",
+    if (!recipient) {
+      return res.status(400).json({
+        success: false,
+        message: "Provide ?email=you@example.com or configure MAIL_FROM.",
+      });
+    }
+
+    const info = await sendTicketEmail({
+      fullName: "Private View Test",
+      email: recipient,
+      ticketType: "VIP",
+      reference: "PV-TEST-EMAIL",
+      qrCode: "/uploads/qr/test.png",
     });
 
     console.log("✅ Email sent:", info);
