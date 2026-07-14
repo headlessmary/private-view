@@ -9,8 +9,8 @@ const sendTicketEmail = async ({
   reference,
   qrCode,
 }) => {
-  console.log("========== SENDING EMAIL ==========");
-  console.log("Recipient:", email);
+
+  console.log("EMAIL SERVICE START");
 
   const info = await transporter.sendMail({
     from: process.env.MAIL_FROM,
@@ -37,8 +37,10 @@ const sendTicketEmail = async ({
     ],
   });
 
-  console.log("EMAIL SENT!");
+  console.log("EMAIL SERVICE END");
   console.log(info);
+
+  return info;
 };
 
 module.exports = {
