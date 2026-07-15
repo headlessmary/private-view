@@ -554,7 +554,7 @@ const completePendingRegistration = async (req, res) => {
     if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
       return res.status(200).json({
         success: true,
-        message: "Registration already completed.",
+        message: "Payment already completed and QR/barcode ticket is already available.",
         attendee,
         qrCode: attendee.qrCode,
         emailSent: false,
@@ -601,8 +601,8 @@ const completePendingRegistration = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: emailSent
-        ? "Registration completed successfully."
-        : "Registration completed, but confirmation email could not be sent right now.",
+        ? "Payment completed successfully and QR/barcode ticket is ready."
+        : "Payment completed and QR/barcode ticket is ready, but confirmation email could not be sent right now.",
       attendee: updatedAttendee,
       qrCode: updatedAttendee.qrCode,
       emailSent,
@@ -645,7 +645,7 @@ const reverifyPendingPayment = async (req, res) => {
     if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
       return res.status(200).json({
         success: true,
-        message: "Registration already completed.",
+        message: "Payment already completed and QR/barcode ticket is already available.",
         attendee,
       });
     }
@@ -690,8 +690,8 @@ const reverifyPendingPayment = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: emailSent
-        ? "Registration completed successfully."
-        : "Registration completed, but confirmation email could not be sent right now.",
+        ? "Payment completed successfully and QR/barcode ticket is ready."
+        : "Payment completed and QR/barcode ticket is ready, but confirmation email could not be sent right now.",
       attendee: updatedAttendee,
       qrCode: updatedAttendee.qrCode,
       emailSent,
@@ -776,7 +776,7 @@ const reverifyPendingPayments = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `Completed ${results.length} pending registration(s).`,
+      message: `Completed ${results.length} pending payment(s).`,
       count: results.length,
       attendees: results,
       failures,

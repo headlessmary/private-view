@@ -25,7 +25,7 @@ export default function Dashboard() {
   const [filter, setFilter] = useState("ALL");
   const [selectedAttendee, setSelectedAttendee] = useState(null);
   const [sendingEmail, setSendingEmail] = useState(false);
-  const [completingRegistration, setCompletingRegistration] = useState(false);
+  const [completingPayment, setCompletingPayment] = useState(false);
 
   const [stats, setStats] = useState({
     totalTickets: 0,
@@ -237,9 +237,9 @@ export default function Dashboard() {
     }
   };
 
-  const completeAllPendingRegistrations = async () => {
+  const completeAllPendingPayments = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/complete-registration/bulk`, {
+      const response = await fetch(`${API_URL}/api/admin/complete-payment/bulk`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -250,30 +250,30 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to complete pending registrations");
+        throw new Error(data.message || "Failed to complete pending payments");
       }
 
-      alert(data.message || "Pending registrations completed successfully.");
+      alert(data.message || "Pending payments completed successfully.");
       await fetchDashboard();
     } catch (error) {
       alert(error.message);
     }
   };
 
-  const completeRegistration = async (reference) => {
+  const completePayment = async (reference) => {
     if (!reference) {
       alert("Ticket reference is required.");
       return;
     }
 
-    if (!window.confirm("Complete this pending registration now?")) {
+    if (!window.confirm("Complete this pending payment now?")) {
       return;
     }
 
     try {
-      setCompletingRegistration(true);
+      setCompletingPayment(true);
 
-      const response = await fetch(`${API_URL}/api/admin/complete-registration`, {
+      const response = await fetch(`${API_URL}/api/admin/complete-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -285,10 +285,10 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to complete registration");
+        throw new Error(data.message || "Failed to complete payment");
       }
 
-      alert(data.message || "Registration completed successfully.");
+      alert(data.message || "Payment completed successfully.");
 
       await fetchDashboard();
 
@@ -298,7 +298,7 @@ export default function Dashboard() {
     } catch (error) {
       alert(error.message);
     } finally {
-      setCompletingRegistration(false);
+      setCompletingPayment(false);
     }
   };
 
@@ -705,10 +705,10 @@ export default function Dashboard() {
                     </button>
 
                     <button
-                      onClick={completeAllPendingRegistrations}
+                      onClick={completeAllPendingPayments}
                       className="h-12 rounded-lg bg-[#d4a24d] px-5 text-sm uppercase tracking-[0.2em] text-black sm:h-14 sm:px-7"
                     >
-                      Complete Pending Registrations
+                      Complete Pending Payments
                     </button>
                   </div>
                 </div>
@@ -818,11 +818,11 @@ export default function Dashboard() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 {selectedAttendee.paymentStatus === "PENDING" && (
                   <button
-                    onClick={() => completeRegistration(selectedAttendee.reference)}
-                    disabled={completingRegistration}
+                    onClick={() => completePayment(selectedAttendee.reference)}
+                    disabled={completingPayment}
                     className="flex-1 rounded-lg border border-[#d4a24d] py-3 font-semibold text-[#d4a24d] transition hover:bg-[#d4a24d] hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {completingRegistration ? "Completing..." : "Complete Registration"}
+                    {completingPayment ? "Completing..." : "Complete Payment"}
                   </button>
                 )}
 
