@@ -6,6 +6,19 @@ export default function Attendees() {
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
+  const [completionResult, setCompletionResult] = useState(null);
+
+  const getAssetUrl = (assetPath) => {
+    if (!assetPath) {
+      return "";
+    }
+
+    if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
+      return assetPath;
+    }
+
+    return `${API_URL}${assetPath}`;
+  };
 
   const loadAttendees = async () => {
     try {
@@ -93,10 +106,21 @@ export default function Attendees() {
         throw new Error(data.message);
       }
 
-      alert(data.message || "Payment completed successfully.");
-      loadAttendees();
+      setCompletionResult({
+        success: true,
+        message: data.message || "Payment completed successfully.",
+        qrCode: data.qrCode || data.attendee?.qrCode || "",
+        reference: data.attendee?.reference || guest.reference,
+      });
+
+      await loadAttendees();
     } catch (err) {
-      alert(err.message);
+      setCompletionResult({
+        success: false,
+        message: err.message,
+        qrCode: "",
+        reference: guest.reference,
+      });
     }
   };
 
@@ -136,6 +160,48 @@ export default function Attendees() {
           onChange={(e) => setSearch(e.target.value)}
           className="mt-6 mb-6 h-14 w-full rounded-lg border border-[#333] bg-[#141414] px-4 text-base sm:mt-8 sm:mb-8 sm:h-14 sm:px-5 sm:text-lg"
         />
+
+        {completionResult && (
+          <div
+            className={`mb-6 rounded-xl border p-4 sm:p-5 ${
+              completionResult.success
+                ? "border-[#d4a24d] bg-[#141008]"
+                : "border-red-700 bg-red-950/30"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#d4a24d]">
+                  Complete Payment Result
+                </p>
+                <p className="mt-2 text-sm sm:text-base">{completionResult.message}</p>
+                {completionResult.reference && (
+                  <p className="mt-1 text-xs text-gray-400 sm:text-sm">
+                    Reference: {completionResult.reference}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCompletionResult(null)}
+                className="rounded-md border border-[#2d2111] px-3 py-1 text-xs text-gray-300 hover:border-[#d4a24d] hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            {completionResult.success && completionResult.qrCode && (
+              <div className="mt-4 inline-block rounded-lg border border-[#d4a24d] bg-white p-2">
+                <img
+                  src={getAssetUrl(completionResult.qrCode)}
+                  alt="Generated barcode"
+                  className="h-32 w-32 sm:h-40 sm:w-40"
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="overflow-x-auto rounded-xl border border-[#222]">
 
