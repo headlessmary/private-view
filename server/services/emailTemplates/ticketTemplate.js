@@ -390,7 +390,7 @@ Each ticket is valid for one admission only.
 
 <div class="event-row">
 <span class="left">Dress Code</span>
-<span class="event-value">Elegant / Smart Casual</span>
+<span class="event-value">Denim</span>
 </div>
 
 </div>
