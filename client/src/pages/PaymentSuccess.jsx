@@ -107,7 +107,10 @@ export default function PaymentSuccess() {
         }
 
         setSuccess(true);
-        setMessage(data.message);
+        setMessage(
+          data.message ||
+          "Payment completed successfully. Your ticket has been confirmed and sent to your email."
+        );
 
       } catch (error) {
         console.error(error);

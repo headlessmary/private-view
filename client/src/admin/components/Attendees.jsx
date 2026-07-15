@@ -113,6 +113,8 @@ export default function Attendees() {
         reference: data.attendee?.reference || guest.reference,
       });
 
+      alert(data.message || "Payment completed successfully.");
+
       await loadAttendees();
     } catch (err) {
       setCompletionResult({

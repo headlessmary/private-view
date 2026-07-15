@@ -296,6 +296,8 @@ export default function Dashboard() {
         reference: data.attendee?.reference || reference,
       });
 
+      alert(data.message || "Payment completed successfully.");
+
       await fetchDashboard();
 
       if (data.attendee) {
