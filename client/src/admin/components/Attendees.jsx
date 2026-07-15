@@ -70,13 +70,13 @@ export default function Attendees() {
     }
   };
 
-  const reverifyPayment = async (guest) => {
-    if (!window.confirm("Re-verify this payment and generate the QR code?")) return;
+  const completeRegistration = async (guest) => {
+    if (!window.confirm("Complete this pending registration now?")) return;
 
     try {
       const token = localStorage.getItem("adminToken");
 
-      const response = await fetch(`${API_URL}/api/admin/reverify-payment`, {
+      const response = await fetch(`${API_URL}/api/admin/complete-registration`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +84,6 @@ export default function Attendees() {
         },
         body: JSON.stringify({
           reference: guest.reference,
-          transactionId: guest.reference,
         }),
       });
 
@@ -94,7 +93,7 @@ export default function Attendees() {
         throw new Error(data.message);
       }
 
-      alert("Payment re-verified successfully.");
+      alert(data.message || "Registration completed successfully.");
       loadAttendees();
     } catch (err) {
       alert(err.message);
@@ -226,12 +225,12 @@ export default function Attendees() {
                         </button>
                       )}
 
-                      {guest.paymentStatus !== "SUCCESS" && (
+                      {guest.paymentStatus === "PENDING" && (
                         <button
-                          onClick={() => reverifyPayment(guest)}
+                          onClick={() => completeRegistration(guest)}
                           className="whitespace-nowrap rounded-lg border border-[#d4a24d] px-4 py-2 text-sm font-medium text-[#d4a24d] sm:px-5 sm:text-base"
                         >
-                          Re-verify
+                          Complete Registration
                         </button>
                       )}
                     </div>

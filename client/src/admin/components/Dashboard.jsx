@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [filter, setFilter] = useState("ALL");
   const [selectedAttendee, setSelectedAttendee] = useState(null);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [completingRegistration, setCompletingRegistration] = useState(false);
 
   const [stats, setStats] = useState({
     totalTickets: 0,
@@ -236,9 +237,9 @@ export default function Dashboard() {
     }
   };
 
-  const reverifyAllPending = async () => {
+  const completeAllPendingRegistrations = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/reverify-payment/bulk`, {
+      const response = await fetch(`${API_URL}/api/admin/complete-registration/bulk`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -249,13 +250,55 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to recover pending attendees");
+        throw new Error(data.message || "Failed to complete pending registrations");
       }
 
-      alert(data.message || "Pending attendees recovered successfully.");
+      alert(data.message || "Pending registrations completed successfully.");
       await fetchDashboard();
     } catch (error) {
       alert(error.message);
+    }
+  };
+
+  const completeRegistration = async (reference) => {
+    if (!reference) {
+      alert("Ticket reference is required.");
+      return;
+    }
+
+    if (!window.confirm("Complete this pending registration now?")) {
+      return;
+    }
+
+    try {
+      setCompletingRegistration(true);
+
+      const response = await fetch(`${API_URL}/api/admin/complete-registration`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify({ reference }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to complete registration");
+      }
+
+      alert(data.message || "Registration completed successfully.");
+
+      await fetchDashboard();
+
+      if (data.attendee) {
+        setSelectedAttendee(data.attendee);
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setCompletingRegistration(false);
     }
   };
 
@@ -662,10 +705,10 @@ export default function Dashboard() {
                     </button>
 
                     <button
-                      onClick={reverifyAllPending}
+                      onClick={completeAllPendingRegistrations}
                       className="h-12 rounded-lg bg-[#d4a24d] px-5 text-sm uppercase tracking-[0.2em] text-black sm:h-14 sm:px-7"
                     >
-                      Re-verify Pending
+                      Complete Pending Registrations
                     </button>
                   </div>
                 </div>
@@ -773,6 +816,16 @@ export default function Dashboard() {
               )}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+                {selectedAttendee.paymentStatus === "PENDING" && (
+                  <button
+                    onClick={() => completeRegistration(selectedAttendee.reference)}
+                    disabled={completingRegistration}
+                    className="flex-1 rounded-lg border border-[#d4a24d] py-3 font-semibold text-[#d4a24d] transition hover:bg-[#d4a24d] hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {completingRegistration ? "Completing..." : "Complete Registration"}
+                  </button>
+                )}
+
                 <button
                   onClick={handleDownloadTicket}
                   className="flex-1 rounded-lg bg-[#d4a24d] py-3 font-semibold text-black"

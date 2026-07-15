@@ -12,12 +12,24 @@ const {
 } = require("../services/emailService");
 
 const {
-  verifyPayment,
+  verifyPaymentByReference,
 } = require("../services/flutterwaveService");
 
 const {
   generateQRCode,
 } = require("../services/qrService");
+
+const isPaymentSuccessful = (status) => {
+  const normalized = String(status || "").trim().toLowerCase();
+
+  return [
+    "successful",
+    "success",
+    "succeeded",
+    "completed",
+    "paid",
+  ].includes(normalized);
+};
 
 // ==============================
 // Admin Login
@@ -515,20 +527,20 @@ const resendTicket = async (req, res) => {
   }
 };
 
-const reverifyPendingPayment = async (req, res) => {
+const completePendingRegistration = async (req, res) => {
   try {
-    const { reference, transactionId } = req.body;
+    const reference = String(req.body?.reference || "").trim();
 
-    if (!reference && !transactionId) {
+    if (!reference) {
       return res.status(400).json({
         success: false,
-        message: "A ticket reference or transaction ID is required.",
+        message: "Ticket reference is required.",
       });
     }
 
     const attendee = await prisma.attendee.findUnique({
       where: {
-        reference: reference || transactionId,
+        reference,
       },
     });
 
@@ -539,35 +551,115 @@ const reverifyPendingPayment = async (req, res) => {
       });
     }
 
-    if (attendee.paymentStatus === "SUCCESS") {
+    if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
       return res.status(200).json({
         success: true,
-        message: "Payment already completed.",
+        message: "Registration already completed.",
+        attendee,
+        qrCode: attendee.qrCode,
+        emailSent: false,
+      });
+    }
+
+    const payment = await verifyPaymentByReference(reference);
+
+    if (!isPaymentSuccessful(payment?.status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment could not be verified as successful on Flutterwave.",
+      });
+    }
+
+    const qrCode = attendee.qrCode || (await generateQRCode(reference));
+
+    const updatedAttendee = await prisma.attendee.update({
+      where: {
+        reference,
+      },
+      data: {
+        paymentStatus: "SUCCESS",
+        qrCode,
+      },
+    });
+
+    let emailSent = true;
+    let emailError = null;
+
+    try {
+      await sendTicketEmail({
+        fullName: updatedAttendee.fullName,
+        email: updatedAttendee.email,
+        ticketType: updatedAttendee.ticketType,
+        reference: updatedAttendee.reference,
+        qrCode: updatedAttendee.qrCode,
+      });
+    } catch (error) {
+      emailSent = false;
+      emailError = error.message;
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: emailSent
+        ? "Registration completed successfully."
+        : "Registration completed, but confirmation email could not be sent right now.",
+      attendee: updatedAttendee,
+      qrCode: updatedAttendee.qrCode,
+      emailSent,
+      emailError,
+    });
+  } catch (error) {
+    console.error(error.response?.data || error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+const reverifyPendingPayment = async (req, res) => {
+  try {
+    const { reference } = req.body;
+
+    if (!reference) {
+      return res.status(400).json({
+        success: false,
+        message: "Ticket reference is required.",
+      });
+    }
+
+    const attendee = await prisma.attendee.findUnique({
+      where: {
+        reference,
+      },
+    });
+
+    if (!attendee) {
+      return res.status(404).json({
+        success: false,
+        message: "Attendee not found.",
+      });
+    }
+
+    if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
+      return res.status(200).json({
+        success: true,
+        message: "Registration already completed.",
         attendee,
       });
     }
 
-    let payment = null;
-    let verifiedReference = reference || transactionId;
+    const payment = await verifyPaymentByReference(reference);
 
-    if (transactionId) {
-      payment = await verifyPayment(transactionId);
-      verifiedReference = payment?.tx_ref || payment?.txRef || payment?.reference || verifiedReference;
-    }
-
-    const normalizedStatus = String(payment?.status || "").trim().toLowerCase();
-    const isSuccessful = ["successful", "success", "succeeded", "completed", "paid"].includes(normalizedStatus);
-
-    if (transactionId && !isSuccessful) {
+    if (!isPaymentSuccessful(payment?.status)) {
       return res.status(400).json({
         success: false,
-        message: "Flutterwave reported that the payment is not successful.",
+        message: "Payment could not be verified as successful on Flutterwave.",
       });
     }
 
-    const qrResult = attendee.qrCode
-      ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }
-      : await generateQRCode(verifiedReference, attendee.qrToken);
+    const qrCode = attendee.qrCode || (await generateQRCode(reference));
 
     const updatedAttendee = await prisma.attendee.update({
       where: {
@@ -575,26 +667,35 @@ const reverifyPendingPayment = async (req, res) => {
       },
       data: {
         paymentStatus: "SUCCESS",
-        qrCode: qrResult.qrCode,
-        qrToken: qrResult.qrToken || attendee.qrToken,
-        qrTokenUsed: false,
-        reference: verifiedReference,
+        qrCode,
       },
     });
 
-    await sendTicketEmail({
-      fullName: updatedAttendee.fullName,
-      email: updatedAttendee.email,
-      ticketType: updatedAttendee.ticketType,
-      reference: updatedAttendee.reference,
-      qrCode: updatedAttendee.qrCode,
-    });
+    let emailSent = true;
+    let emailError = null;
+
+    try {
+      await sendTicketEmail({
+        fullName: updatedAttendee.fullName,
+        email: updatedAttendee.email,
+        ticketType: updatedAttendee.ticketType,
+        reference: updatedAttendee.reference,
+        qrCode: updatedAttendee.qrCode,
+      });
+    } catch (error) {
+      emailSent = false;
+      emailError = error.message;
+    }
 
     return res.status(200).json({
       success: true,
-      message: "Payment re-verified successfully.",
+      message: emailSent
+        ? "Registration completed successfully."
+        : "Registration completed, but confirmation email could not be sent right now.",
       attendee: updatedAttendee,
-      qrCode,
+      qrCode: updatedAttendee.qrCode,
+      emailSent,
+      emailError,
     });
   } catch (error) {
     console.error(error.response?.data || error);
@@ -628,12 +729,21 @@ const reverifyPendingPayments = async (req, res) => {
     }
 
     const results = [];
+    const failures = [];
 
     for (const attendee of pendingAttendees) {
       try {
-        const qrResult = attendee.qrCode
-          ? { qrCode: attendee.qrCode, qrToken: attendee.qrToken }
-          : await generateQRCode(attendee.reference || attendee.id, attendee.qrToken);
+        const payment = await verifyPaymentByReference(attendee.reference);
+
+        if (!isPaymentSuccessful(payment?.status)) {
+          failures.push({
+            reference: attendee.reference,
+            reason: "Payment not verified as successful",
+          });
+          continue;
+        }
+
+        const qrCode = attendee.qrCode || (await generateQRCode(attendee.reference));
 
         const updatedAttendee = await prisma.attendee.update({
           where: {
@@ -641,9 +751,7 @@ const reverifyPendingPayments = async (req, res) => {
           },
           data: {
             paymentStatus: "SUCCESS",
-            qrCode: qrResult.qrCode,
-            qrToken: qrResult.qrToken || attendee.qrToken,
-            qrTokenUsed: false,
+            qrCode,
           },
         });
 
@@ -657,15 +765,21 @@ const reverifyPendingPayments = async (req, res) => {
 
         results.push(updatedAttendee);
       } catch (error) {
+        failures.push({
+          reference: attendee.reference,
+          reason: error.response?.data?.message || error.message,
+        });
+
         console.error(`Failed to recover attendee ${attendee.reference}`, error);
       }
     }
 
     return res.status(200).json({
       success: true,
-      message: `Recovered ${results.length} pending attendee(s).`,
+      message: `Completed ${results.length} pending registration(s).`,
       count: results.length,
       attendees: results,
+      failures,
     });
   } catch (error) {
     console.error(error);
@@ -688,6 +802,7 @@ module.exports = {
   exportExcel,
   exportPDF,
   resendTicket,
+  completePendingRegistration,
   reverifyPendingPayment,
   reverifyPendingPayments,
 };
