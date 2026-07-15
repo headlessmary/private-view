@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [selectedAttendee, setSelectedAttendee] = useState(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [completingPayment, setCompletingPayment] = useState(false);
+  const [paymentCompletionResult, setPaymentCompletionResult] = useState(null);
 
   const [stats, setStats] = useState({
     totalTickets: 0,
@@ -288,7 +289,12 @@ export default function Dashboard() {
         throw new Error(data.message || "Failed to complete payment");
       }
 
-      alert(data.message || "Payment completed successfully.");
+      setPaymentCompletionResult({
+        success: true,
+        message: data.message || "Payment completed successfully.",
+        qrCode: data.qrCode || data.attendee?.qrCode || "",
+        reference: data.attendee?.reference || reference,
+      });
 
       await fetchDashboard();
 
@@ -296,7 +302,12 @@ export default function Dashboard() {
         setSelectedAttendee(data.attendee);
       }
     } catch (error) {
-      alert(error.message);
+      setPaymentCompletionResult({
+        success: false,
+        message: error.message,
+        qrCode: "",
+        reference,
+      });
     } finally {
       setCompletingPayment(false);
     }
@@ -732,7 +743,10 @@ export default function Dashboard() {
                     {filteredAttendees.map((person) => (
                       <tr
                         key={person.id}
-                        onClick={() => setSelectedAttendee(person)}
+                        onClick={() => {
+                          setSelectedAttendee(person);
+                          setPaymentCompletionResult(null);
+                        }}
                         className="cursor-pointer border-t border-[#1b1208] transition hover:bg-[#120d08]"
                       >
                         <td className="p-2 text-center text-xs sm:p-5 sm:text-base">
@@ -784,7 +798,10 @@ export default function Dashboard() {
               </h2>
 
               <button
-                onClick={() => setSelectedAttendee(null)}
+                onClick={() => {
+                  setSelectedAttendee(null);
+                  setPaymentCompletionResult(null);
+                }}
                 className="text-gray-400 hover:text-white text-2xl"
               >
                 ×
@@ -814,6 +831,32 @@ export default function Dashboard() {
                   />
                 </div>
               )}
+
+              {paymentCompletionResult &&
+                paymentCompletionResult.reference === selectedAttendee.reference && (
+                  <div
+                    className={`rounded-xl border p-4 ${
+                      paymentCompletionResult.success
+                        ? "border-[#d4a24d] bg-[#141008]"
+                        : "border-red-700 bg-red-950/30"
+                    }`}
+                  >
+                    <p className="text-xs uppercase tracking-[0.25em] text-[#d4a24d]">
+                      Complete Payment Result
+                    </p>
+                    <p className="mt-2 text-sm sm:text-base">{paymentCompletionResult.message}</p>
+
+                    {paymentCompletionResult.success && paymentCompletionResult.qrCode && (
+                      <div className="mt-4 inline-block rounded-lg border border-[#d4a24d] bg-white p-2">
+                        <img
+                          src={getAssetUrl(paymentCompletionResult.qrCode)}
+                          alt="Generated barcode"
+                          className="h-32 w-32 sm:h-40 sm:w-40"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 {selectedAttendee.paymentStatus === "PENDING" && (

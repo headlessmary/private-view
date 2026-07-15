@@ -150,6 +150,12 @@ export default function PaymentSuccess() {
               Ticket Confirmed!
             </h1>
 
+            {message && (
+              <p className="mt-4 rounded-xl border border-[#D4A24D]/25 bg-[#16110B] p-4 text-sm text-[#f1ca7b] sm:text-base">
+                {message}
+              </p>
+            )}
+
             <p className="mt-5 text-gray-300 leading-8 text-lg">
               Thank you for purchasing your ticket for
               <span className="text-[#D4A24D] font-medium">
