@@ -459,17 +459,17 @@ Each ticket is valid for one admission only.
 
 </div>
 
-<div class="footer">
+<div class="footer" style="background:#f5f1e7;padding:45px;text-align:center;border-top:1px solid #e8d8b2;">
 
-<h2>We Look Forward To Welcoming You</h2>
+<h2 style="color:#8a6927;font-family:Georgia,serif;font-size:40px;margin:0 0 20px;line-height:1.15;">We Look Forward To Welcoming You</h2>
 
-<p>
+<p style="color:#4f4f4f;line-height:1.8;font-size:15px;margin:0;">
 
 An unforgettable evening of art, culture and indulgence awaits.
 
 </p>
 
-<div class="copyright">
+<div class="copyright" style="margin-top:30px;font-size:13px;color:#777;line-height:1.6;">
 
 © 2026 Headless Mary Events<br>
 
