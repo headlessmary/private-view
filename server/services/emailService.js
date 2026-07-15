@@ -50,6 +50,20 @@ const getEmailDiagnostics = () => {
   };
 };
 
+const toAbsoluteUrl = (value) => {
+  const normalized = sanitizeEnvValue(value);
+
+  if (!normalized) {
+    return "";
+  }
+
+  try {
+    return new URL(normalized).toString().replace(/\/$/, "");
+  } catch {
+    return "";
+  }
+};
+
 const sendTicketEmail = async ({
   fullName,
   email,
@@ -59,7 +73,7 @@ const sendTicketEmail = async ({
 }) => {
   try {
     const sender = parseSender(process.env.MAIL_FROM);
-    const baseUrl = sanitizeEnvValue(process.env.BASE_URL);
+    const baseUrl = toAbsoluteUrl(process.env.BASE_URL);
     const brevoApiKey = sanitizeEnvValue(process.env.BREVO_API_KEY);
 
     if (!sender.email) {
@@ -74,9 +88,14 @@ const sendTicketEmail = async ({
       throw new Error("BREVO_API_KEY is not configured.");
     }
 
-    const qrUrl = qrCode.startsWith("http")
-      ? qrCode
-      : `${baseUrl.replace(/\/$/, "")}${qrCode}`;
+    if (!qrCode || !String(qrCode).trim()) {
+      throw new Error("QR/Barcode path is missing for this ticket.");
+    }
+
+    const qrCodeValue = String(qrCode).trim();
+    const qrUrl = qrCodeValue.startsWith("http://") || qrCodeValue.startsWith("https://")
+      ? qrCodeValue
+      : `${baseUrl}${qrCodeValue.startsWith("/") ? qrCodeValue : `/${qrCodeValue}`}`;
 
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",

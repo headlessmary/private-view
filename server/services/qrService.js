@@ -1,20 +1,11 @@
-const QRCode = require("qrcode");
-const path = require("path");
-const fs = require("fs");
-
 const generateQRCode = async (reference) => {
-  const folder = path.join(__dirname, "../uploads/qr");
+  const normalizedReference = String(reference || "").trim();
 
-  if (!fs.existsSync(folder)) {
-    fs.mkdirSync(folder, { recursive: true });
+  if (!normalizedReference) {
+    throw new Error("Reference is required to generate QR code.");
   }
 
-  const filename = `${reference}.png`;
-  const filepath = path.join(folder, filename);
-
-  await QRCode.toFile(filepath, reference);
-
-  return `/uploads/qr/${filename}`;
+  return `/uploads/qr/${encodeURIComponent(normalizedReference)}.png`;
 };
 
 module.exports = {

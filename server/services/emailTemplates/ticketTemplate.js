@@ -149,6 +149,17 @@ color:#080808;
 font-weight:bold;
 }
 
+.status-message{
+margin-top:14px;
+padding:12px 14px;
+background:#f7edd8;
+border:1px solid #e6cd95;
+border-radius:10px;
+font-size:14px;
+line-height:1.6;
+color:#5f4718;
+}
+
 .qr{
 margin-top:40px;
 text-align:center;
@@ -172,6 +183,28 @@ display:block;
 margin-top:20px;
 font-size:15px;
 color:#666;
+}
+
+.ticket-link-wrap{
+margin-top:16px;
+}
+
+.ticket-link-label{
+display:block;
+font-size:13px;
+color:#666;
+margin-bottom:8px;
+}
+
+.ticket-link{
+display:inline-block;
+padding:10px 14px;
+background:#D4A24D;
+color:#080808 !important;
+text-decoration:none;
+font-weight:bold;
+border-radius:10px;
+font-size:14px;
 }
 
 .event{
@@ -349,13 +382,17 @@ Your payment has been received successfully and your digital admission pass is n
 ✓ CONFIRMED
 </div>
 
+<div class="status-message">
+Complete Ticket Message: Payment completed successfully and your QR/barcode ticket is ready.
+</div>
+
 <div class="qr">
 
 <div class="qr-box">
 
 <img
 src="${qrCode}"
-alt="QR Code"
+alt="Ticket QR/Barcode"
 />
 
 </div>
@@ -366,6 +403,11 @@ Present this QR Code at the entrance.
 Each ticket is valid for one admission only.
 
 </p>
+
+<div class="ticket-link-wrap">
+<span class="ticket-link-label">If your email app hides images, open your barcode directly:</span>
+<a href="${qrCode}" class="ticket-link" target="_blank" rel="noopener noreferrer">Open Ticket Barcode</a>
+</div>
 
 </div>
 
