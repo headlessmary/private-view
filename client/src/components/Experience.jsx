@@ -10,8 +10,9 @@ import tattoo from "../assets/tatto.png";
 import performance from "../assets/performance.png";
 import ride from "../assets/ride.png";
 
+
 const experiences = [
-  { image: art, title: "Art Exhibition" },
+  { image: art, title: "Art Exhibition by King tee and Isi arts" },
   { image: cocktail, title: "Signature Cocktails" },
   { image: music, title: "Music by DJ Switchy" },
   { image: camera, title: "360° Camera" },
@@ -19,6 +20,7 @@ const experiences = [
   { image: tattoo, title: "Tattoos by Wicked Unclevee" },
   { image: performance, title: "Live Performances" },
   { image: ride, title: "Complimentary Rides" },
+
 ];
 
 export default function Experience() {
