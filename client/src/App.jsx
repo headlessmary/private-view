@@ -14,6 +14,7 @@ import Attendees from "./admin/components/Attendees";
 import QRScanner from "./admin/components/Scanner";
 import Settings from "./admin/components/Settings";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
+import PageTracker from "./components/PageTracker";
 
 function AppContent() {
   const location = useLocation();
@@ -23,6 +24,7 @@ function AppContent() {
 
   return (
     <>
+     <PageTracker />
       {!isAdminRoute && <Navbar />}
 
       {!isAdminRoute && <ScrollToHash />}
