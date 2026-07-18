@@ -4,9 +4,10 @@ import image from "../assets/hero.jpg";
 import calendarIcon from "../assets/icon-calendar.png";
 import locationIcon from "../assets/icon-location.png";
 import {  getEventSettings } from "../services/eventSettings";
+import ReactGA from "../utils/analytics";
 
 export default function HeroSection() {
-  const [settings, setSettings] = useState(getEventSettings);
+  const [settings, setSettings] = useState(getEventSettings());
 
   useEffect(() => {
     const handleSettingsUpdate = () => setSettings(getEventSettings());
@@ -179,11 +180,18 @@ export default function HeroSection() {
             {/* CTA */}
             <div className="mt-8 flex flex-col items-center gap-5 text-center sm:flex-row sm:justify-center lg:justify-start lg:items-start lg:text-left">
               <Link
-                to="/buy-ticket"
-                className="inline-flex min-w-56 items-center justify-center rounded-none bg-[#D8A74E] px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.2em] text-black transition duration-300 hover:bg-[#C89A3D] sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[13px] lg:min-w-66 lg:px-12 lg:py-5 lg:text-[14px]"
-              >
-                Reserve Ticket
-              </Link>
+  to="/buy-ticket"
+  onClick={() => {
+    ReactGA.event({
+      category: "Tickets",
+      action: "Reserve Ticket Clicked",
+      label: settings.eventName,
+    });
+  }}
+  className="inline-flex min-w-56 items-center justify-center rounded-none bg-[#D8A74E] px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.2em] text-black transition duration-300 hover:bg-[#C89A3D] sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[13px] lg:min-w-66 lg:px-12 lg:py-5 lg:text-[14px]"
+>
+  Reserve Ticket
+</Link>
             </div>
 
           </div>
