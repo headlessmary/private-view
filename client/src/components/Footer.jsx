@@ -33,10 +33,14 @@ export default function Footer() {
               <span>Instagram ·</span>
 
               <FaInstagram className="text-[#C8922E] text-[16px]" />
-
-              <span className="text-[#C8922E]">
-                @headlessmaryevents
-              </span>
+              <a
+  href="https://www.instagram.com/headlessmaryevents/"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="text-[#C8922E] no-underline"
+>
+  @headlessmaryevents
+</a>
             </p>
 
             <p className="mt-2 flex flex-wrap items-center justify-center gap-2 text-[14px] text-[#D8D2CB] md:justify-start sm:text-[15px]">
