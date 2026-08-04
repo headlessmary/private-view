@@ -7,6 +7,12 @@ export default function Attendees() {
 
   const [search, setSearch] = useState("");
   const [completionResult, setCompletionResult] = useState(null);
+  const [manualConfirmState, setManualConfirmState] = useState({
+    open: false,
+    guest: null,
+    paymentReference: "",
+    notes: "",
+  });
 
   const getAssetUrl = (assetPath) => {
     if (!assetPath) {
@@ -126,6 +132,62 @@ export default function Attendees() {
     }
   };
 
+  const openManualConfirm = (guest) => {
+    setManualConfirmState({
+      open: true,
+      guest,
+      paymentReference: "",
+      notes: "",
+    });
+  };
+
+  const submitManualConfirm = async (event) => {
+    event.preventDefault();
+
+    if (!manualConfirmState.guest) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      const response = await fetch(`${API_URL}/api/admin/payments/${manualConfirmState.guest.id}/manual-confirm`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          paymentReference: manualConfirmState.paymentReference,
+          notes: manualConfirmState.notes,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      setCompletionResult({
+        success: true,
+        message: data.message || "Manual payment confirmed successfully.",
+        qrCode: data.qrCode || data.attendee?.qrCode || "",
+        reference: data.attendee?.reference || manualConfirmState.guest.reference,
+      });
+
+      setManualConfirmState({ open: false, guest: null, paymentReference: "", notes: "" });
+      await loadAttendees();
+    } catch (err) {
+      setCompletionResult({
+        success: false,
+        message: err.message,
+        qrCode: "",
+        reference: manualConfirmState.guest?.reference || "",
+      });
+    }
+  };
+
   const filtered = attendees.filter((guest) => {
     const value = search.toLowerCase();
 
@@ -162,6 +224,64 @@ export default function Attendees() {
           onChange={(e) => setSearch(e.target.value)}
           className="mt-6 mb-6 h-14 w-full rounded-lg border border-[#333] bg-[#141414] px-4 text-base sm:mt-8 sm:mb-8 sm:h-14 sm:px-5 sm:text-lg"
         />
+
+        {manualConfirmState.open && manualConfirmState.guest && (
+          <div className="mb-6 rounded-xl border border-[#d4a24d] bg-[#141008] p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#d4a24d]">
+                  Confirm Manual Payment
+                </p>
+                <p className="mt-2 text-sm sm:text-base">
+                  Confirm a bank transfer payment for {manualConfirmState.guest.fullName}.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setManualConfirmState({ open: false, guest: null, paymentReference: "", notes: "" })}
+                className="rounded-md border border-[#2d2111] px-3 py-1 text-xs text-gray-300 hover:border-[#d4a24d] hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <form onSubmit={submitManualConfirm} className="mt-4 space-y-4">
+              <div>
+                <label className="mb-1 block text-sm text-gray-300">Bank payment reference (optional)</label>
+                <input
+                  value={manualConfirmState.paymentReference}
+                  onChange={(event) => setManualConfirmState((current) => ({ ...current, paymentReference: event.target.value }))}
+                  className="h-12 w-full rounded-lg border border-[#333] bg-[#141414] px-4 text-sm"
+                  placeholder="e.g. TRF-001"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-300">Notes (optional)</label>
+                <textarea
+                  value={manualConfirmState.notes}
+                  onChange={(event) => setManualConfirmState((current) => ({ ...current, notes: event.target.value }))}
+                  className="min-h-24 w-full rounded-lg border border-[#333] bg-[#141414] px-4 py-3 text-sm"
+                  placeholder="Add notes for the payment confirmation"
+                />
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="submit"
+                  className="rounded-lg bg-[#d4a24d] px-4 py-2 text-sm font-medium text-black"
+                >
+                  Confirm Manual Payment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setManualConfirmState({ open: false, guest: null, paymentReference: "", notes: "" })}
+                  className="rounded-lg border border-[#333] px-4 py-2 text-sm text-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {completionResult && (
           <div
@@ -219,6 +339,10 @@ export default function Attendees() {
 
                 <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Payment</th>
 
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Method</th>
+
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Confirmed</th>
+
                 <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Checked In</th>
 
                 <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Reference</th>
@@ -267,6 +391,17 @@ export default function Attendees() {
                   </td>
 
                   <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
+                    {guest.paymentMethod || "—"}
+                  </td>
+
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
+                    {guest.confirmedBy ? `${guest.confirmedBy}` : "—"}
+                    <div className="text-xs text-gray-400 sm:text-sm">
+                      {guest.confirmedAt ? new Date(guest.confirmedAt).toLocaleString() : "Pending"}
+                    </div>
+                  </td>
+
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
                     {guest.checkedIn ? (
                       <span className="inline-flex items-center rounded-full bg-green-700/30 px-3 py-1 text-sm font-medium text-green-400">
                         ✔ Used
@@ -293,13 +428,21 @@ export default function Attendees() {
                         </button>
                       )}
 
-                      {guest.paymentStatus === "PENDING" && (
-                        <button
-                          onClick={() => completePayment(guest)}
-                          className="whitespace-nowrap rounded-lg border border-[#d4a24d] px-4 py-2 text-sm font-medium text-[#d4a24d] sm:px-5 sm:text-base"
-                        >
-                          Complete Payment
-                        </button>
+                      {(guest.paymentStatus === "PENDING" || guest.paymentStatus === "FAILED") && (
+                        <>
+                          <button
+                            onClick={() => openManualConfirm(guest)}
+                            className="whitespace-nowrap rounded-lg bg-[#d4a24d] px-4 py-2 text-sm font-medium text-black sm:px-5 sm:text-base"
+                          >
+                            Confirm Manual Payment
+                          </button>
+                          <button
+                            onClick={() => completePayment(guest)}
+                            className="whitespace-nowrap rounded-lg border border-[#d4a24d] px-4 py-2 text-sm font-medium text-[#d4a24d] sm:px-5 sm:text-base"
+                          >
+                            Complete Payment
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>

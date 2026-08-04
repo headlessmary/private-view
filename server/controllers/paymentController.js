@@ -7,12 +7,8 @@ const {
 } = require("../services/flutterwaveService");
 
 const {
-  generateQRCode,
-} = require("../services/qrService");
-
-const {
-  sendTicketEmail,
-} = require("../services/emailService");
+  completeAttendeePayment,
+} = require("../services/paymentCompletionService");
 
 const finalizeVerifiedPayment = async (payment) => {
   if (payment.status !== "successful") {
@@ -31,12 +27,6 @@ const finalizeVerifiedPayment = async (payment) => {
     throw error;
   }
 
-  let qrCode = attendee.qrCode;
-
-  if (!qrCode) {
-    qrCode = await generateQRCode(payment.tx_ref);
-  }
-
   if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
     return {
       attendee,
@@ -46,36 +36,13 @@ const finalizeVerifiedPayment = async (payment) => {
     };
   }
 
-  const updatedAttendee = await prisma.attendee.update({
-    where: { reference: payment.tx_ref },
-    data: {
-      paymentStatus: "SUCCESS",
-      qrCode,
-    },
+  return completeAttendeePayment({
+    attendee,
+    paymentMethod: "Flutterwave",
+    confirmedBy: "Flutterwave",
+    confirmedAt: new Date(),
+    paymentReference: payment.tx_ref,
   });
-
-  let emailSent = true;
-  let emailError = null;
-
-  try {
-    await sendTicketEmail({
-      fullName: updatedAttendee.fullName,
-      email: updatedAttendee.email,
-      ticketType: updatedAttendee.ticketType,
-      reference: updatedAttendee.reference,
-      qrCode,
-    });
-  } catch (error) {
-    emailSent = false;
-    emailError = error.message;
-  }
-
-  return {
-    attendee: updatedAttendee,
-    qrCode,
-    emailSent,
-    emailError,
-  };
 };
 
 // =====================================

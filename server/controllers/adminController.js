@@ -16,8 +16,8 @@ const {
 } = require("../services/flutterwaveService");
 
 const {
-  generateQRCode,
-} = require("../services/qrService");
+  completeAttendeePayment,
+} = require("../services/paymentCompletionService");
 
 const isPaymentSuccessful = (status) => {
   const normalized = String(status || "").trim().toLowerCase();
@@ -561,52 +561,24 @@ const completePendingRegistration = async (req, res) => {
       });
     }
 
-    const payment = await verifyPaymentByReference(reference);
-
-    if (!isPaymentSuccessful(payment?.status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment could not be verified as successful on Flutterwave.",
-      });
-    }
-
-    const qrCode = attendee.qrCode || (await generateQRCode(reference));
-
-    const updatedAttendee = await prisma.attendee.update({
-      where: {
-        reference,
-      },
-      data: {
-        paymentStatus: "SUCCESS",
-        qrCode,
-      },
+    const completion = await completeAttendeePayment({
+      attendee,
+      paymentMethod: "Bank Transfer",
+      confirmedBy: req.admin?.email || "admin",
+      confirmedAt: new Date(),
+      paymentReference: reference,
+      adminNotes: "Manual bank transfer confirmation by admin",
     });
-
-    let emailSent = true;
-    let emailError = null;
-
-    try {
-      await sendTicketEmail({
-        fullName: updatedAttendee.fullName,
-        email: updatedAttendee.email,
-        ticketType: updatedAttendee.ticketType,
-        reference: updatedAttendee.reference,
-        qrCode: updatedAttendee.qrCode,
-      });
-    } catch (error) {
-      emailSent = false;
-      emailError = error.message;
-    }
 
     return res.status(200).json({
       success: true,
-      message: emailSent
-        ? "Payment completed successfully and QR/barcode ticket is ready."
-        : "Payment completed and QR/barcode ticket is ready, but confirmation email could not be sent right now.",
-      attendee: updatedAttendee,
-      qrCode: updatedAttendee.qrCode,
-      emailSent,
-      emailError,
+      message: completion.emailSent
+        ? "Payment was completed manually by the admin and the QR/barcode ticket is ready."
+        : "Payment was completed manually by the admin, and the QR/barcode ticket is ready, but the confirmation email could not be sent right now.",
+      attendee: completion.attendee,
+      qrCode: completion.qrCode,
+      emailSent: completion.emailSent,
+      emailError: completion.emailError,
     });
   } catch (error) {
     console.error(error.response?.data || error);
@@ -659,43 +631,23 @@ const reverifyPendingPayment = async (req, res) => {
       });
     }
 
-    const qrCode = attendee.qrCode || (await generateQRCode(reference));
-
-    const updatedAttendee = await prisma.attendee.update({
-      where: {
-        reference: attendee.reference,
-      },
-      data: {
-        paymentStatus: "SUCCESS",
-        qrCode,
-      },
+    const completion = await completeAttendeePayment({
+      attendee,
+      paymentMethod: "Flutterwave",
+      confirmedBy: "Flutterwave",
+      confirmedAt: new Date(),
+      paymentReference: reference,
     });
-
-    let emailSent = true;
-    let emailError = null;
-
-    try {
-      await sendTicketEmail({
-        fullName: updatedAttendee.fullName,
-        email: updatedAttendee.email,
-        ticketType: updatedAttendee.ticketType,
-        reference: updatedAttendee.reference,
-        qrCode: updatedAttendee.qrCode,
-      });
-    } catch (error) {
-      emailSent = false;
-      emailError = error.message;
-    }
 
     return res.status(200).json({
       success: true,
-      message: emailSent
+      message: completion.emailSent
         ? "Payment completed successfully and QR/barcode ticket is ready."
         : "Payment completed and QR/barcode ticket is ready, but confirmation email could not be sent right now.",
-      attendee: updatedAttendee,
-      qrCode: updatedAttendee.qrCode,
-      emailSent,
-      emailError,
+      attendee: completion.attendee,
+      qrCode: completion.qrCode,
+      emailSent: completion.emailSent,
+      emailError: completion.emailError,
     });
   } catch (error) {
     console.error(error.response?.data || error);
@@ -743,27 +695,15 @@ const reverifyPendingPayments = async (req, res) => {
           continue;
         }
 
-        const qrCode = attendee.qrCode || (await generateQRCode(attendee.reference));
-
-        const updatedAttendee = await prisma.attendee.update({
-          where: {
-            id: attendee.id,
-          },
-          data: {
-            paymentStatus: "SUCCESS",
-            qrCode,
-          },
+        const completion = await completeAttendeePayment({
+          attendee,
+          paymentMethod: "Flutterwave",
+          confirmedBy: "Flutterwave",
+          confirmedAt: new Date(),
+          paymentReference: attendee.reference,
         });
 
-        await sendTicketEmail({
-          fullName: updatedAttendee.fullName,
-          email: updatedAttendee.email,
-          ticketType: updatedAttendee.ticketType,
-          reference: updatedAttendee.reference,
-          qrCode: updatedAttendee.qrCode,
-        });
-
-        results.push(updatedAttendee);
+        results.push(completion.attendee);
       } catch (error) {
         failures.push({
           reference: attendee.reference,
@@ -791,6 +731,59 @@ const reverifyPendingPayments = async (req, res) => {
   }
 };
 
+const confirmManualPayment = async (req, res) => {
+  try {
+    const attendeeId = String(req.params?.id || "").trim();
+    const paymentReference = String(req.body?.paymentReference || "").trim();
+    const notes = String(req.body?.notes || "").trim();
+
+    if (!attendeeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Attendee ID is required.",
+      });
+    }
+
+    const attendee = await prisma.attendee.findUnique({
+      where: { id: attendeeId },
+    });
+
+    if (!attendee) {
+      return res.status(404).json({
+        success: false,
+        message: "Attendee not found.",
+      });
+    }
+
+    const completion = await completeAttendeePayment({
+      attendee,
+      paymentMethod: "Bank Transfer",
+      confirmedBy: req.admin?.email || "admin",
+      confirmedAt: new Date(),
+      paymentReference: paymentReference || attendee.reference,
+      adminNotes: notes || null,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: completion.emailSent
+        ? "Manual bank transfer payment confirmed successfully and the ticket is ready."
+        : "Manual bank transfer payment confirmed successfully, but the confirmation email could not be sent right now.",
+      attendee: completion.attendee,
+      qrCode: completion.qrCode,
+      emailSent: completion.emailSent,
+      emailError: completion.emailError,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   login,
   dashboard,
@@ -805,4 +798,5 @@ module.exports = {
   completePendingRegistration,
   reverifyPendingPayment,
   reverifyPendingPayments,
+  confirmManualPayment,
 };

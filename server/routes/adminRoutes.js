@@ -17,6 +17,7 @@ const {
   completePendingRegistration,
   reverifyPendingPayment,
   reverifyPendingPayments,
+  confirmManualPayment,
 } = require("../controllers/adminController");
 
 router.post("/login", login);
@@ -48,6 +49,7 @@ router.get(
 router.post("/resend-ticket", protectAdmin, resendTicket);
 router.post("/complete-registration", protectAdmin, completePendingRegistration);
 router.post("/complete-payment", protectAdmin, completePendingRegistration);
+router.patch("/payments/:id/manual-confirm", protectAdmin, confirmManualPayment);
 router.post("/reverify-payment", protectAdmin, reverifyPendingPayment);
 router.post("/complete-registration/bulk", protectAdmin, reverifyPendingPayments);
 router.post("/complete-payment/bulk", protectAdmin, reverifyPendingPayments);
