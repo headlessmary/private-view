@@ -3,7 +3,16 @@ const ticketTemplate = ({
   ticketType,
   reference,
   qrCode,
+  eventName,
+  venue,
+  eventDateTime,
 }) => {
+  const admissionCount = {
+    "Early Bird": 1,
+    "Saints & Rebels": 2,
+    "Five Friends": 4,
+  }[ticketType] || 1;
+
   return `
 <!DOCTYPE html>
 <html>
@@ -321,17 +330,11 @@ color:#777;
 
 <div class="header">
 
-<img
-src="https://www.headlessmary.com/flyer.jpg"
-class="flyer"
-alt="Private View Flyer"
-/>
-
 <h1>Your Ticket Is Confirmed</h1>
 
 <div class="gold-line"></div>
 
-<p>Art • Luxury • Experience</p>
+<p>Afrobeats • Amapiano • Afrohouse</p>
 
 </div>
 
@@ -342,7 +345,7 @@ alt="Private View Flyer"
 <p>
 
 Thank you for reserving your place at
-<strong>The Private View: Art & Indulgence.</strong>
+<strong>${eventName}.</strong>
 
 </p>
 
@@ -357,7 +360,7 @@ Your payment has been received successfully and your digital admission pass is n
 
 <div class="ticket-header">
 
-<h3>PRIVATE VIEW PASS</h3>
+<h3>${eventName.toUpperCase()} PASS</h3>
 
 </div>
 
@@ -383,7 +386,7 @@ Your payment has been received successfully and your digital admission pass is n
 </div>
 
 <div class="status-message">
-Complete Ticket Message: Payment completed successfully and your QR/barcode ticket is ready.
+Your payment is confirmed. Keep this QR code ready for entry.
 </div>
 
 <div class="qr">
@@ -400,7 +403,7 @@ alt="Ticket QR/Barcode"
 <p>
 
 Present this QR Code at the entrance.
-Each ticket is valid for one admission only.
+This pass admits ${admissionCount} guest${admissionCount === 1 ? "" : "s"}. Present its QR code once for the whole party.
 
 </p>
 
@@ -421,18 +424,17 @@ Each ticket is valid for one admission only.
 
 <div class="event-row">
 <span class="left">Venue</span>
-<span class="event-value">MainStay Villa
-<span class="venue-address-line">No 5 Micheal Njokanma Street, opposite liberty estate, GRA, Asaba</span></span>
+<span class="event-value">${venue}</span>
 </div>
 
 <div class="event-row">
 <span class="left">Time</span>
-<span class="event-value">8:00 PM</span>
+<span class="event-value">${eventDateTime} WAT</span>
 </div>
 
 <div class="event-row">
-<span class="left">  Dress Code</span>
-<span class="event-value">  Denim</span>
+<span class="left">Sound</span>
+<span class="event-value">Afrobeats · Amapiano · Afrohouse</span>
 </div>
 
 </div>
@@ -451,7 +453,7 @@ Each ticket is valid for one admission only.
 
 <li>Do not share your QR code with anyone.</li>
 
-<li>VIP guests should proceed through the VIP entrance.</li>
+<li>Please arrive with your ticket and QR code ready for check-in.</li>
 
 </ul>
 
@@ -465,7 +467,7 @@ Each ticket is valid for one admission only.
 
 <p style="color:#4f4f4f;line-height:1.8;font-size:15px;margin:0;">
 
-An unforgettable evening of art, culture and indulgence awaits.
+An unforgettable night of sound, style and Society awaits.
 
 </p>
 
@@ -473,7 +475,7 @@ An unforgettable evening of art, culture and indulgence awaits.
 
 © 2026 Headless Mary Events<br>
 
-The Private View • All Rights Reserved
+${eventName} • All Rights Reserved
 
 </div>
 

@@ -18,6 +18,7 @@ const {
 const {
   completeAttendeePayment,
 } = require("../services/paymentCompletionService");
+const { getEventConfig } = require("../services/eventConfigService");
 
 const isPaymentSuccessful = (status) => {
   const normalized = String(status || "").trim().toLowerCase();
@@ -113,26 +114,29 @@ console.log("Admin found:", admin);
 // ==============================
 const dashboard = async (req, res) => {
   try {
-
-    const totalTickets = await prisma.attendee.count();
-
-    const vipTickets = await prisma.attendee.count({
-      where: {
-        ticketType: "VIP",
-      },
-    });
-
-    const regularTickets = await prisma.attendee.count({
-      where: {
-        ticketType: "REGULAR",
-      },
-    });
-
-    const checkedIn = await prisma.attendee.count({
-      where: {
-        checkedIn: true,
-      },
-    });
+    const [event, attendees] = await Promise.all([
+      getEventConfig(),
+      prisma.attendee.findMany({
+        where: { paymentStatus: "SUCCESS" },
+        select: { ticketType: true, checkedIn: true },
+      }),
+    ]);
+    const admissionCount = {
+      EARLY_BIRD: 1,
+      SAINTS_REBELS: 2,
+      FIVE_FRIENDS: 4,
+      VIP: 1,
+      REGULAR: 1,
+    };
+    const totalTickets = attendees.reduce(
+      (count, attendee) => count + (admissionCount[attendee.ticketType] || 1),
+      0
+    );
+    const checkedIn = attendees.reduce(
+      (count, attendee) =>
+        count + (attendee.checkedIn ? admissionCount[attendee.ticketType] || 1 : 0),
+      0
+    );
 
     const revenue = await prisma.attendee.aggregate({
       _sum: {
@@ -147,10 +151,12 @@ const dashboard = async (req, res) => {
       success: true,
       data: {
         totalTickets,
-        vipTickets,
-        regularTickets,
+        maxCapacity: event.maxCapacity,
+        eventName: event.eventName,
+        venue: event.venue,
+        eventDateTime: event.eventDateTime,
         checkedIn,
-        remainingTickets: 60 - totalTickets,
+        remainingTickets: Math.max(0, event.maxCapacity - totalTickets),
         revenue: revenue._sum.amount || 0,
       },
     });
@@ -365,52 +371,61 @@ const checkIn = async (req, res) => {
 // ==============================
 const reports = async (req, res) => {
   try {
-    const totalAttendees = await prisma.attendee.count();
-
-    const vipTickets = await prisma.attendee.count({
-      where: {
-        ticketType: "VIP",
-        paymentStatus: "SUCCESS",
-      },
-    });
-
-    const regularTickets = await prisma.attendee.count({
-      where: {
-        ticketType: "REGULAR",
-        paymentStatus: "SUCCESS",
-      },
-    });
-
-    const checkedIn = await prisma.attendee.count({
-      where: {
-        checkedIn: true,
-      },
-    });
-
-    const remaining = await prisma.attendee.count({
-      where: {
-        checkedIn: false,
-        paymentStatus: "SUCCESS",
-      },
-    });
-
-    const revenue = await prisma.attendee.aggregate({
-      _sum: {
-        amount: true,
-      },
-      where: {
-        paymentStatus: "SUCCESS",
-      },
-    });
+    const [totalAttendees, successfulAttendees, event, revenue] = await Promise.all([
+      prisma.attendee.count(),
+      prisma.attendee.findMany({
+        where: { paymentStatus: "SUCCESS" },
+        select: { ticketType: true, checkedIn: true },
+      }),
+      getEventConfig(),
+      prisma.attendee.aggregate({
+        _sum: { amount: true },
+        where: { paymentStatus: "SUCCESS" },
+      }),
+    ]);
+    const admissionCount = {
+      EARLY_BIRD: 1,
+      SAINTS_REBELS: 2,
+      FIVE_FRIENDS: 4,
+      VIP: 1,
+      REGULAR: 1,
+    };
+    const ticketCounts = successfulAttendees.reduce((counts, attendee) => {
+      counts[attendee.ticketType] = (counts[attendee.ticketType] || 0) + 1;
+      return counts;
+    }, {});
+    const checkedInAttendees = successfulAttendees.filter(
+      (attendee) => attendee.checkedIn
+    );
+    const totalAdmissions = successfulAttendees.reduce(
+      (total, attendee) =>
+        total + (admissionCount[attendee.ticketType] || 1),
+      0
+    );
+    const checkedInAdmissions = checkedInAttendees.reduce(
+      (total, attendee) =>
+        total + (admissionCount[attendee.ticketType] || 1),
+      0
+    );
 
     return res.json({
       success: true,
       report: {
         totalAttendees,
-        vipTickets,
-        regularTickets,
-        checkedIn,
-        remaining,
+        vipTickets: ticketCounts.VIP || 0,
+        regularTickets: ticketCounts.REGULAR || 0,
+        earlyBirdTickets: ticketCounts.EARLY_BIRD || 0,
+        saintsRebelsTickets: ticketCounts.SAINTS_REBELS || 0,
+        fiveFriendsTickets: ticketCounts.FIVE_FRIENDS || 0,
+        checkedIn: checkedInAttendees.length,
+        remaining: successfulAttendees.length - checkedInAttendees.length,
+        totalAdmissions,
+        checkedInAdmissions,
+        remainingAdmissions: Math.max(0, event.maxCapacity - totalAdmissions),
+        maxCapacity: event.maxCapacity,
+        eventName: event.eventName,
+        venue: event.venue,
+        eventDateTime: event.eventDateTime,
         revenue: revenue._sum.amount || 0,
       },
     });
@@ -430,8 +445,9 @@ const reports = async (req, res) => {
 const exportExcel = async (req, res) => {
 
   const attendees = await prisma.attendee.findMany();
+  const event = await getEventConfig();
 
-  const workbook = await generateExcel(attendees);
+  const workbook = await generateExcel(attendees, event);
 
   res.setHeader(
     "Content-Type",
@@ -455,6 +471,7 @@ const exportExcel = async (req, res) => {
 const exportPDF = async (req, res) => {
 
   const attendees = await prisma.attendee.findMany();
+  const event = await getEventConfig();
 
   res.setHeader(
     "Content-Type",
@@ -466,7 +483,7 @@ const exportPDF = async (req, res) => {
     "attachment; filename=attendees.pdf"
   );
 
-  generatePDF(attendees, res);
+  generatePDF(attendees, res, event);
 
 };
 

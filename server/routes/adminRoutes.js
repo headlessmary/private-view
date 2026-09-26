@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 
 const protectAdmin = require("../middleware/auth");
+const {
+  updateEventConfig,
+} = require("../controllers/eventConfigController");
 
 const {
   login,
@@ -23,6 +26,7 @@ const {
 router.post("/login", login);
 
 router.get("/dashboard", protectAdmin, dashboard);
+router.put("/event-settings", protectAdmin, updateEventConfig);
 
 router.get("/attendees", protectAdmin, getAttendees);
 

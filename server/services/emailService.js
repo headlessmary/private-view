@@ -1,5 +1,10 @@
 const axios = require("axios");
 const ticketTemplate = require("./emailTemplates/ticketTemplate");
+const { formatTicketType } = require("../constants/societyTickets");
+const {
+  formatEventDateTime,
+  getEventConfig,
+} = require("./eventConfigService");
 
 const sanitizeEnvValue = (value) => {
   if (!value || typeof value !== "string") {
@@ -14,7 +19,7 @@ const parseSender = (senderValue) => {
 
   if (!normalizedSender) {
     return {
-      name: "Private View",
+      name: "Headless Mary",
       email: "",
     };
   }
@@ -23,13 +28,13 @@ const parseSender = (senderValue) => {
 
   if (!senderMatch) {
     return {
-      name: "Private View",
+      name: "Headless Mary",
       email: normalizedSender,
     };
   }
 
   return {
-    name: senderMatch[1].trim().replace(/^"|"$/g, "") || "Private View",
+    name: senderMatch[1].trim().replace(/^"|"$/g, "") || "Headless Mary",
     email: senderMatch[2].trim(),
   };
 };
@@ -75,6 +80,7 @@ const sendTicketEmail = async ({
     const sender = parseSender(process.env.MAIL_FROM);
     const baseUrl = toAbsoluteUrl(process.env.BASE_URL);
     const brevoApiKey = sanitizeEnvValue(process.env.BREVO_API_KEY);
+    const event = await getEventConfig();
 
     if (!sender.email) {
       throw new Error("MAIL_FROM is not configured correctly.");
@@ -109,13 +115,16 @@ const sendTicketEmail = async ({
           },
         ],
 
-        subject: "Your Ticket - The Private View: Art & Indulgence",
+        subject: `Your Ticket - ${event.eventName}`,
 
         htmlContent: ticketTemplate({
           fullName,
-          ticketType,
+          ticketType: formatTicketType(ticketType),
           reference,
           qrCode: qrUrl,
+          eventName: event.eventName,
+          venue: event.venue,
+          eventDateTime: formatEventDateTime(event.eventDateTime),
         }),
       },
       {

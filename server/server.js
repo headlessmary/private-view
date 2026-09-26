@@ -8,6 +8,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const path = require("path");
 const adminRoutes = require("./routes/adminRoutes");
 const testRoutes = require("./routes/testRoutes");
+const { getPublicEventConfig } = require("./controllers/eventConfigController");
 
 
 const app = express();
@@ -81,6 +82,8 @@ app.get("/", (req, res) => {
     message: "Private View API Running",
   });
 });
+
+app.get("/api/event-settings", getPublicEventConfig);
 
 // Test Route
 app.post("/test", (req, res) => {

@@ -37,6 +37,7 @@ const initializePayment = async ({
   amount,
   reference,
   redirectUrl: redirectUrlInput,
+  eventName = "Headless Society",
 }) => {
   const frontendUrl = toAbsoluteUrl(process.env.FRONTEND_URL);
   const configuredRedirectUrl = toAbsoluteUrl(process.env.FLW_REDIRECT_URL);
@@ -57,7 +58,7 @@ const initializePayment = async ({
   const normalizedAmount = Number(amount);
 
   const customizations = {
-    title: "The Private View: Art & Indulgence",
+    title: eventName,
     description: "Event Ticket Purchase",
   };
 

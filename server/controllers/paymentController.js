@@ -1,4 +1,5 @@
 const prisma = require("../database/prisma");
+const { v4: uuid } = require("uuid");
 
 const {
   initializePayment,
@@ -9,6 +10,7 @@ const {
 const {
   completeAttendeePayment,
 } = require("../services/paymentCompletionService");
+const { getEventConfig, toTicketPrices } = require("../services/eventConfigService");
 
 const finalizeVerifiedPayment = async (payment) => {
   if (payment.status !== "successful") {
@@ -58,27 +60,39 @@ const initializeTransaction = async (req, res) => {
       amount,
     } = req.body;
 
-    const normalizedFullName = (fullName || "").trim();
-    const normalizedEmail = (email || "").trim();
+    const normalizedFullName = typeof fullName === "string" ? fullName.trim() : "";
+    const normalizedEmail = typeof email === "string" ? email.trim() : "";
     const normalizedPhone = String(phone || "").trim();
-    const normalizedTicketType = (ticketType || "").trim().toUpperCase();
-    const normalizedAmount = Number(amount);
+    const normalizedTicketType =
+      typeof ticketType === "string" ? ticketType.trim().toUpperCase() : "";
+    const eventConfig = await getEventConfig();
+    const ticketPrices = toTicketPrices(eventConfig);
+    const normalizedAmount = Object.prototype.hasOwnProperty.call(
+      ticketPrices,
+      normalizedTicketType
+    )
+      ? ticketPrices[normalizedTicketType]
+      : 0;
 
     if (
       !normalizedFullName ||
       !normalizedEmail ||
       !normalizedPhone ||
-      !normalizedTicketType ||
-      !Number.isFinite(normalizedAmount) ||
-      normalizedAmount <= 0
+      !normalizedAmount
     ) {
       return res.status(400).json({
         success: false,
-        message: "Invalid payment request. Please provide valid attendee details and ticket amount.",
+        message: "Invalid payment request. Please provide valid attendee details and select a Society ticket.",
+      });
+    }
+    if (amount !== undefined && Number(amount) !== normalizedAmount) {
+      return res.status(409).json({
+        success: false,
+        message: "This ticket price has changed. Refresh the page to see the latest price.",
       });
     }
 
-    const reference = `PV-${Date.now()}`;
+    const reference = `HS-${uuid()}`;
     const requestOrigin = String(req.headers.origin || "").trim().replace(/\/$/, "");
     const runtimeRedirectUrl = requestOrigin
       ? `${requestOrigin}/payment-success`
@@ -92,6 +106,7 @@ const initializeTransaction = async (req, res) => {
       amount: normalizedAmount,
       reference,
       redirectUrl: runtimeRedirectUrl,
+      eventName: eventConfig.eventName,
     });
 
     // Save attendee after Flutterwave succeeds

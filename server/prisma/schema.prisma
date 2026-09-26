@@ -37,9 +37,24 @@ model Admin {
   updatedAt DateTime @updatedAt
 }
 
+model EventConfig {
+  id              String   @id @default("active")
+  eventName       String   @default("Headless Society")
+  venue           String   @default("Five Friends, Asaba")
+  eventDateTime   String   @default("2026-10-29T21:00")
+  maxCapacity     Int      @default(60)
+  earlyBirdPrice  Int      @default(10000)
+  saintsRebelsPrice Int    @default(15000)
+  fiveFriendsPrice Int     @default(40000)
+  updatedAt       DateTime @updatedAt
+}
+
 enum TicketType {
   VIP
   REGULAR
+  EARLY_BIRD
+  SAINTS_REBELS
+  FIVE_FRIENDS
 }
 
 enum PaymentStatus {

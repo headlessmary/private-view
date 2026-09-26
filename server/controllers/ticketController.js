@@ -13,6 +13,7 @@ const {
 const {
   sendTicketEmail,
 } = require("../services/emailService");
+const { getEventConfig, toTicketPrices } = require("../services/eventConfigService");
 
 
 // ==========================================
@@ -32,8 +33,7 @@ const createTicket = async (req, res) => {
       !fullName ||
       !email ||
       !phone ||
-      !ticketType ||
-      !amount
+      !ticketType
     ) {
       return res.status(400).json({
         success: false,
@@ -41,12 +41,21 @@ const createTicket = async (req, res) => {
       });
     }
 
-    const normalizedTicketType = ticketType.toUpperCase();
+    const normalizedTicketType = String(ticketType).trim().toUpperCase();
 
-    if (!["VIP", "REGULAR"].includes(normalizedTicketType)) {
+    const eventConfig = await getEventConfig();
+    const ticketPrices = toTicketPrices(eventConfig);
+    const ticketPrice = Object.prototype.hasOwnProperty.call(
+      ticketPrices,
+      normalizedTicketType
+    )
+      ? ticketPrices[normalizedTicketType]
+      : 0;
+
+    if (!ticketPrice || Number(amount) !== ticketPrice) {
       return res.status(400).json({
         success: false,
-        message: "Invalid ticket type.",
+        message: "Invalid Society ticket type or amount.",
       });
     }
 
@@ -58,8 +67,9 @@ const createTicket = async (req, res) => {
       fullName,
       email,
       phone,
-      amount,
+      amount: ticketPrice,
       reference,
+      eventName: eventConfig.eventName,
     });
 
     // ONLY create attendee if Flutterwave succeeds
@@ -69,7 +79,7 @@ const createTicket = async (req, res) => {
         email,
         phone,
         ticketType: normalizedTicketType,
-        amount: Number(amount),
+        amount: ticketPrice,
         paymentStatus: "PENDING",
         reference,
       },
