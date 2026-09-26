@@ -1,97 +1,115 @@
 import { useEffect, useState } from "react";
-import { getEventSettings } from "../services/eventSettings";
+import { Link, useSearchParams } from "react-router-dom";
 import API_URL from "../config/api";
+import {
+  DEFAULT_SOCIETY_EVENT,
+  fetchSocietyEvent,
+  getSocietyTickets,
+} from "../services/eventConfig";
+
+const currency = new Intl.NumberFormat("en-NG");
 
 export default function BuyTicket() {
-  const [settings, setSettings] = useState(getEventSettings);
+  const [searchParams] = useSearchParams();
+  const requestedTicket = searchParams.get("ticketType");
+  const [event, setEvent] = useState(DEFAULT_SOCIETY_EVENT);
+  const [eventLoading, setEventLoading] = useState(true);
+  const [eventError, setEventError] = useState("");
+  const [tickets, setTickets] = useState(() => getSocietyTickets());
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     phone: "",
     ticketType: "",
   });
-
   const [loading, setLoading] = useState(false);
+  const selectedTicket = tickets.find(
+    (ticket) => ticket.value === form.ticketType
+  );
 
   useEffect(() => {
-    const handleSettingsUpdate = () => setSettings(getEventSettings());
-    window.addEventListener("event-settings-updated", handleSettingsUpdate);
-    return () => window.removeEventListener("event-settings-updated", handleSettingsUpdate);
-  }, []);
+    let active = true;
+    fetchSocietyEvent()
+      .then((nextEvent) => {
+        if (!active) return;
+        setEvent(nextEvent);
+        const nextTickets = getSocietyTickets(nextEvent);
+        setTickets(nextTickets);
+        setForm((current) => ({
+          ...current,
+          ticketType: nextTickets.some((ticket) => ticket.value === requestedTicket)
+            ? requestedTicket
+            : "",
+        }));
+      })
+      .catch((error) => {
+        if (active) setEventError(error.message);
+      })
+      .finally(() => {
+        if (active) setEventLoading(false);
+      });
 
-  const ticketPrices = settings.ticketPrices || { VIP: 70000, REGULAR: 55000 };
+    return () => {
+      active = false;
+    };
+  }, [requestedTicket]);
 
-  const displayTicketType = (type) => {
-    if (type === "REGULAR") return "Regular";
-    return type;
+  const handleChange = (event) => {
+    setForm((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }));
   };
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  const selectedPrice = ticketPrices[form.ticketType] || 0;
-
- const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!form.ticketType) {
-    alert("Please select a ticket type");
-    return;
-  }
-
-  if (!Number.isFinite(selectedPrice) || selectedPrice <= 0) {
-    alert("Selected ticket amount is invalid. Please reselect your ticket.");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const response = await fetch(`${API_URL}/api/payment/initialize`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...form,
-        amount: Number(selectedPrice),
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message);
+    if (!selectedTicket) {
+      alert("      Please select an event ticket.");
+      return;
     }
 
-    // Redirect to Flutterwave payment page
-    window.location.assign(data.paymentLink);
+    setLoading(true);
 
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const response = await fetch(`${API_URL}/api/payment/initialize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          amount: selectedTicket.amount,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to start payment.");
+      }
+
+      window.location.assign(data.paymentLink);
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <section className="min-h-screen bg-black flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
-      <div className="w-full max-w-lg">
-        <div className="text-center">
-          <p className="uppercase tracking-[0.25em] sm:tracking-[0.45em] text-[#d4a24d] text-xs font-semibold">
-            Reserve Your Seat
+    <section className="min-h-screen bg-[#050509] px-4 py-14 text-[#f5f1e8] sm:px-6 sm:py-20 lg:px-8">
+      <div className="mx-auto w-full max-w-2xl">
+        <div className="border-b border-white/20 pb-7 text-center">
+          <p className="text-sm text-white/60 sm:text-base">
+            Choose your access and secure your place at {event.venue}.
           </p>
-
-          <h1 className="mt-4 font-serif text-[#d4a24d] text-4xl sm:text-5xl lg:text-6xl">
-            The Private View
-          </h1>
+          {eventError && (
+            <p role="alert" className="mt-3 text-sm text-red-400">
+              {eventError}
+            </p>
+          )}
         </div>
 
-        <div className="mt-10 bg-[#0b0907] border border-[#22170a] rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(0,0,0,.45)]">
+        <div className="mt-8 border border-white/20 bg-black/40 p-5 sm:p-9">
           <form onSubmit={handleSubmit} className="space-y-6">
             <InputField
               label="Full Name"
@@ -100,7 +118,6 @@ export default function BuyTicket() {
               onChange={handleChange}
               placeholder="Enter your full name"
             />
-
             <InputField
               label="Email Address"
               type="email"
@@ -109,7 +126,6 @@ export default function BuyTicket() {
               onChange={handleChange}
               placeholder="Enter your email"
             />
-
             <InputField
               label="Phone Number"
               type="tel"
@@ -120,129 +136,98 @@ export default function BuyTicket() {
             />
 
             <div>
-              <label className="block uppercase tracking-[0.25em] sm:tracking-[0.35em] text-[#d4a24d] text-[11px] sm:text-xs mb-3 font-semibold">
-                Select Ticket
+              <label
+                htmlFor="ticketType"
+                className="mb-3 block font-mono-headless text-[10px] font-semibold uppercase tracking-[0.18em] text-headless-acid sm:text-xs"
+              >
+                Select Society Access
               </label>
-
-              <CustomSelect
+              <select
+                id="ticketType"
+                name="ticketType"
                 value={form.ticketType}
-                onChange={(value) =>
-                  setForm({
-                    ...form,
-                    ticketType: value,
-                  })
-                }
-                displayTicketType={displayTicketType}
-                ticketPrices={ticketPrices}
-              />
+                onChange={handleChange}
+                required
+                disabled={eventLoading || Boolean(eventError)}
+                className="h-14 w-full appearance-none border border-white/20 bg-[#101014] px-4 text-sm text-white outline-none transition focus:border-headless-acid sm:px-5"
+              >
+                <option value="" disabled>
+                  Choose your ticket
+                </option>
+                {tickets.map((ticket) => (
+                  <option key={ticket.value} value={ticket.value}>
+                    {ticket.name} — ₦{currency.format(ticket.amount)}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {form.ticketType && (
-              <div className="rounded-lg border border-[#d4a24d]/30 bg-[#19130d] p-4 flex justify-between text-sm">
-                <span className="text-gray-400">
-                  {displayTicketType(form.ticketType)} Ticket
-                </span>
-
-                <span className="text-[#d4a24d] font-semibold">
-                  ₦{selectedPrice.toLocaleString()}
-                </span>
+            {selectedTicket && (
+              <div className="flex items-center justify-between gap-4 border border-headless-acid/40 bg-headless-acid/5 p-4">
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    {selectedTicket.name}
+                  </p>
+                  <p className="mt-1 text-xs text-white/55">
+                    {selectedTicket.description}
+                  </p>
+                </div>
+                <p className="shrink-0 font-mono-headless text-sm font-semibold text-headless-acid sm:text-base">
+                  ₦{currency.format(selectedTicket.amount)}
+                </p>
               </div>
             )}
 
             <button
-              disabled={loading}
+              disabled={loading || eventLoading || Boolean(eventError)}
               type="submit"
-              className="w-full h-14 rounded-lg uppercase tracking-[0.25em] text-sm font-bold text-black bg-linear-to-r from-[#F1D08B] via-[#E4A321] to-[#F2CD84] hover:brightness-110 transition disabled:opacity-50"
+              className="w-full border-2 border-headless-acid bg-headless-acid px-5 py-4 text-xs font-bold uppercase tracking-[0.16em] text-black transition hover:bg-transparent hover:text-headless-acid disabled:cursor-wait disabled:opacity-50 sm:text-sm"
             >
-              {loading ? "Processing..." : "Continue To Payment"}
+              {eventLoading
+                ? "Loading tickets..."
+                : loading
+                  ? "Opening secure payment..."
+                  : "Continue to payment"}
             </button>
 
-            <p className="text-center text-gray-500 text-xs sm:text-sm leading-6">
-              Payment is securely processed by Paystack.
+            <p className="text-center text-xs leading-5 text-white/45">
+              Your payment is securely processed by Flutterwave.
             </p>
           </form>
         </div>
+
+        <p className="mt-6 text-center text-xs text-white/45">
+          <Link
+            to="/headless-society#tickets"
+            className="underline decoration-white/30 underline-offset-4 transition hover:text-headless-acid"
+          >
+            Back to Society ticket options
+          </Link>
+        </p>
       </div>
     </section>
   );
 }
 
-function InputField({
-  label,
-  type = "text",
-  name,
-  value,
-  onChange,
-  placeholder,
-}) {
+function InputField({ label, type = "text", name, value, onChange, placeholder }) {
   return (
     <div>
-      <label className="block uppercase tracking-[0.3em] text-[#d4a24d] text-xs mb-3 font-semibold">
+      <label
+        htmlFor={name}
+        className="mb-3 block font-mono-headless text-[10px] font-semibold uppercase tracking-[0.18em] text-headless-acid sm:text-xs"
+      >
         {label}
       </label>
-
       <input
+        id={name}
         type={type}
         name={name}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         required
-        className="w-full h-14 rounded-lg bg-[#19130d] border border-[#1d1409] px-5 text-white placeholder:text-gray-600 outline-none focus:border-[#d4a24d] transition"
+        className="h-14 w-full border border-white/20 bg-[#101014] px-4 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-headless-acid sm:px-5"
       />
-    </div>
-  );
-}
-
-function CustomSelect({ value, onChange, displayTicketType, ticketPrices }) {
-  const [open, setOpen] = useState(false);
-
-  const options = [
-    {
-      label: `VIP — ₦${(ticketPrices?.VIP || 0).toLocaleString()}`,
-      value: "VIP",
-    },
-    {
-      label: `Regular — ₦${(ticketPrices?.REGULAR || 0).toLocaleString()}`,
-      value: "REGULAR",
-    },
-  ];
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full h-12 sm:h-14 rounded-lg bg-[#19130d] border border-[#1d1409] px-5 text-white flex items-center justify-between outline-none focus:border-[#d4a24d] transition"
-      >
-        <span className={value ? "text-white" : "text-gray-500"}>
-          {value
-            ? `${displayTicketType(value)} Ticket`
-            : "Choose a ticket"}
-        </span>
-
-        <span className="text-[#d4a24d]">
-          {open ? "⌃" : "⌄"}
-        </span>
-      </button>
-
-      {open && (
-        <div className="absolute z-50 mt-2 w-full rounded-lg overflow-hidden border border-[#d4a24d]/30 bg-[#19130d] shadow-2xl">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-              }}
-              className="w-full px-5 py-4 text-left text-white hover:bg-[#d4a24d] hover:text-black transition"
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

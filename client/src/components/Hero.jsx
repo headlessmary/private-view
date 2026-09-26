@@ -1,10 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
 import image from "../assets/hero.jpg";
 import calendarIcon from "../assets/icon-calendar.png";
 import locationIcon from "../assets/icon-location.png";
 import {  getEventSettings } from "../services/eventSettings";
-import ReactGA from "../utils/analytics";
 
 export default function HeroSection() {
   const [settings, setSettings] = useState(getEventSettings());
@@ -98,7 +96,7 @@ export default function HeroSection() {
 
        <h1 className="mt-8 font-['Cormorant_Garamond'] text-[#C89A3D] leading-tight text-center lg:text-left">
   {/* Mobile */}
-  <span className="block sm:hidden text-[28px] whitespace-nowrap">
+  <span className="block text-[25px] leading-tight sm:hidden">
     The Private View: Art & Indulgence
   </span>
 
@@ -116,7 +114,7 @@ export default function HeroSection() {
             {/* Event Details */}
            
            <div className="mt-6 space-y-5 text-center lg:text-left">
-<div className="mt-6 flex items-center justify-center lg:justify-start gap-3 sm:gap-6 text-[10px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.18em] font-medium text-[#A6A6A6] whitespace-nowrap">
+<div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-[10px] font-medium uppercase tracking-[0.08em] text-[#A6A6A6] sm:justify-start sm:gap-6 sm:text-xs sm:tracking-[0.18em]">
  <div className="flex items-center gap-2">
     <img
       src={calendarIcon}
@@ -179,19 +177,14 @@ export default function HeroSection() {
 
             {/* CTA */}
             <div className="mt-8 flex flex-col items-center gap-5 text-center sm:flex-row sm:justify-center lg:justify-start lg:items-start lg:text-left">
-              <Link
-  to="/buy-ticket"
-  onClick={() => {
-    ReactGA.event({
-      category: "Tickets",
-      action: "Reserve Ticket Clicked",
-      label: settings.eventName,
-    });
-  }}
-  className="inline-flex min-w-56 items-center justify-center rounded-none bg-[#D8A74E] px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.2em] text-black transition duration-300 hover:bg-[#C89A3D] sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[13px] lg:min-w-66 lg:px-12 lg:py-5 lg:text-[14px]"
+              <button
+  type="button"
+  disabled
+  aria-disabled="true"
+  className="inline-flex min-w-56 cursor-not-allowed items-center justify-center rounded-none bg-[#D8A74E] px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.2em] text-black opacity-80 sm:min-w-[16rem] sm:px-10 sm:py-4 sm:text-[13px] lg:min-w-66 lg:px-12 lg:py-5 lg:text-[14px]"
 >
   Reserve Ticket
-</Link>
+</button>
             </div>
 
           </div>

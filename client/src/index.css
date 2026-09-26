@@ -1,18 +1,275 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
 
-body {
-  margin: 0;
-  background: #000;
-  font-family: Inter, sans-serif;
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-headless: "Abril Fatface", Georgia, serif;
+  --font-headless-body: "Cabin", ui-sans-serif, system-ui, sans-serif;
+  --font-mono-headless: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-deep: var(--gold-deep);
+  --color-cream: var(--cream);
+  --color-onyx: var(--onyx);
+  --color-chrome: var(--chrome);
+  --color-chrome-text: var(--chrome-text);
+  --color-chrome-muted: var(--chrome-muted);
+  --color-chrome-line: var(--chrome-line);
+  --color-headless-ink: var(--headless-ink);
+  --color-headless-plum: var(--headless-plum);
+  --color-headless-amber: var(--headless-amber);
+  --color-headless-acid: var(--headless-acid);
+  --color-headless-paper: var(--headless-paper);
+  --color-headless-muted: var(--headless-muted);
+  --color-headless-line: var(--headless-line);
 }
 
-.logo {
-  font-family: "Cormorant Garamond", serif;
+:root {
+  --radius: 0.5rem;
+  --onyx: oklch(0.13 0.005 60);
+  --gold: oklch(0.78 0.14 82);
+  --gold-soft: oklch(0.86 0.09 85);
+  --gold-deep: oklch(0.58 0.13 68);
+  --cream: oklch(0.94 0.02 85);
+  --background: oklch(0.11 0.004 60);
+  --foreground: oklch(0.94 0.02 85);
+  --card: oklch(0.15 0.008 60);
+  --card-foreground: oklch(0.94 0.02 85);
+  --popover: oklch(0.15 0.008 60);
+  --popover-foreground: oklch(0.94 0.02 85);
+  --primary: oklch(0.78 0.14 82);
+  --primary-foreground: oklch(0.13 0.005 60);
+  --secondary: oklch(0.2 0.008 60);
+  --secondary-foreground: oklch(0.94 0.02 85);
+  --muted: oklch(0.2 0.008 60);
+  --muted-foreground: oklch(0.7 0.02 85);
+  --accent: oklch(0.58 0.13 68);
+  --accent-foreground: oklch(0.94 0.02 85);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.98 0.01 85);
+  --border: oklch(0.25 0.02 75 / 40%);
+  --input: oklch(0.22 0.015 75 / 60%);
+  --ring: oklch(0.78 0.14 82);
+  --gradient-gold: linear-gradient(135deg, oklch(0.86 0.09 85), oklch(0.68 0.15 70), oklch(0.86 0.09 85));
+  --gradient-onyx: radial-gradient(ellipse at top, oklch(0.18 0.01 70), oklch(0.09 0.004 60) 70%);
+  --shadow-gold: 0 20px 60px -20px oklch(0.68 0.15 70 / 40%);
+  --shadow-elevated: 0 30px 80px -30px oklch(0 0 0 / 80%);
+  --chrome: oklch(0.105 0.006 310);
+  --chrome-text: oklch(0.95 0.012 95);
+  --chrome-muted: oklch(0.67 0.018 305);
+  --chrome-line: oklch(0.3 0.025 310 / 55%);
+  --headless-ink: oklch(0.115 0.02 300);
+  --headless-plum: oklch(0.24 0.07 300);
+  --headless-ember: oklch(0.3 0.09 55);
+  --headless-amber: oklch(0.78 0.13 85);
+  --headless-acid: oklch(0.75 0.22 145);
+  --headless-paper: oklch(0.94 0.015 95);
+  --headless-muted: oklch(0.7 0.035 300);
+  --headless-line: oklch(0.55 0.06 300 / 40%);
 }
 
-.font-serif{
-    font-family: "Cormorant Garamond", serif;
+.dark { color-scheme: dark; }
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    margin: 0;
+    background: var(--gradient-onyx);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0; }
+}
+
+@utility text-gold-gradient {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility btn-gold {
+  background: var(--gradient-gold);
+  color: var(--color-primary-foreground);
+  box-shadow: var(--shadow-gold);
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+@utility btn-gold-hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+@utility card-luxe {
+  background: linear-gradient(180deg, oklch(0.17 0.01 65 / 90%), oklch(0.12 0.005 60 / 90%));
+  border: 1px solid oklch(0.35 0.05 75 / 30%);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-elevated);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@utility animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 6s linear infinite;
+}
+
+.site-chrome {
+  font-family: var(--font-headless-body);
+}
+
+.chrome-link {
+  color: var(--chrome-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  transition: color 180ms ease;
+}
+
+.chrome-link:hover { color: var(--headless-acid); }
+
+.chrome-icon {
+  height: 2.4rem;
+  width: 2.4rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--chrome-line);
+  color: var(--chrome-text);
+}
+
+.headless-page,
+.no-events {
+  background: var(--headless-ink);
+  color: var(--headless-paper);
+  font-family: var(--font-headless-body);
+}
+
+.headless-page {
+  background:
+    radial-gradient(1000px 640px at 8% -10%, color-mix(in oklab, var(--headless-plum) 70%, transparent), transparent 68%),
+    radial-gradient(900px 700px at 96% 110%, color-mix(in oklab, var(--headless-ember) 42%, transparent), transparent 62%),
+    var(--headless-ink);
+}
+
+.headless-page h1,
+.headless-page h2,
+.headless-page h3 {
+  color: var(--headless-amber);
+}
+
+.headless-kicker,
+.event-kicker {
+  color: var(--headless-acid);
+  font-family: var(--font-mono-headless);
+  font-size: 0.66rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.headless-action {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: var(--headless-paper);
+  color: var(--headless-ink);
+  padding: 0.8rem 1.15rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.headless-action:hover { background: var(--headless-acid); transform: translateY(-1px); }
+
 select {
   -webkit-tap-highlight-color: transparent;
 }
@@ -24,4 +281,10 @@ select:focus {
 
 html {
   scroll-behavior: smooth;
+}
+
+@media (max-width: 767px) {
+  .society-page {
+    overflow-x: clip;
+  }
 }

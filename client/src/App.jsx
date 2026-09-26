@@ -5,6 +5,12 @@ import Footer from "./components/Footer";
 import ScrollToHash from "./components/ScrollToHash";
 
 import Home from "./pages/Home";
+import EventHub from "./pages/EventHub";
+import {
+  HeadlessSociety,
+  NoCurrentEvents,
+  SocietyNavbar,
+} from "./pages/EventLanding";
 import BuyTicket from "./pages/BuyTicket";
 import PaymentSuccess from "./pages/PaymentSuccess";
 
@@ -21,29 +27,44 @@ function AppContent() {
 
   // Hide Navbar & Footer on all admin pages
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const isSocietyRoute = [
+    "/headless-society",
+    "/buy-ticket",
+    "/payment-success",
+  ].includes(location.pathname);
+  const isSocietyPage = location.pathname === "/headless-society";
+  const isHubRoute = location.pathname === "/";
+  const hasNavbar =
+    !isAdminRoute &&
+    !isHubRoute &&
+    (!isSocietyRoute || isSocietyPage);
 
   return (
     <>
-     <PageTracker />
-      {!isAdminRoute && <Navbar />}
+      <PageTracker />
+      {!isAdminRoute && !isSocietyRoute && !isHubRoute && <Navbar />}
+      {isSocietyPage && <SocietyNavbar />}
 
       {!isAdminRoute && <ScrollToHash />}
 
-      <main className={!isAdminRoute ? "pt-20 min-h-screen bg-black" : "min-h-screen bg-black"}>
+      <main
+        className={
+          hasNavbar
+            ? "pt-20 min-h-screen bg-black"
+            : "min-h-screen bg-black"
+        }
+      >
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<EventHub />} />
+          <Route path="/private-view" element={<Home />} />
+          <Route path="/headless-society" element={<HeadlessSociety />} />
+          <Route path="/no-events" element={<NoCurrentEvents />} />
           <Route path="/buy-ticket" element={<BuyTicket />} />
-          <Route
-            path="/payment-success"
-            element={<PaymentSuccess />}
-          />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
 
           {/* Admin Login */}
-          <Route
-            path="/admin/login"
-            element={<AdminLogin />}
-          />
+          <Route path="/admin/login" element={<AdminLogin />} />
 
           {/* Admin Dashboard */}
           <Route
@@ -87,7 +108,7 @@ function AppContent() {
         </Routes>
       </main>
 
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && !isSocietyRoute && !isHubRoute && <Footer />}
     </>
   );
 }

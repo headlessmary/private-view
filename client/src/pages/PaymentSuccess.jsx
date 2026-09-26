@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import API_URL from "../config/api";
+import { DEFAULT_SOCIETY_EVENT, fetchSocietyEvent } from "../services/eventConfig";
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -8,6 +9,22 @@ export default function PaymentSuccess() {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
+  const [eventName, setEventName] = useState(DEFAULT_SOCIETY_EVENT.eventName);
+
+  useEffect(() => {
+    let active = true;
+    fetchSocietyEvent()
+      .then((event) => {
+        if (active) setEventName(event.eventName);
+      })
+      .catch((error) => {
+        console.error("Unable to load current event name", error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     console.log("Current URL:", window.location.href);
@@ -128,7 +145,7 @@ export default function PaymentSuccess() {
     return (
       <section className="min-h-screen bg-black flex items-center justify-center text-white">
         <div className="text-center">
-          <h1 className="text-5xl text-[#D4A24D] font-serif">
+          <h1 className="text-3xl font-serif text-[#D4A24D] sm:text-5xl">
             Verifying Payment...
           </h1>
 
@@ -142,7 +159,7 @@ export default function PaymentSuccess() {
 
   return (
     <section className="min-h-screen bg-black flex items-center justify-center px-6">
-      <div className="max-w-xl w-full bg-[#0b0907] border border-[#2a1c08] rounded-3xl p-10 text-center">
+      <div className="w-full max-w-xl rounded-3xl border border-[#2a1c08] bg-[#0b0907] p-5 text-center sm:p-10">
         {success ? (
           <>
             <div className="w-24 h-24 mx-auto rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
@@ -163,7 +180,7 @@ export default function PaymentSuccess() {
               Thank you for purchasing your ticket for
               <span className="text-[#D4A24D] font-medium">
                 {" "}
-                The Private View: Art & Indulgence.
+                {eventName}.
               </span>
             </p>
 
@@ -226,7 +243,7 @@ export default function PaymentSuccess() {
           <>
             <div className="text-6xl mb-6">❌</div>
 
-            <h1 className="text-5xl font-serif text-red-500">
+            <h1 className="text-4xl font-serif text-red-500 sm:text-5xl">
               Payment Failed
             </h1>
 

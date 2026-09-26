@@ -70,17 +70,20 @@ export default function AdminLogin() {
       flex
       items-center
       justify-center
-      px-5
+      px-4
+      py-8
+      sm:px-5
     "
     >
       <div className="w-full max-w-md">
         {/* Header */}
 
-        <div className="text-center mb-10">
+        <div className="mb-8 text-center sm:mb-10">
           <p
             className="
             uppercase
-            tracking-[0.45em]
+            tracking-[0.25em]
+            sm:tracking-[0.45em]
             text-[#d4a24d]
             text-xs
             font-semibold
@@ -120,7 +123,7 @@ export default function AdminLogin() {
           border
           border-[#22170a]
           rounded-2xl
-          p-6
+          p-5
           sm:p-8
           shadow-[0_0_60px_rgba(0,0,0,.5)]
         "
@@ -136,7 +139,8 @@ export default function AdminLogin() {
                 className="
                 block
                 uppercase
-                tracking-[0.35em]
+                tracking-[0.2em]
+                sm:tracking-[0.35em]
                 text-[#d4a24d]
                 text-xs
                 mb-3
@@ -160,7 +164,8 @@ export default function AdminLogin() {
                   bg-[#19130d]
                   border
                   border-[#1d1409]
-                  px-5
+                  px-4
+                  sm:px-5
                   text-white
                   outline-none
                   focus:border-[#d4a24d]
@@ -176,7 +181,8 @@ export default function AdminLogin() {
                 className="
                 block
                 uppercase
-                tracking-[0.35em]
+                tracking-[0.2em]
+                sm:tracking-[0.35em]
                 text-[#d4a24d]
                 text-xs
                 mb-3
@@ -200,7 +206,8 @@ export default function AdminLogin() {
                   bg-[#19130d]
                   border
                   border-[#1d1409]
-                  px-5
+                  px-4
+                  sm:px-5
                   text-white
                   outline-none
                   focus:border-[#d4a24d]
@@ -225,7 +232,8 @@ export default function AdminLogin() {
                 h-14
                 rounded-lg
                 uppercase
-                tracking-[0.45em]
+                tracking-[0.2em]
+                sm:tracking-[0.45em]
                 text-sm
                 font-semibold
                 text-black

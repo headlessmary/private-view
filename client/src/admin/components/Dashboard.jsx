@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../config/api";
+import { formatTicketType } from "../../services/societyTickets";
+import { formatEventDateTime } from "../../services/eventConfig";
 import {
   Area,
   AreaChart,
@@ -30,10 +32,12 @@ export default function Dashboard() {
 
   const [stats, setStats] = useState({
     totalTickets: 0,
-    vipTickets: 0,
-    regularTickets: 0,
     checkedIn: 0,
     remainingTickets: 0,
+    maxCapacity: 60,
+    eventName: "Headless Society",
+    venue: "Five Friends, Asaba",
+    eventDateTime: "2026-10-29T21:00",
     revenue: 0,
   });
 
@@ -130,13 +134,14 @@ export default function Dashboard() {
   });
 
   const recentCheckins = attendees.filter((person) => person.checkedIn).slice(0, 5);
-  const vipCount = attendees.filter((person) => person.ticketType === "VIP").length;
-  const regularCount = attendees.filter((person) => person.ticketType === "REGULAR").length;
-  const capacityPercent = Math.min(100, Math.round((stats.checkedIn / 60) * 100));
+  const ticketCounts = attendees.reduce((counts, person) => {
+    counts[person.ticketType] = (counts[person.ticketType] || 0) + 1;
+    return counts;
+  }, {});
+  const capacity = Math.max(1, stats.maxCapacity || 60);
+  const capacityPercent = Math.min(100, Math.round((stats.checkedIn / capacity) * 100));
   
-  // eslint-disable-next-line no-unused-vars
-  const regularShare = attendees.length ? Math.round((regularCount / attendees.length) * 100) : 0;
-  const checkInPercent = Math.min(100, Math.round((stats.checkedIn / 60) * 100));
+  const checkInPercent = Math.min(100, Math.round((stats.checkedIn / capacity) * 100));
   const revenueSeries = [
     { name: "Mon", revenue: Math.max(0, stats.revenue * 0.28) },
     { name: "Tue", revenue: Math.max(0, stats.revenue * 0.35) },
@@ -146,8 +151,11 @@ export default function Dashboard() {
     { name: "Sat", revenue: Math.max(0, stats.revenue * 0.62) },
   ];
   const distributionData = [
-    { name: "VIP", value: vipCount, color: "#d4a24d" },
-    { name: "Regular", value: regularCount, color: "#7c4f12" },
+    { name: "Early Bird", value: ticketCounts.EARLY_BIRD || 0, color: "#e7c84d" },
+    { name: "Saints & Rebels", value: ticketCounts.SAINTS_REBELS || 0, color: "#e33a36" },
+    { name: "Five Friends", value: ticketCounts.FIVE_FRIENDS || 0, color: "#222d59" },
+    { name: "Legacy VIP", value: ticketCounts.VIP || 0, color: "#d4a24d" },
+    { name: "Legacy Regular", value: ticketCounts.REGULAR || 0, color: "#7c4f12" },
   ];
   const checkInData = [{ name: "Check-in", value: checkInPercent, fill: "#f1ca7b" }];
 
@@ -353,18 +361,20 @@ export default function Dashboard() {
   }
 
   return (
-    <section className="min-h-screen bg-black text-white p-3 sm:p-6 lg:p-8">
+    <section className="min-h-screen bg-black p-3 text-white sm:p-6 lg:p-8">
       <header className="border-b border-[#1c1308] bg-[#050505]">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
           <div className="flex flex-col items-start">
             <h1 className="text-2xl font-serif text-[#d4a24d] sm:text-3xl lg:text-4xl">
-              The Private View
+              {stats.eventName}
             </h1>
 
-            <p className="mt-2 text-sm text-gray-500 sm:text-base">Art & Indulgence</p>
+            <p className="mt-2 text-sm text-gray-500 sm:text-base">
+              {stats.venue} · {formatEventDateTime(stats.eventDateTime)}
+            </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-2 text-sm sm:gap-6 sm:text-base">
+          <nav className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 text-sm sm:justify-end sm:gap-6 sm:text-base">
             <button
               onClick={() => navigate("/admin/scanner")}
               className="text-white transition hover:text-[#d4a24d]"
@@ -385,7 +395,7 @@ export default function Dashboard() {
             >
               Sign out
             </button>
-          </div>
+          </nav>
         </div>
       </header>
 
@@ -411,8 +421,8 @@ export default function Dashboard() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-        <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8">
-          <aside className="space-y-6">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8">
+          <aside className="min-w-0 space-y-6">
             <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
               <p className="uppercase tracking-[0.35em] text-[#d4a24d] text-xs font-semibold">
                 Live activity
@@ -422,9 +432,9 @@ export default function Dashboard() {
                 {recentCheckins.length > 0 ? (
                   recentCheckins.map((person) => (
                     <div key={person.id} className="flex items-center justify-between rounded-xl bg-[#140f0a] px-3 py-2">
-                      <div>
-                        <p className="text-sm text-white">{person.fullName}</p>
-                        <p className="text-xs text-gray-500">{person.ticketType}</p>
+                      <div className="min-w-0">
+                        <p className="break-words text-sm text-white">{person.fullName}</p>
+                        <p className="text-xs text-gray-500">{formatTicketType(person.ticketType)}</p>
                       </div>
                       <span className="text-xs text-[#d4a24d]">Checked in</span>
                     </div>
@@ -457,14 +467,14 @@ export default function Dashboard() {
             </div>
           </aside>
 
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-[#2d1e09] bg-linear-to-br from-[#1b1208] to-[#090706] p-4 sm:p-6 lg:p-8">
+          <div className="min-w-0 space-y-6">
+            <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-linear-to-br from-[#1b1208] to-[#090706] p-4 sm:p-6 lg:p-8">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                   <p className="uppercase tracking-[0.35em] text-[#d4a24d] text-xs font-semibold">
                     Dashboard overview
                   </p>
-                  <h2 className="mt-3 text-3xl font-serif text-white">
+                  <h2 className="mt-3 break-words text-2xl font-serif text-white sm:text-3xl">
                     Event performance snapshot
                   </h2>
                   <p className="mt-2 max-w-2xl text-gray-400">
@@ -477,15 +487,15 @@ export default function Dashboard() {
                     Capacity
                   </p>
                   <p className="mt-1 text-2xl font-semibold text-[#e7bc67]">
-                    {stats.checkedIn}/{60}
+                    {stats.checkedIn}/{capacity}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <Card title="Tickets Sold" value={stats.totalTickets} subtitle="of 60" />
-              <Card title="Remaining" value={stats.remainingTickets} subtitle="tickets" />
+            <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <Card title="Admissions Sold" value={stats.totalTickets} subtitle={`of ${capacity}`} />
+              <Card title="Remaining" value={stats.remainingTickets} subtitle="seats" />
               <Card title="Checked In" value={stats.checkedIn} subtitle="guests" />
               <Card
                 title="Revenue"
@@ -497,8 +507,8 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
+            <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+              <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-[#0b0907] p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
@@ -509,14 +519,14 @@ export default function Dashboard() {
                   <span className="text-sm text-[#d4a24d]">{capacityPercent}%</span>
                 </div>
 
-                <div className="mt-6 flex items-center gap-1 text-xl tracking-[0.2em] text-[#d4a24d]">
+                <div className="mt-6 flex items-center gap-0.5 overflow-hidden text-sm tracking-[0.08em] text-[#d4a24d] sm:gap-1 sm:text-xl sm:tracking-[0.2em]">
                   {Array.from({ length: 20 }).map((_, index) => (
                     <span key={index}>{index < Math.round(capacityPercent / 5) ? "█" : "░"}</span>
                   ))}
                 </div>
 
                 <div className="mt-5 text-2xl font-semibold text-white">
-                  {stats.checkedIn} / 60
+                  {stats.checkedIn} / {capacity}
                 </div>
 
                 <div className="mt-2 text-sm text-gray-400">
@@ -524,8 +534,8 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
+              <div className="min-w-0 space-y-6">
+                <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-[#0b0907] p-4 sm:p-6">
                   <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
                     Recent check-ins
                   </p>
@@ -533,9 +543,9 @@ export default function Dashboard() {
                     {recentCheckins.length > 0 ? (
                       recentCheckins.map((person) => (
                         <div key={person.id} className="flex items-center justify-between rounded-xl bg-[#140f0a] px-3 py-2">
-                          <div>
-                            <p className="text-sm text-white">{person.fullName}</p>
-                            <p className="text-xs text-gray-500">{person.ticketType}</p>
+                          <div className="min-w-0">
+                            <p className="break-words text-sm text-white">{person.fullName}</p>
+                            <p className="text-xs text-gray-500">{formatTicketType(person.ticketType)}</p>
                           </div>
                           <span className="text-xs text-[#d4a24d]">Live</span>
                         </div>
@@ -546,7 +556,7 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
+                <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-[#0b0907] p-4 sm:p-6">
                   <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
                     Event activity
                   </p>
@@ -555,13 +565,13 @@ export default function Dashboard() {
                     {[
                       { time: "09:15", title: "John Doe registered", detail: "New attendee joined the guest list" },
                       { time: "09:20", title: "Mary checked in", detail: "Guest confirmed at the venue" },
-                      { time: "09:32", title: "VIP Ticket sold", detail: "Premium admission was purchased" },
+                      { time: "09:32", title: "Society ticket reserved", detail: "A guest selected an access tier" },
                       { time: "09:41", title: "PDF exported", detail: "Guest list export completed" },
                     ].map((item, index) => (
                       <div key={item.time + item.title}>
                         <div className="flex items-start gap-3">
                           <div className="mt-1 h-2.5 w-2.5 rounded-full bg-[#d4a24d]" />
-                          <div className="flex-1">
+                          <div className="min-w-0 flex-1">
                             <p className="text-sm text-[#f1ca7b]">{item.time}</p>
                             <p className="mt-1 text-sm font-medium text-white">{item.title}</p>
                             <p className="mt-1 text-xs text-gray-500">{item.detail}</p>
@@ -575,8 +585,8 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-3">
-              <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
+            <div className="grid min-w-0 gap-6 xl:grid-cols-3">
+              <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-[#0b0907] p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
@@ -584,7 +594,7 @@ export default function Dashboard() {
                     </p>
                     <h3 className="mt-2 text-xl font-semibold text-white">Sales trend</h3>
                   </div>
-                  <span className="text-sm text-[#f1ca7b]">
+                  <span className="max-w-full break-words text-sm text-[#f1ca7b]">
                     {new Intl.NumberFormat("en-NG", {
                       style: "currency",
                       currency: "NGN",
@@ -612,11 +622,11 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
+              <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-[#0b0907] p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
-                      VIP vs Regular
+                      Society ticket mix
                     </p>
                     <h3 className="mt-2 text-xl font-semibold text-white">Audience mix</h3>
                   </div>
@@ -649,7 +659,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl p-6">
+              <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-[#0b0907] p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
@@ -670,12 +680,12 @@ export default function Dashboard() {
 
                 <div className="-mt-10 text-center">
                   <p className="text-4xl font-semibold text-[#e7bc67]">{checkInPercent}%</p>
-                  <p className="mt-2 text-sm text-gray-400">{stats.checkedIn} of 60 guests checked in</p>
+                  <p className="mt-2 text-sm text-gray-400">{stats.checkedIn} of {capacity} guests checked in</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#0b0907] border border-[#2d1e09] rounded-2xl overflow-hidden">
+            <div className="min-w-0 overflow-hidden rounded-2xl border border-[#2d1e09] bg-[#0b0907]">
               <div className="border-b border-[#1b1208] p-4 sm:p-5">
                 <div className="flex flex-col items-center gap-4 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
                   <div>
@@ -685,12 +695,12 @@ export default function Dashboard() {
                     <h3 className="mt-2 text-xl font-semibold text-white">Manage arrivals</h3>
                   </div>
 
-                  <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:w-auto lg:justify-start">
+                  <div className="flex w-full min-w-0 flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:w-auto lg:justify-start">
                     <input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search name, email, phone..."
-                      className="h-12 flex-1 rounded-lg border border-[#24190d] bg-[#19130d] px-4 text-white outline-none focus:border-[#d4a24d] sm:h-14 sm:px-5"
+                      className="h-12 w-full min-w-0 flex-1 rounded-lg border border-[#24190d] bg-[#19130d] px-4 text-white outline-none focus:border-[#d4a24d] sm:h-14 sm:w-auto sm:px-5"
                     />
 
                     <select
@@ -699,8 +709,11 @@ export default function Dashboard() {
                       className="h-12 rounded-lg border border-[#24190d] bg-[#19130d] px-4 text-white sm:h-14 sm:px-5"
                     >
                       <option value="ALL">All</option>
-                      <option value="VIP">VIP</option>
-                      <option value="REGULAR">Regular</option>
+                      <option value="EARLY_BIRD">Early Bird</option>
+                      <option value="SAINTS_REBELS">Saints &amp; Rebels</option>
+                      <option value="FIVE_FRIENDS">Five Friends</option>
+                      <option value="VIP">Legacy VIP</option>
+                      <option value="REGULAR">Legacy Regular</option>
                     </select>
 
                     <button
@@ -727,8 +740,8 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-195 sm:min-w-180">
+              <div className="max-w-full overflow-x-auto overscroll-x-contain">
+                <table className="w-full min-w-[48rem]">
                   <thead className="text-left text-xs uppercase text-gray-500">
                     <tr>
                       <th className="p-2 text-center text-xs sm:p-5 sm:text-base">Ticket</th>
@@ -759,13 +772,13 @@ export default function Dashboard() {
                                 : "bg-gray-700"
                             }`}
                           >
-                            {person.ticketType}
+                            {formatTicketType(person.ticketType)}
                           </span>
                         </td>
 
-                        <td className="max-w-27.5 wrap-break-word text-center text-xs sm:max-w-none sm:text-base">{person.fullName}</td>
-                        <td className="max-w-35 wrap-break-word text-center text-xs sm:max-w-none sm:text-base">{person.email}</td>
-                        <td className="max-w-25 wrap-break-word text-center text-xs sm:max-w-none sm:text-base">{person.phone}</td>
+                        <td className="max-w-27.5 break-words text-center text-xs sm:max-w-none sm:text-base">{person.fullName}</td>
+                        <td className="max-w-35 break-words text-center text-xs sm:max-w-none sm:text-base">{person.email}</td>
+                        <td className="max-w-25 break-words text-center text-xs sm:max-w-none sm:text-base">{person.phone}</td>
                         <td className="text-center text-xs sm:text-base">{person.paymentStatus}</td>
                         <td className="text-center text-xs text-[#d4a24d] sm:text-base">
                           {person.reference?.slice(0, 8)}...
@@ -793,9 +806,9 @@ export default function Dashboard() {
 
       {selectedAttendee && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6">
-          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#d4a24d] bg-[#0b0907]">
+          <div className="max-h-[90vh] w-full max-w-xl overflow-x-hidden overflow-y-auto rounded-2xl border border-[#d4a24d] bg-[#0b0907]">
             <div className="flex items-center justify-between border-b border-[#2d1e09] p-4 sm:p-6">
-              <h2 className="text-3xl font-serif text-[#d4a24d]">
+              <h2 className="text-2xl font-serif text-[#d4a24d] sm:text-3xl">
                 Attendee Details
               </h2>
 
@@ -814,7 +827,7 @@ export default function Dashboard() {
               <Detail label="Full Name" value={selectedAttendee.fullName} />
               <Detail label="Email" value={selectedAttendee.email} />
               <Detail label="Phone" value={selectedAttendee.phone} />
-              <Detail label="Ticket" value={selectedAttendee.ticketType} />
+              <Detail label="Ticket" value={formatTicketType(selectedAttendee.ticketType)} />
               <Detail label="Reference" value={selectedAttendee.reference} />
               <Detail label="Payment" value={selectedAttendee.paymentStatus} />
               <Detail label="Checked In" value={selectedAttendee.checkedIn ? "Yes" : "No"} />
@@ -917,12 +930,12 @@ function Detail({ label, value }) {
 
 function Card({ title, value, subtitle }) {
   return (
-    <div className="rounded-2xl border border-[#2d1e09] bg-[#0c0906] p-6 transition hover:border-[#d4a24d] sm:p-8">
-      <p className="uppercase tracking-[0.45em] text-[#d4a24d] text-xs font-semibold">
+    <div className="min-w-0 rounded-2xl border border-[#2d1e09] bg-[#0c0906] p-4 transition hover:border-[#d4a24d] sm:p-8">
+      <p className="uppercase tracking-[0.2em] text-[#d4a24d] text-xs font-semibold sm:tracking-[0.45em]">
         {title}
       </p>
 
-      <h2 className="mt-7 text-3xl font-serif text-[#e7bc67] sm:text-4xl lg:text-5xl">
+      <h2 className="mt-5 break-words text-3xl font-serif text-[#e7bc67] sm:mt-7 sm:text-4xl lg:text-5xl">
         {value}
       </h2>
 
@@ -930,4 +943,3 @@ function Card({ title, value, subtitle }) {
     </div>
   );
 }
-

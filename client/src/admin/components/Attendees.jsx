@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API_URL from "../../config/api";
+import { formatTicketType } from "../../services/societyTickets";
 
 export default function Attendees() {
   const [attendees, setAttendees] = useState([]);
@@ -207,9 +208,9 @@ export default function Attendees() {
   }
 
   return (
-    <section className="min-h-screen bg-black text-white p-4 sm:p-6 lg:p-8">
+    <section className="min-h-screen bg-black p-3 text-white sm:p-6 lg:p-8">
 
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto min-w-0 max-w-7xl">
         <h1 className="text-3xl font-serif text-[#d4a24d] sm:text-4xl lg:text-5xl">
           Attendees
         </h1>
@@ -222,18 +223,18 @@ export default function Attendees() {
           placeholder="Search attendee..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="mt-6 mb-6 h-14 w-full rounded-lg border border-[#333] bg-[#141414] px-4 text-base sm:mt-8 sm:mb-8 sm:h-14 sm:px-5 sm:text-lg"
+          className="mt-6 mb-6 h-14 w-full min-w-0 rounded-lg border border-[#333] bg-[#141414] px-4 text-base sm:mt-8 sm:mb-8 sm:px-5 sm:text-lg"
         />
 
         {manualConfirmState.open && manualConfirmState.guest && (
-          <div className="mb-6 rounded-xl border border-[#d4a24d] bg-[#141008] p-4 sm:p-5">
+          <div className="mb-6 min-w-0 rounded-xl border border-[#d4a24d] bg-[#141008] p-3 sm:p-5">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#d4a24d]">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold uppercase tracking-[0.15em] text-[#d4a24d] sm:tracking-[0.2em]">
                   Confirm Manual Payment
                 </p>
                 <p className="mt-2 text-sm sm:text-base">
-                  Confirm a bank transfer payment for {manualConfirmState.guest.fullName}.
+                  Confirm a bank transfer payment for <span className="break-words">{manualConfirmState.guest.fullName}</span>.
                 </p>
               </div>
               <button
@@ -246,12 +247,12 @@ export default function Attendees() {
             </div>
 
             <form onSubmit={submitManualConfirm} className="mt-4 space-y-4">
-              <div>
+              <div className="min-w-0">
                 <label className="mb-1 block text-sm text-gray-300">Bank payment reference (optional)</label>
                 <input
                   value={manualConfirmState.paymentReference}
                   onChange={(event) => setManualConfirmState((current) => ({ ...current, paymentReference: event.target.value }))}
-                  className="h-12 w-full rounded-lg border border-[#333] bg-[#141414] px-4 text-sm"
+                  className="h-12 w-full min-w-0 rounded-lg border border-[#333] bg-[#141414] px-3 text-sm sm:px-4"
                   placeholder="e.g. TRF-001"
                 />
               </div>
@@ -260,21 +261,21 @@ export default function Attendees() {
                 <textarea
                   value={manualConfirmState.notes}
                   onChange={(event) => setManualConfirmState((current) => ({ ...current, notes: event.target.value }))}
-                  className="min-h-24 w-full rounded-lg border border-[#333] bg-[#141414] px-4 py-3 text-sm"
+                  className="min-h-24 w-full min-w-0 rounded-lg border border-[#333] bg-[#141414] px-3 py-3 text-sm sm:px-4"
                   placeholder="Add notes for the payment confirmation"
                 />
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button
                   type="submit"
-                  className="rounded-lg bg-[#d4a24d] px-4 py-2 text-sm font-medium text-black"
+                  className="w-full rounded-lg bg-[#d4a24d] px-4 py-3 text-sm font-medium text-black sm:w-auto sm:py-2"
                 >
                   Confirm Manual Payment
                 </button>
                 <button
                   type="button"
                   onClick={() => setManualConfirmState({ open: false, guest: null, paymentReference: "", notes: "" })}
-                  className="rounded-lg border border-[#333] px-4 py-2 text-sm text-gray-300"
+                  className="w-full rounded-lg border border-[#333] px-4 py-3 text-sm text-gray-300 sm:w-auto sm:py-2"
                 >
                   Cancel
                 </button>
@@ -292,7 +293,7 @@ export default function Attendees() {
             }`}
           >
             <div className="flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#d4a24d]">
                   Complete Payment Result
                 </p>
@@ -325,9 +326,9 @@ export default function Attendees() {
           </div>
         )}
 
-        <div className="overflow-x-auto rounded-xl border border-[#222]">
+        <div className="max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-[#222]">
 
-          <table className="w-full  min-w-225">
+          <table className="w-full min-w-[56rem]">
 
             <thead className="bg-[#111]">
 
@@ -373,7 +374,7 @@ export default function Attendees() {
                   </td>
 
                   <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
-                    {guest.ticketType}
+                    {formatTicketType(guest.ticketType)}
                   </td>
 
                   <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">

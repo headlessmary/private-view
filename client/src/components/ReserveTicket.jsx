@@ -1,104 +1,30 @@
 import { Link } from "react-router-dom";
 
-import artImage from "../assets/art.jpeg";
-import useOnScreen from "../hooks/useOnScreen";
-import indulgenceImage from "../assets/indulgence.jpeg";
-
 export default function ReserveTicket() {
-  const [ref, isVisible] = useOnScreen();
-
-  const tickets = [
-    {
-      title: "Art Ticket",
-      image: artImage,
-      button: "Reserve Art Ticket",
-    },
-    {
-      title: "Indulgence Ticket",
-      image: indulgenceImage,
-      button: "Reserve Indulgence Ticket",
-    },
-  ];
-
   return (
-    <>
-      <style>{`
-        @keyframes ticketFadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(22px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-
     <section
       id="tickets"
-      ref={ref}
-      className="bg-black py-16 sm:py-20 lg:py-24"
+      className="border-y border-white/15 bg-[#080808] px-5 py-16 text-white sm:px-8 sm:py-20 lg:px-12"
     >
-      <div className="max-w-280 mx-auto px-5 sm:px-6 lg:px-8">
-
-        <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-6 lg:gap-7">
-          {tickets.map((ticket) => (
-            <div
-              key={ticket.title}
-              className="flex flex-col items-center gap-4 sm:gap-5"
-            >
-              <img
-                src={ticket.image}
-                alt={ticket.title}
-                className="w-full rounded-2xl object-cover border border-[#24180D]"
-              />
-
-              <Link
-                to="/buy-ticket"
-                className={`
-                  flex
-                  h-12
-                  w-full
-                  max-w-[16rem]
-                  items-center
-                  justify-center
-                  rounded-none
-                  bg-linear-to-r
-                  from-[#F3D084]
-                  via-[#DFA03B]
-                  to-[#F2D28D]
-                  px-4
-                  text-center
-                  text-[10px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.16em]
-                  text-black
-                  shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_12px_30px_rgba(223,160,59,0.25)]
-                  transition-all
-                  duration-500
-                  sm:h-14
-                  sm:max-w-[18rem]
-                  sm:px-6
-                  sm:text-[11px]
-                  lg:h-14
-                  lg:max-w-[20rem]
-                  lg:px-8
-                  lg:text-sm
-                  ${isVisible ? "translate-y-0 opacity-100 animate-[ticketFadeUp_0.95s_ease-out_both]" : "translate-y-6 opacity-0"}
-                  hover:brightness-110
-                  hover:-translate-y-0.5
-                `}
-              >
-                {ticket.button}
-              </Link>
-            </div>
-          ))}
+      <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 sm:flex-row sm:items-end">
+        <div>
+          <p className="font-mono-headless text-[10px] uppercase tracking-[0.18em] text-headless-acid sm:text-xs">
+            The Private View / Archive
+          </p>
+          <h2 className="society-serif mt-4 text-4xl uppercase leading-none text-headless-amber sm:text-5xl">
+            That night has passed.
+          </h2>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/60 sm:text-base">
+            The Private View is over. Find your next night at Headless Society.
+          </p>
         </div>
-
+        <Link
+          to="/headless-society"
+          className="inline-flex shrink-0 items-center justify-center border-2 border-headless-acid bg-headless-acid px-6 py-4 text-center text-xs font-bold uppercase tracking-[0.15em] text-black transition hover:bg-transparent hover:text-headless-acid"
+        >
+          Explore Headless Society <span className="ml-4 text-lg" aria-hidden="true">→</span>
+        </Link>
       </div>
     </section>
-    </>
   );
 }

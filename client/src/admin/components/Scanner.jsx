@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import API_URL from "../../config/api";
+import { formatTicketType } from "../../services/societyTickets";
 
 export default function QRScanner() {
   const [message, setMessage] = useState("");
@@ -86,7 +87,9 @@ const playError = () => {
 
       setSuccessState({
         fullName: attendee.fullName || "Guest",
-        ticketType: attendee.ticketType || "Guest",
+        ticketType: attendee.ticketType
+          ? formatTicketType(attendee.ticketType)
+          : "Guest",
         checkedAt,
       });
       setMessage(`✅ ${attendee.fullName || "Guest"} checked in successfully`);
@@ -111,23 +114,23 @@ const playError = () => {
   };
 
   return (
-    <section className="min-h-screen bg-black px-6 py-10 text-white">
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+    <section className="min-h-screen bg-black px-3 py-6 text-white sm:px-6 sm:py-10">
+      <div className="mx-auto flex min-w-0 max-w-3xl flex-col gap-5 sm:gap-6">
         <div className="text-center">
           <div className="mb-3 flex items-center justify-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.8)]" />
-            <p className="text-sm uppercase tracking-[0.35em] text-[#d4a24d]">Camera Connected</p>
+            <span className="h-3 w-3 shrink-0 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.8)]" />
+            <p className="text-xs uppercase tracking-[0.2em] text-[#d4a24d] sm:text-sm sm:tracking-[0.35em]">Camera Connected</p>
           </div>
 
-          <h1 className="font-serif text-4xl text-[#d4a24d] sm:text-5xl">QR Ticket Scanner</h1>
-          <p className="mt-3 text-gray-400">Scan attendee tickets for instant check-in.</p>
+          <h1 className="font-serif text-3xl text-[#d4a24d] sm:text-5xl">QR Ticket Scanner</h1>
+          <p className="mt-3 text-sm text-gray-400 sm:text-base">Scan attendee tickets for instant check-in.</p>
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-[#d4a24d]/50 bg-[#0b0907] p-3 shadow-[0_0_40px_rgba(0,0,0,0.35)]">
+        <div className="min-w-0 overflow-hidden rounded-3xl border border-[#d4a24d]/50 bg-[#0b0907] p-2 shadow-[0_0_40px_rgba(0,0,0,0.35)] sm:p-3">
           {successState ? (
-            <div className="flex min-h-105 flex-col items-center justify-center rounded-[1.25rem] border border-green-500/40 bg-linear-to-br from-green-950/60 to-[#07120a] text-center">
+            <div className="flex min-h-80 flex-col items-center justify-center rounded-[1.25rem] border border-green-500/40 bg-linear-to-br from-green-950/60 to-[#07120a] p-4 text-center sm:min-h-105">
               <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20 text-3xl text-green-300">✓</div>
-              <p className="text-3xl font-semibold text-white">{successState.fullName}</p>
+              <p className="max-w-full break-words text-2xl font-semibold text-white sm:text-3xl">{successState.fullName}</p>
               <p className="mt-2 text-lg text-[#d4a24d]">{successState.ticketType}</p>
               <div className="mt-8 rounded-2xl border border-green-500/30 bg-black/30 px-6 py-4">
                 <p className="text-sm uppercase tracking-[0.35em] text-green-300">Checked In</p>
@@ -141,7 +144,7 @@ const playError = () => {
                 <span>Ready to Scan</span>
               </div>
 
-              <div className="relative overflow-hidden rounded-[1.25rem] border border-[#2d1e09]">
+              <div className="relative w-full min-w-0 overflow-hidden rounded-[1.25rem] border border-[#2d1e09]">
                 <Scanner
                   onScan={handleScan}
                   onError={(err) => console.log(err)}
@@ -149,10 +152,10 @@ const playError = () => {
                 />
 
                 <div className="pointer-events-none absolute inset-0">
-                  <div className="absolute left-6 top-6 h-12 w-12 rounded-tl-2xl border-l-2 border-t-2 border-[#f1ca7b]" />
-                  <div className="absolute right-6 top-6 h-12 w-12 rounded-tr-2xl border-r-2 border-t-2 border-[#f1ca7b]" />
-                  <div className="absolute bottom-6 left-6 h-12 w-12 rounded-bl-2xl border-b-2 border-l-2 border-[#f1ca7b]" />
-                  <div className="absolute bottom-6 right-6 h-12 w-12 rounded-br-2xl border-b-2 border-r-2 border-[#f1ca7b]" />
+                  <div className="absolute left-3 top-3 h-10 w-10 rounded-tl-2xl border-l-2 border-t-2 border-[#f1ca7b] sm:left-6 sm:top-6 sm:h-12 sm:w-12" />
+                  <div className="absolute right-3 top-3 h-10 w-10 rounded-tr-2xl border-r-2 border-t-2 border-[#f1ca7b] sm:right-6 sm:top-6 sm:h-12 sm:w-12" />
+                  <div className="absolute bottom-3 left-3 h-10 w-10 rounded-bl-2xl border-b-2 border-l-2 border-[#f1ca7b] sm:bottom-6 sm:left-6 sm:h-12 sm:w-12" />
+                  <div className="absolute bottom-3 right-3 h-10 w-10 rounded-br-2xl border-b-2 border-r-2 border-[#f1ca7b] sm:bottom-6 sm:right-6 sm:h-12 sm:w-12" />
                 </div>
               </div>
             </div>
@@ -160,14 +163,14 @@ const playError = () => {
         </div>
 
         {loading && !successState && (
-          <div className="rounded-2xl border border-[#d4a24d]/30 bg-[#11110e] px-5 py-4 text-center text-lg text-[#d4a24d]">
+          <div className="rounded-2xl border border-[#d4a24d]/30 bg-[#11110e] px-4 py-4 text-center text-base text-[#d4a24d] sm:px-5 sm:text-lg">
             Verifying ticket...
           </div>
         )}
 
         {message && (
           <div
-            className={`rounded-2xl border p-6 text-center text-lg font-semibold transition-all ${
+            className={`break-words rounded-2xl border p-4 text-center text-base font-semibold transition-all sm:p-6 sm:text-lg ${
               message.startsWith("✅")
                 ? "border-green-500 bg-green-900/30 text-green-300"
                 : "border-red-500 bg-red-900/30 text-red-300"
@@ -181,7 +184,7 @@ const playError = () => {
           <button
             type="button"
             onClick={resetScannerView}
-            className="rounded-lg border border-[#d4a24d] px-5 py-3 text-sm uppercase tracking-[0.25em] text-[#d4a24d]"
+            className="w-full rounded-lg border border-[#d4a24d] px-4 py-3 text-sm uppercase tracking-[0.15em] text-[#d4a24d] sm:w-auto sm:px-5 sm:tracking-[0.25em]"
           >
             Reset Scanner
           </button>
