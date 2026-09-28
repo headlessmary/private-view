@@ -142,12 +142,21 @@ const galleryMedia = [
     category: "Video",
     src: galleryVideoThree,
   },
+  {
+    id: 15,
+    type: "video",
+    event: "Headless Mary",
+    label: "Experience Beyond the Ordinary",
+    category: "Video",
+    src: heroVideo,
+  },
 ];
 
 const galleryVideoPosters = {
   3: galleryImageTen,
   13: galleryImageNine,
   14: galleryImageEight,
+  15: galleryImageOne,
 };
 
 function GalleryVideoCard({ item, onOpen }) {
