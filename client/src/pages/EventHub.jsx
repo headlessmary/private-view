@@ -219,7 +219,9 @@ export default function EventHub() {
   const [canScrollGalleryPrev, setCanScrollGalleryPrev] = useState(false);
   const [canScrollGalleryNext, setCanScrollGalleryNext] = useState(false);
   const galleryCarouselRef = useRef(null);
-  useScrollReveal(".event-hub > .hm-navbar, .event-hub > section");
+  useScrollReveal(
+    ".event-hub > .hm-navbar, .event-hub > section:not(.hm-hero)",
+  );
 
   useEffect(() => {
     let active = true;
