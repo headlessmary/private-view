@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 import { FaPhone, FaSnapchatGhost } from "react-icons/fa";
 import useScrollReveal from "../hooks/useScrollReveal";
 import { Link } from "react-router-dom";
@@ -53,7 +53,6 @@ const galleryMedia = [
     label: "Live Cut",
     category: "Video",
     src: galleryVideoOne,
-    videoColumn: "left",
   },
   {
     id: 4,
@@ -134,7 +133,6 @@ const galleryMedia = [
     label: "Crowd Cut",
     category: "Video",
     src: galleryVideoTwo,
-    videoColumn: "right",
   },
   {
     id: 14,
@@ -143,7 +141,6 @@ const galleryMedia = [
     label: "Night Reel",
     category: "Video",
     src: galleryVideoThree,
-    videoColumn: "left",
   },
 ];
 
@@ -153,6 +150,9 @@ export default function EventHub() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [societyEvent, setSocietyEvent] = useState(DEFAULT_SOCIETY_EVENT);
   const [eventError, setEventError] = useState("");
+  const [canScrollGalleryPrev, setCanScrollGalleryPrev] = useState(false);
+  const [canScrollGalleryNext, setCanScrollGalleryNext] = useState(false);
+  const galleryCarouselRef = useRef(null);
   useScrollReveal(".event-hub > .hm-navbar, .event-hub > section");
 
   useEffect(() => {
@@ -174,6 +174,43 @@ export default function EventHub() {
     activeFilter === "All"
       ? galleryMedia
       : galleryMedia.filter((item) => item.category === activeFilter);
+
+  const updateGalleryControls = useCallback(() => {
+    const carousel = galleryCarouselRef.current;
+    if (!carousel) return;
+
+    setCanScrollGalleryPrev(carousel.scrollLeft > 2);
+    setCanScrollGalleryNext(
+      carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 2,
+    );
+  }, []);
+
+  useEffect(() => {
+    const carousel = galleryCarouselRef.current;
+    if (!carousel) return;
+
+    carousel.scrollTo({ left: 0 });
+    const frame = requestAnimationFrame(updateGalleryControls);
+    window.addEventListener("resize", updateGalleryControls);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updateGalleryControls);
+    };
+  }, [activeFilter, filteredMedia.length, updateGalleryControls]);
+
+  const scrollGallery = (direction) => {
+    const carousel = galleryCarouselRef.current;
+    if (!carousel) return;
+
+    const firstCard = carousel.querySelector(".hm-media");
+    const gap = Number.parseFloat(getComputedStyle(carousel).columnGap) || 0;
+    const distance = firstCard
+      ? firstCard.getBoundingClientRect().width + gap
+      : carousel.clientWidth;
+
+    carousel.scrollBy({ left: direction * distance, behavior: "smooth" });
+  };
 
   return (
     <div className="event-hub">
@@ -368,12 +405,27 @@ export default function EventHub() {
           margin: 0;
           display: flex;
           flex-direction: column;
-          line-height: 0.82;
+          line-height: 0.88;
           font-family: Impact, "Arial Black", sans-serif;
-          font-size: clamp(110px, 11vw, 215px);
+          font-size: clamp(68px, 7.5vw, 150px);
           letter-spacing: -0.04em;
           color: var(--cream);
           text-shadow: 0 10px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .hm-hero .hm-hero-kicker {
+          width: auto;
+          margin: 0 0 22px;
+          color: #00e676;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: 0.2em;
+          line-height: 1.4;
+          text-transform: uppercase;
+        }
+
+        .hm-hero h1 .hm-hero-gold {
+          color: #ffc629;
         }
 
         .hm-hero p {
@@ -527,7 +579,7 @@ export default function EventHub() {
 
         .hm-radar-top h2 {
           font-family: Impact, "Arial Black", sans-serif;
-          font-size: clamp(72px, 7vw, 140px);
+          font-size: clamp(64px, 6.2vw, 124px);
           line-height: 0.82;
           letter-spacing: -0.035em;
           margin: 0;
@@ -535,8 +587,18 @@ export default function EventHub() {
           text-transform: uppercase;
         }
 
-        .hm-radar-top h2 span {
+        .hm-radar-top h2 .hm-radar-night {
           color: #ffc629;
+        }
+
+        .hm-radar-make,
+        .hm-radar-night,
+        .hm-radar-rest {
+          display: inline;
+        }
+
+        .hm-radar-top h2 .hm-radar-rest {
+          display: block;
         }
 
         .hm-radar-copy {
@@ -1038,28 +1100,73 @@ export default function EventHub() {
         }
 
         .hm-frame-count {
-          margin-left: auto;
           align-self: center;
           color: #7f8791;
           font-size: 11px;
           letter-spacing: 0.12em;
         }
 
-        .hm-masonry {
+        .hm-carousel-controls {
+          margin-left: auto;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .hm-carousel-arrow {
+          width: 42px;
+          height: 42px;
+          border: 1px solid rgba(24, 215, 104, 0.4);
+          background: transparent;
+          color: #ffc629;
+          font-size: 22px;
+          line-height: 1;
+          cursor: pointer;
+          transition: color 180ms ease, background-color 180ms ease, opacity 180ms ease;
+        }
+
+        .hm-carousel-arrow:hover:not(:disabled) {
+          background: #ffc629;
+          color: #111;
+        }
+
+        .hm-carousel-arrow:disabled {
+          cursor: default;
+          opacity: 0.35;
+        }
+
+        .hm-carousel-arrow:focus-visible,
+        .hm-filter:focus-visible {
+          outline: 2px solid #ffc629;
+          outline-offset: 3px;
+        }
+
+        .hm-carousel {
           max-width: 1600px;
           margin: auto;
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          grid-auto-rows: clamp(230px, 24vw, 310px);
-          grid-auto-flow: dense;
+          grid-auto-columns: calc((100% - 28px) / 3);
+          grid-auto-flow: column;
           gap: 14px;
+          overflow-x: auto;
+          overscroll-behavior-x: contain;
+          scroll-snap-type: x mandatory;
+          scroll-behavior: smooth;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        .hm-carousel::-webkit-scrollbar {
+          display: none;
         }
 
         .hm-media {
           position: relative;
           width: 100%;
-          height: 100%;
+          height: clamp(230px, 24vw, 310px);
           min-width: 0;
+          scroll-snap-align: start;
+          scroll-snap-stop: always;
           border: none;
           padding: 0;
           margin: 0;
@@ -1068,14 +1175,6 @@ export default function EventHub() {
           cursor: pointer;
           overflow: hidden;
           text-align: left;
-        }
-
-        .hm-media-video-left {
-          grid-column: 1;
-        }
-
-        .hm-media-video-right {
-          grid-column: -2;
         }
 
         .hm-media img,
@@ -1137,17 +1236,6 @@ export default function EventHub() {
         .hm-media:focus-visible {
           outline: 2px solid #ffc629;
           outline-offset: 3px;
-        }
-
-        .hm-masonry.compact {
-          min-height: 0;
-          grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-          grid-template-rows: none;
-          grid-auto-rows: clamp(230px, 26vw, 320px);
-        }
-
-        .hm-masonry.compact .hm-media {
-          grid-row: auto;
         }
 
         .hm-lightbox {
@@ -1554,20 +1642,8 @@ export default function EventHub() {
         }
 
         @media (max-width: 1000px) {
-          .hm-masonry:not(.compact) {
-            min-height: 0;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-template-rows: none;
-            grid-auto-rows: clamp(220px, 32vw, 310px);
-          }
-
-          .hm-masonry:not(.compact) .hm-media {
-            grid-column: auto;
-            grid-row: auto;
-          }
-
-          .hm-masonry.compact .hm-media {
-            grid-column: auto;
+          .hm-carousel {
+            grid-auto-columns: calc((100% - 14px) / 2);
           }
 
           .pulse,
@@ -1624,6 +1700,109 @@ export default function EventHub() {
         }
 
         @media (max-width: 700px) {
+          .hm-radar-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+          }
+
+          .hm-radar-grid > .hm-large-card {
+            grid-column: 1 / -1;
+            min-height: 420px;
+          }
+
+          .hm-radar-grid > .hm-side-stack {
+            display: contents;
+          }
+
+          .hm-radar-grid > .hm-side-stack > .hm-side-card {
+            min-width: 0;
+            min-height: clamp(230px, 64vw, 300px);
+          }
+
+          .hm-large-card .hm-card-overlay {
+            padding: 20px;
+          }
+
+          .hm-large-card .hm-status {
+            padding: 6px 9px;
+            font-size: 8px;
+            letter-spacing: 0.12em;
+          }
+
+          .hm-large-card h3 {
+            margin-bottom: 9px;
+            font-size: clamp(40px, 10vw, 58px);
+            line-height: 0.92;
+          }
+
+          .hm-large-card .hm-card-overlay p {
+            margin-bottom: 16px;
+            font-size: 13px;
+            line-height: 1.45;
+          }
+
+          .hm-large-card .hm-event-info {
+            gap: 4px;
+            font-size: 9px;
+            letter-spacing: 0.09em;
+          }
+
+          .hm-large-card .hm-card-number {
+            top: 14px;
+            right: 14px;
+            font-size: 28px;
+          }
+
+          .hm-side-card .hm-card-overlay {
+            padding: 14px;
+            align-items: flex-start;
+          }
+
+          .hm-side-card .hm-status {
+            padding: 6px 7px;
+            max-width: calc(100% - 34px);
+            font-size: 8px;
+            letter-spacing: 0.08em;
+          }
+
+          .hm-side-card h4 {
+            min-height: 3em;
+            margin-bottom: 4px;
+            width: 100%;
+            font-size: 17px;
+            line-height: 1;
+            letter-spacing: -0.01em;
+            text-align: left;
+            overflow-wrap: anywhere;
+          }
+
+          .hm-side-card .hm-card-overlay p,
+          .hm-side-card .hm-event-info {
+            display: none;
+          }
+
+          .hm-side-card .hm-side-button {
+            margin-top: 6px;
+            padding: 7px 9px;
+            font-size: 9px;
+            letter-spacing: 0.08em;
+          }
+
+          .hm-side-card .hm-card-number {
+            top: 12px;
+            right: 12px;
+            font-size: 22px;
+          }
+
+          .hm-side-card .hm-graduating-title {
+            width: 116%;
+            font-size: 18px;
+            white-space: nowrap;
+            letter-spacing: -0.035em;
+            transform: scaleX(0.86);
+            transform-origin: left center;
+          }
+
           .pulse,
           .dispatch-top {
             padding-top: 64px;
@@ -1736,8 +1915,14 @@ export default function EventHub() {
           }
 
           .hm-hero h1 {
-            font-size: clamp(54px, 15vw, 92px);
+            font-size: clamp(38px, 10.5vw, 60px);
             line-height: 0.88;
+          }
+
+          .hm-hero .hm-hero-kicker {
+            margin-bottom: 16px;
+            font-size: 10px;
+            letter-spacing: 0.14em;
           }
 
           .hm-small-line {
@@ -1787,11 +1972,13 @@ export default function EventHub() {
           }
 
           .hm-large-card h3 {
-            font-size: clamp(44px, 12vw, 68px);
+            font-size: clamp(40px, 10vw, 58px);
+            line-height: 0.92;
           }
 
           .hm-side-card h4 {
-            font-size: clamp(36px, 10vw, 52px);
+            font-size: 16px;
+            text-align: left;
           }
 
           .hm-proof-head h2 {
@@ -1814,20 +2001,88 @@ export default function EventHub() {
           }
 
           .hm-radar-top h2 {
-            font-size: clamp(52px, 18vw, 100px);
+            font-size: clamp(38px, 10vw, 52px);
+            line-height: 0.9;
+          }
+
+          .hm-radar-top p {
+            margin-bottom: 18px;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+          }
+
+          .hm-radar-make,
+          .hm-radar-night {
+            display: inline;
+            white-space: nowrap;
+          }
+
+          .hm-radar-top h2 br {
+            display: none;
           }
 
           .hm-radar-copy {
             width: 100%;
-            font-size: 18px;
+            font-size: 19px;
+            line-height: 1.6;
           }
 
           .hm-large-card {
-            min-height: 540px;
+            min-height: 460px;
           }
 
           .hm-side-card {
-            min-height: 300px;
+            min-height: clamp(220px, 58vw, 270px);
+          }
+
+          .hm-large-card .hm-card-overlay {
+            padding: 16px;
+          }
+
+          .hm-large-card .hm-status,
+          .hm-side-card .hm-status {
+            padding: 8px 10px;
+            font-size: 10px;
+            letter-spacing: 0.09em;
+          }
+
+          .hm-large-card .hm-card-overlay p {
+            margin-bottom: 14px;
+            font-size: 16px;
+            line-height: 1.45;
+          }
+
+          .hm-large-card .hm-event-info {
+            font-size: 10px;
+            letter-spacing: 0.09em;
+          }
+
+          .hm-large-card .hm-card-number,
+          .hm-side-card .hm-card-number {
+            font-size: 18px;
+          }
+
+          .hm-side-card h4 {
+            width: 100%;
+            font-size: 18px;
+            line-height: 1.05;
+            letter-spacing: -0.01em;
+            text-align: left;
+          }
+
+          .hm-side-card .hm-graduating-title {
+            width: 116%;
+            font-size: 18px;
+            white-space: nowrap;
+            letter-spacing: -0.035em;
+            transform: scaleX(0.86);
+            transform-origin: left center;
+          }
+
+          .hm-side-card .hm-side-button {
+            padding: 8px 10px;
+            font-size: 9px;
+            letter-spacing: 0.09em;
           }
 
           .hm-timeline {
@@ -1920,18 +2175,22 @@ export default function EventHub() {
 
           .hm-frame-count {
             margin-left: 0;
-            width: 100%;
-            text-align: right;
+          }
+
+          .hm-carousel-controls {
+            margin-left: auto;
+          }
+
+          .hm-carousel {
+            grid-auto-columns: 100%;
+          }
+
+          .hm-media {
+            height: clamp(240px, 70vw, 360px);
           }
 
           .hm-proof-copy {
             width: 100%;
-          }
-
-          .hm-masonry,
-          .hm-masonry.compact {
-            grid-template-columns: 1fr;
-            grid-auto-rows: clamp(240px, 70vw, 320px);
           }
         }
       `}</style>
@@ -2011,19 +2270,20 @@ export default function EventHub() {
         <div className="hm-overlay" />
 
         <div className="hm-hero-content">
+          <p className="hm-hero-kicker">AN EXPERIENCE BEYOND THE ORDINARY</p>
           <h1>
-            <span>SEE IT</span>
-            <span>LOUDER.</span>
+            <span>LOSE YOUR HEAD.</span>
+            <span className="hm-hero-gold">FIND YOUR SOUL.</span>
           </h1>
 
           <p>
-            Live events, captured at full volume. Discover the rooms that
-            matter, then get close enough to feel the heat.
+            Where music takes over, strangers become familiar and every night
+            becomes a story worth telling.
           </p>
 
           <div className="hm-buttons">
             <a href="#archive" className="hm-white-btn">
-              FIND YOUR NEXT NIGHT ↗
+              EXPLORE WHAT'S NEXT ↗
             </a>
 
             <a href="#gallery" className="hm-outline-btn">
@@ -2064,15 +2324,15 @@ export default function EventHub() {
             <p>01 / ON THE RADAR</p>
 
             <h2>
-              MAKE A <span>NIGHT</span>
-              <br />
-              OF IT.
+              <span className="hm-radar-make">THE</span>{" "}
+              <span className="hm-radar-night">NIGHT NEVER</span>
+              <span className="hm-radar-rest">STANDS STILL.</span>
             </h2>
           </div>
 
           <div className="hm-radar-copy">
-            Three cities. Three different kinds of noise. Pick your entry point
-            and make it count.
+            From the nights we've lived to the ones still waiting to happen.
+            Every event is another chapter in the Headless Mary story.
           </div>
         </div>
 
@@ -2105,7 +2365,9 @@ export default function EventHub() {
 
               <div className="hm-card-overlay">
                 <span className={`hm-status ${eventError ? "ended" : "live"}`}>
-                  {eventError ? "EVENT DETAILS UNAVAILABLE" : "TICKETS AVAILABLE"}
+                  {eventError
+                    ? "EVENT DETAILS UNAVAILABLE"
+                    : "TICKETS AVAILABLE"}
                 </span>
 
                 <h4>{societyEvent.eventName.toUpperCase()}</h4>
@@ -2116,7 +2378,9 @@ export default function EventHub() {
                 </p>
 
                 <div className="hm-event-info">
-                  <strong>{formatEventDateTime(societyEvent.eventDateTime)}</strong>
+                  <strong>
+                    {formatEventDateTime(societyEvent.eventDateTime)}
+                  </strong>
                   <span>{societyEvent.venue.toUpperCase()}</span>
                 </div>
 
@@ -2129,11 +2393,11 @@ export default function EventHub() {
             <button
               type="button"
               className="hm-side-card"
-              aria-label="Watch Buss 22 live video"
+              aria-label="Watch Graduating Into Summer live video"
               onClick={() =>
                 setSelectedMedia({
                   type: "video",
-                  event: "Buss 22",
+                  event: "Graduating Into Summer",
                   label: "Live Broadcast",
                   src: galleryVideoOne,
                 })
@@ -2144,7 +2408,7 @@ export default function EventHub() {
               <div className="hm-card-overlay">
                 <span className="hm-status live">LIVE NOW</span>
 
-                <h4>BUSS 22</h4>
+                <h4 className="hm-graduating-title">GRADUATING INTO SUMMER</h4>
 
                 <p>
                   The live broadcast is moving now. Tap in before the last
@@ -2186,44 +2450,47 @@ export default function EventHub() {
         <div className="hm-run-list">
           <div className="hm-run-row">
             <div className="hm-date-block">
-              <span className="hm-date-badge">08.08.25</span>
+              <span className="hm-date-badge">JULY 4TH, 2026</span>
             </div>
 
             <div className="hm-row-main">
-              <h3 className="hm-row-title">Graduation into summer</h3>
-              <div className="hm-row-location">LAGOS, NIGERIA</div>
+              <h3 className="hm-row-title">Buss 22</h3>
             </div>
 
-            <div className="hm-row-status live">LIVE NOW</div>
+            <div className="hm-row-status ended">ENDED</div>
           </div>
 
           <div className="hm-run-row">
             <div className="hm-date-block">
-              <span className="hm-date-badge">
-                {formatEventDateTime(societyEvent.eventDateTime).split(" · ")[0]}
-              </span>
+              <span className="hm-date-badge">JULY 25TH, 2026</span>
             </div>
 
             <div className="hm-row-main">
-              <h3 className="hm-row-title">{societyEvent.eventName}</h3>
-              <div className="hm-row-location">
-                {societyEvent.venue}
-              </div>
+              <h3 className="hm-row-title">Warehouse Rave</h3>
             </div>
 
-            <div className={`hm-row-status ${eventError ? "" : "live"}`}>
-              {eventError ? "EVENT DETAILS UNAVAILABLE" : "TICKETS AVAILABLE"}
-            </div>
+            <div className="hm-row-status ended">ENDED</div>
           </div>
 
           <div className="hm-run-row">
             <div className="hm-date-block">
-              <span className="hm-date-badge">18.10.24</span>
+              <span className="hm-date-badge">AUGUST 4TH, 2026</span>
+            </div>
+
+            <div className="hm-row-main">
+              <h3 className="hm-row-title">Graduating Into Summer</h3>
+            </div>
+
+            <div className="hm-row-status ended">ENDED</div>
+          </div>
+
+          <div className="hm-run-row">
+            <div className="hm-date-block">
+              <span className="hm-date-badge">AUGUST 8TH, 2026</span>
             </div>
 
             <div className="hm-row-main">
               <h3 className="hm-row-title">Private View</h3>
-              <div className="hm-row-location">Asaba, Delta State</div>
             </div>
 
             <div className="hm-row-status ended">ENDED</div>
@@ -2251,35 +2518,56 @@ export default function EventHub() {
           {galleryTabs.map((tab) => (
             <button
               key={tab}
+              type="button"
               className={`hm-filter ${activeFilter === tab ? "active" : ""}`}
               onClick={() => setActiveFilter(tab)}
+              aria-pressed={activeFilter === tab}
             >
               {tab}
             </button>
           ))}
-          <span className="hm-frame-count">
-            {filteredMedia.length}{" "}
-            {filteredMedia.length === 1 ? "frame" : "frames"}
-          </span>
+          <div className="hm-carousel-controls">
+            <span className="hm-frame-count" aria-live="polite">
+              {filteredMedia.length}{" "}
+              {filteredMedia.length === 1 ? "frame" : "frames"}
+            </span>
+            <button
+              type="button"
+              className="hm-carousel-arrow"
+              aria-label="Previous gallery items"
+              disabled={!canScrollGalleryPrev}
+              onClick={() => scrollGallery(-1)}
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              className="hm-carousel-arrow"
+              aria-label="Next gallery items"
+              disabled={!canScrollGalleryNext}
+              onClick={() => scrollGallery(1)}
+            >
+              →
+            </button>
+          </div>
         </div>
 
         <div
-          className={`hm-masonry ${filteredMedia.length < 5 ? "compact" : ""}`}
+          ref={galleryCarouselRef}
+          className="hm-carousel"
+          aria-label="Event photo and video carousel"
+          onScroll={updateGalleryControls}
         >
           {filteredMedia.map((item) => (
             <button
               key={item.id}
               type="button"
-              className={`hm-media ${
-                item.type === "video"
-                  ? `hm-media-video-${item.videoColumn}`
-                  : ""
-              }`}
+              className="hm-media"
               aria-label={`Open ${item.event}: ${item.label}`}
               onClick={() => setSelectedMedia(item)}
             >
               {item.type === "video" ? (
-                <video src={item.src} muted loop playsInline />
+                <video src={item.src} muted playsInline preload="metadata" />
               ) : (
                 <img src={item.src} alt={item.label} />
               )}
