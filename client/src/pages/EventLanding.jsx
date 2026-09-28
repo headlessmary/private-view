@@ -357,13 +357,16 @@ function LegacyHeadlessSociety() {
           <div className="space-y-7">
             <div>
               <p className="font-mono-headless text-[10px] uppercase tracking-widest text-(--lime)">
-                Call
+                WhatsApp
               </p>
               <a
-                href="tel:08139121566"
+                href="https://wa.me/2348139121566"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Message Headless Mary Events on WhatsApp"
                 className="mt-2 block text-lg text-headless-muted transition hover:text-headless-acid"
               >
-                08139121566
+                Chat with us on WhatsApp
               </a>
             </div>
             <div>
@@ -430,7 +433,7 @@ function SocietyHero({ event }) {
           <img
             src={societyFlyer}
             alt={`${event.eventName} event flyer`}
-            className="h-full max-h-[44rem] w-full object-cover object-top"
+            className="h-full max-h-176 w-full object-cover object-top"
           />
         </div>
       </div>

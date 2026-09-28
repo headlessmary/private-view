@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useRef, useState } from "react";
-import { FaPhone, FaSnapchatGhost } from "react-icons/fa";
+import { FaPhone, FaSnapchatGhost, FaWhatsapp } from "react-icons/fa";
 import useScrollReveal from "../hooks/useScrollReveal";
 import { Link } from "react-router-dom";
 import {
@@ -143,6 +143,63 @@ const galleryMedia = [
     src: galleryVideoThree,
   },
 ];
+
+const galleryVideoPosters = {
+  3: galleryImageTen,
+  13: galleryImageNine,
+  14: galleryImageEight,
+};
+
+function GalleryVideoCard({ item, onOpen }) {
+  const cardRef = useRef(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    if (!("IntersectionObserver" in window)) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, []);
+
+  const videoIsNearViewport =
+    shouldLoad || typeof IntersectionObserver === "undefined";
+
+  return (
+    <button
+      ref={cardRef}
+      type="button"
+      className="hm-media"
+      aria-label={`Open ${item.event}: ${item.label}`}
+      onClick={() => onOpen(item)}
+    >
+      <video
+        src={videoIsNearViewport ? item.src : undefined}
+        poster={galleryVideoPosters[item.id]}
+        muted
+        playsInline
+        preload={videoIsNearViewport ? "metadata" : "none"}
+      />
+
+      <span className="hm-media-type">Film</span>
+      <span className="hm-media-open" aria-hidden="true">
+        ↗
+      </span>
+    </button>
+  );
+}
 
 export default function EventHub() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -2558,29 +2615,30 @@ export default function EventHub() {
           aria-label="Event photo and video carousel"
           onScroll={updateGalleryControls}
         >
-          {filteredMedia.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className="hm-media"
-              aria-label={`Open ${item.event}: ${item.label}`}
-              onClick={() => setSelectedMedia(item)}
-            >
-              {item.type === "video" ? (
-                <video src={item.src} muted playsInline preload="metadata" />
-              ) : (
+          {filteredMedia.map((item) =>
+            item.type === "video" ? (
+              <GalleryVideoCard
+                key={item.id}
+                item={item}
+                onOpen={setSelectedMedia}
+              />
+            ) : (
+              <button
+                key={item.id}
+                type="button"
+                className="hm-media"
+                aria-label={`Open ${item.event}: ${item.label}`}
+                onClick={() => setSelectedMedia(item)}
+              >
                 <img src={item.src} alt={item.label} />
-              )}
 
-              <span className="hm-media-type">
-                {item.type === "video" ? "Film" : "Photo"}
-              </span>
-
-              <span className="hm-media-open" aria-hidden="true">
-                ↗
-              </span>
-            </button>
-          ))}
+                <span className="hm-media-type">Photo</span>
+                <span className="hm-media-open" aria-hidden="true">
+                  ↗
+                </span>
+              </button>
+            ),
+          )}
         </div>
       </section>
 
@@ -2607,6 +2665,7 @@ export default function EventHub() {
                 autoPlay
                 muted
                 loop
+                preload="none"
               />
             ) : (
               <img
@@ -2748,6 +2807,14 @@ export default function EventHub() {
             </a>
             <a href="tel:08139121566" aria-label="Call 08139121566">
               <FaPhone aria-hidden="true" />
+            </a>
+            <a
+              href="https://wa.me/2348139121566"
+              aria-label="Message Headless Mary Events on WhatsApp"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaWhatsapp aria-hidden="true" />
             </a>
           </div>
         </div>
