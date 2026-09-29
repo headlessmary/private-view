@@ -159,6 +159,26 @@ const galleryVideoPosters = {
   15: galleryImageOne,
 };
 
+const pastEvents = [
+  {
+    name: "Buss 22",
+    date: "July 4th, 2026",
+    image: galleryImageTwo,
+  },
+  {
+    name: "Warehouse Rave",
+    date: "July 25th, 2026",
+    image: galleryImageFour,
+  },
+];
+
+const signalStats = [
+  { value: "07", label: "Rooms mapped" },
+  { value: "03", label: "Cities connected" },
+  { value: "02", label: "Ways to enter" },
+  { value: "00", label: "Repeats allowed" },
+];
+
 function GalleryVideoCard({ item, onOpen }) {
   const cardRef = useRef(null);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -218,6 +238,7 @@ export default function EventHub() {
   const [eventError, setEventError] = useState("");
   const [canScrollGalleryPrev, setCanScrollGalleryPrev] = useState(false);
   const [canScrollGalleryNext, setCanScrollGalleryNext] = useState(false);
+  const [showPastEvents, setShowPastEvents] = useState(false);
   const galleryCarouselRef = useRef(null);
   useScrollReveal(
     ".event-hub > .hm-navbar, .event-hub > section:not(.hm-hero)",
@@ -267,7 +288,7 @@ export default function EventHub() {
     };
   }, [activeFilter, filteredMedia.length, updateGalleryControls]);
 
-  const scrollGallery = (direction) => {
+  const scrollGallery = useCallback((direction) => {
     const carousel = galleryCarouselRef.current;
     if (!carousel) return;
 
@@ -278,7 +299,36 @@ export default function EventHub() {
       : carousel.clientWidth;
 
     carousel.scrollBy({ left: direction * distance, behavior: "smooth" });
-  };
+  }, []);
+
+  useEffect(() => {
+    if (filteredMedia.length < 2 || selectedMedia) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const interval = window.setInterval(() => {
+      const carousel = galleryCarouselRef.current;
+      if (
+        !carousel ||
+        document.hidden ||
+        carousel.matches(":hover") ||
+        carousel.contains(document.activeElement) ||
+        carousel.scrollWidth <= carousel.clientWidth + 2
+      ) {
+        return;
+      }
+
+      const isAtEnd =
+        carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 2;
+
+      if (isAtEnd) {
+        carousel.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        scrollGallery(1);
+      }
+    }, 3000);
+
+    return () => window.clearInterval(interval);
+  }, [activeFilter, filteredMedia.length, scrollGallery, selectedMedia]);
 
   return (
     <div className="event-hub">
@@ -684,6 +734,169 @@ export default function EventHub() {
           gap: 26px;
         }
 
+        .hm-past-toggle {
+          display: block;
+          max-width: 1600px;
+          margin: 38px auto 0;
+          padding: 16px 22px;
+          border: 1px solid #ffc629;
+          background: #ffc629;
+          color: #111;
+          font: inherit;
+          font-size: 12px;
+          font-weight: 900;
+          letter-spacing: 0.15em;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .hm-past-toggle:focus-visible {
+          outline: 2px solid #f4f0e8;
+          outline-offset: 4px;
+        }
+
+        .hm-past-events {
+          max-width: 1600px;
+          margin: 72px auto 0;
+        }
+
+        .hm-past-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 26px;
+        }
+
+        .hm-past-card {
+          position: relative;
+          min-width: 0;
+          min-height: 460px;
+          overflow: hidden;
+          border: 1px solid rgba(0, 230, 118, 0.35);
+          background: #111;
+        }
+
+        .hm-past-card img {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          filter: brightness(0.55);
+        }
+
+        .hm-past-card h3 {
+          margin: 0 0 18px;
+          color: #f4f0e8;
+          font-family: Impact, "Arial Black", sans-serif;
+          font-size: clamp(42px, 5vw, 72px);
+          line-height: 0.9;
+          text-transform: uppercase;
+        }
+
+        .hm-mobile-title-break {
+          display: none;
+        }
+
+        .hm-signal {
+          overflow: hidden;
+          background:
+            radial-gradient(ellipse at 50% 45%, rgba(20, 50, 35, 0.28), transparent 72%),
+            #0b110e;
+          padding: 136px 30px 40px;
+        }
+
+        .hm-signal-inner {
+          max-width: 1600px;
+          margin: 0 auto;
+        }
+
+        .hm-signal-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 48px;
+          margin-bottom: 54px;
+        }
+
+        .hm-signal-kicker {
+          margin: 0 0 24px;
+          color: #18d768;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.28em;
+          text-transform: uppercase;
+        }
+
+        .hm-signal-title {
+          margin: 0;
+          color: #f4f0e8;
+          font-family: Impact, "Arial Black", sans-serif;
+          font-size: clamp(64px, 7.2vw, 112px);
+          line-height: 0.82;
+          letter-spacing: -0.035em;
+          text-transform: uppercase;
+        }
+
+        .hm-signal-title span {
+          color: #ffc629;
+        }
+
+        .hm-signal-copy {
+          max-width: 420px;
+          margin: 0 0 4px;
+          color: #aaa9a2;
+          font-size: 17px;
+          line-height: 1.65;
+        }
+
+        .hm-signal-stats {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          border-top: 1px solid rgba(255, 198, 41, 0.32);
+          border-bottom: 1px solid rgba(255, 198, 41, 0.32);
+        }
+
+        .hm-signal-stat {
+          min-height: 212px;
+          padding: 30px 28px 26px;
+        }
+
+        .hm-signal-stat + .hm-signal-stat {
+          border-left: 1px solid rgba(0, 230, 118, 0.24);
+        }
+
+        .hm-signal-stat strong {
+          display: block;
+          margin-bottom: 14px;
+          color: #ffc629;
+          font-family: Impact, "Arial Black", sans-serif;
+          font-size: clamp(72px, 8vw, 108px);
+          line-height: 0.86;
+        }
+
+        .hm-signal-stat span {
+          color: #18d768;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+
+        .hm-signal-foot {
+          display: flex;
+          justify-content: flex-end;
+          align-items: flex-start;
+          margin: 38px 32px 0 0;
+          color: #aaa9a2;
+        }
+
+        .hm-signal-foot p {
+          max-width: 610px;
+          margin: 0;
+          font-size: 17px;
+          line-height: 1.7;
+        }
+
         .hm-large-card,
         .hm-side-card {
           position: relative;
@@ -825,6 +1038,14 @@ export default function EventHub() {
             padding: 72px 32px;
           }
 
+          .hm-signal {
+            padding: 100px 32px 38px;
+          }
+
+          .hm-signal-head {
+            gap: 32px;
+          }
+
           .hm-radar-top {
             flex-direction: column;
             align-items: flex-start;
@@ -832,6 +1053,47 @@ export default function EventHub() {
 
           .hm-radar-grid {
             grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 900px) {
+          .hm-signal {
+            padding: 88px 24px 36px;
+          }
+
+          .hm-signal-head {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 26px;
+            margin-bottom: 38px;
+          }
+
+          .hm-signal-copy {
+            max-width: 38rem;
+          }
+
+          .hm-signal-foot {
+            margin-right: 0;
+          }
+        }
+
+        @media (max-width: 760px) {
+          .hm-signal-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .hm-signal-stat {
+            min-height: 170px;
+            padding: 24px 20px;
+          }
+
+          .hm-signal-stat:nth-child(3) {
+            border-left: 0;
+            border-top: 1px solid rgba(0, 230, 118, 0.24);
+          }
+
+          .hm-signal-stat:nth-child(4) {
+            border-top: 1px solid rgba(0, 230, 118, 0.24);
           }
         }
 
@@ -1769,22 +2031,67 @@ export default function EventHub() {
 
         @media (max-width: 700px) {
           .hm-radar-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 14px;
+          }
+
+          .hm-past-toggle {
+            width: 100%;
+            margin-top: 26px;
+            padding: 15px 16px;
+            font-size: 11px;
+            text-align: center;
+          }
+
+          .hm-past-events {
+            margin-top: 22px;
+          }
+
+          .hm-past-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: 10px;
+          }
+
+          .hm-past-card {
+            min-height: clamp(220px, 64vw, 280px);
+          }
+
+          .hm-past-card h3 {
+            margin-bottom: 10px;
+            font-size: clamp(20px, 6.2vw, 32px);
+            line-height: 0.95;
+          }
+
+          .hm-past-card .hm-card-overlay {
+            padding: 12px;
+          }
+
+          .hm-past-card .hm-status {
+            padding: 6px 7px;
+            font-size: 8px;
+            letter-spacing: 0.1em;
+          }
+
+          .hm-past-card .hm-event-info {
+            font-size: 8px;
+            letter-spacing: 0.06em;
           }
 
           .hm-radar-grid > .hm-large-card {
-            grid-column: 1 / -1;
+            grid-column: auto;
             min-height: 420px;
           }
 
           .hm-radar-grid > .hm-side-stack {
-            display: contents;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: stretch;
+            gap: 14px;
           }
 
           .hm-radar-grid > .hm-side-stack > .hm-side-card {
             min-width: 0;
-            min-height: clamp(230px, 64vw, 300px);
+            min-height: clamp(230px, 62vw, 300px);
           }
 
           .hm-large-card .hm-card-overlay {
@@ -1822,26 +2129,26 @@ export default function EventHub() {
           }
 
           .hm-side-card .hm-card-overlay {
-            padding: 14px;
-            align-items: flex-start;
+            padding: 12px;
           }
 
           .hm-side-card .hm-status {
             padding: 6px 7px;
             max-width: calc(100% - 34px);
-            font-size: 8px;
-            letter-spacing: 0.08em;
+            font-size: 7px;
+            line-height: 1.3;
+            letter-spacing: 0.06em;
           }
 
           .hm-side-card h4 {
-            min-height: 3em;
-            margin-bottom: 4px;
+            min-height: 0;
+            margin-bottom: 8px;
             width: 100%;
-            font-size: 17px;
-            line-height: 1;
+            font-size: clamp(15px, 4.3vw, 22px);
+            line-height: 0.95;
             letter-spacing: -0.01em;
             text-align: left;
-            overflow-wrap: anywhere;
+            overflow-wrap: break-word;
           }
 
           .hm-side-card .hm-card-overlay p,
@@ -1850,25 +2157,28 @@ export default function EventHub() {
           }
 
           .hm-side-card .hm-side-button {
-            margin-top: 6px;
-            padding: 7px 9px;
-            font-size: 9px;
-            letter-spacing: 0.08em;
+            margin-top: 8px;
+            padding: 7px 8px;
+            font-size: 8px;
+            letter-spacing: 0.06em;
           }
 
           .hm-side-card .hm-card-number {
-            top: 12px;
-            right: 12px;
-            font-size: 22px;
+            top: 9px;
+            right: 9px;
+            font-size: 18px;
           }
 
           .hm-side-card .hm-graduating-title {
-            width: 116%;
-            font-size: 18px;
-            white-space: nowrap;
-            letter-spacing: -0.035em;
-            transform: scaleX(0.86);
-            transform-origin: left center;
+            width: 100%;
+            font-size: clamp(15px, 4.1vw, 21px);
+            white-space: normal;
+            letter-spacing: -0.02em;
+            transform: none;
+          }
+
+          .hm-mobile-title-break {
+            display: block;
           }
 
           .pulse,
@@ -1938,13 +2248,24 @@ export default function EventHub() {
           }
 
           .copyright {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 8px;
             padding-top: 18px;
             padding-bottom: 18px;
-            font-size: 9px;
-            letter-spacing: 0.09em;
+            font-size: clamp(6px, 2.1vw, 8px);
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+          }
+
+          .copyright span {
+            min-width: 0;
+          }
+
+          .copyright span:last-child {
+            text-align: right;
           }
 
           .pulse {
@@ -1975,6 +2296,57 @@ export default function EventHub() {
 
           .hm-radar {
             padding: 64px 18px;
+          }
+
+          .hm-signal {
+            padding: clamp(58px, 13vw, 82px) clamp(16px, 5vw, 28px) 30px;
+          }
+
+          .hm-signal-head {
+            gap: 22px;
+            margin-bottom: 28px;
+          }
+
+          .hm-signal-kicker {
+            margin-bottom: 18px;
+            font-size: clamp(9px, 2.5vw, 11px);
+            letter-spacing: 0.22em;
+          }
+
+          .hm-signal-title {
+            font-size: clamp(44px, 12vw, 84px);
+            line-height: 0.86;
+          }
+
+          .hm-signal-copy {
+            max-width: 36rem;
+            font-size: clamp(14px, 3.8vw, 16px);
+            line-height: 1.6;
+          }
+
+          .hm-signal-stat {
+            min-height: 148px;
+            padding: 22px clamp(12px, 4vw, 20px);
+          }
+
+          .hm-signal-stat strong {
+            margin-bottom: 12px;
+            font-size: clamp(58px, 17vw, 84px);
+          }
+
+          .hm-signal-stat span {
+            font-size: clamp(8px, 2.5vw, 10px);
+            letter-spacing: 0.11em;
+          }
+
+          .hm-signal-foot {
+            justify-content: flex-start;
+            margin: 24px 0 0;
+          }
+
+          .hm-signal-foot p {
+            font-size: clamp(13px, 3.6vw, 15px);
+            line-height: 1.6;
           }
 
           .hm-hero-content {
@@ -2261,6 +2633,55 @@ export default function EventHub() {
             width: 100%;
           }
         }
+
+        @media (max-width: 380px) {
+          .hm-nav-inner {
+            padding-right: 16px;
+            padding-left: 16px;
+          }
+
+          .hm-radar,
+          .hm-proof {
+            padding-right: 16px;
+            padding-left: 16px;
+          }
+
+          .hm-radar-top h2 {
+            font-size: clamp(34px, 9.5vw, 42px);
+          }
+
+          .hm-radar-copy {
+            font-size: 16px;
+          }
+
+          .hm-filter-row {
+            gap: 9px;
+          }
+
+          .hm-filter {
+            padding: 9px 10px;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+          }
+
+          .hm-carousel-arrow {
+            width: 38px;
+            height: 38px;
+          }
+
+          .hm-carousel-controls {
+            gap: 6px;
+          }
+
+          .hm-lightbox {
+            padding: 8px;
+          }
+
+          .hm-lightbox-meta strong {
+            font-size: 15px;
+            overflow-wrap: anywhere;
+          }
+        }
       `}</style>
 
       {/* =========================================================
@@ -2405,54 +2826,56 @@ export default function EventHub() {
         </div>
 
         <div className="hm-radar-grid">
-          <Link to="/private-view" className="hm-large-card">
-            <img src={privateViewFlyer} alt="The Private View" />
+          <Link to="/headless-society" className="hm-large-card">
+            <img src={societyFlyer} alt={`${societyEvent.eventName} event flyer`} />
 
             <div className="hm-card-overlay">
-              <span className="hm-status ended">ENDED</span>
+              <span className={`hm-status ${eventError ? "ended" : "live"}`}>
+                {eventError
+                  ? "EVENT DETAILS UNAVAILABLE"
+                  : "TICKETS AVAILABLE"}
+              </span>
 
-              <h3>THE PRIVATE VIEW</h3>
+              <h3>{societyEvent.eventName.toUpperCase()}</h3>
 
               <p>
-                A midnight collision of sound, light and 2,400 people who
-                refused to go home.
+                Bass pressure, industrial architecture and a lineup built for
+                the front row.
               </p>
 
               <div className="hm-event-info">
-                <strong>18.10.24</strong>
-                <span>ASABA, DELTA STATE</span>
+                <strong>
+                  {formatEventDateTime(societyEvent.eventDateTime)}
+                </strong>
+                <span>{societyEvent.venue.toUpperCase()}</span>
               </div>
+
+              <span className="hm-side-button">TICKETS ↗</span>
 
               <div className="hm-card-number">01</div>
             </div>
           </Link>
 
           <div className="hm-side-stack">
-            <Link to="/headless-society" className="hm-side-card">
-              <img src={societyFlyer} alt={societyEvent.eventName} />
+            <Link to="/private-view" className="hm-side-card">
+              <img src={privateViewFlyer} alt="The Private View" />
 
               <div className="hm-card-overlay">
-                <span className={`hm-status ${eventError ? "ended" : "live"}`}>
-                  {eventError
-                    ? "EVENT DETAILS UNAVAILABLE"
-                    : "TICKETS AVAILABLE"}
-                </span>
+                <span className="hm-status ended">ENDED</span>
 
-                <h4>{societyEvent.eventName.toUpperCase()}</h4>
+                <h4>THE PRIVATE VIEW</h4>
 
                 <p>
-                  Bass pressure, industrial architecture and a lineup built for
-                  the front row.
+                  A midnight collision of sound, light and 2,400 people who
+                  refused to go home.
                 </p>
 
                 <div className="hm-event-info">
-                  <strong>
-                    {formatEventDateTime(societyEvent.eventDateTime)}
-                  </strong>
-                  <span>{societyEvent.venue.toUpperCase()}</span>
+                  <strong>18.10.24</strong>
+                  <span>ASABA, DELTA STATE</span>
                 </div>
 
-                <span className="hm-side-button">TICKETS ↗</span>
+                <span className="hm-side-button">EXPLORE ↗</span>
 
                 <div className="hm-card-number">02</div>
               </div>
@@ -2476,7 +2899,11 @@ export default function EventHub() {
               <div className="hm-card-overlay">
                 <span className="hm-status live">LIVE NOW</span>
 
-                <h4 className="hm-graduating-title">GRADUATING INTO SUMMER</h4>
+                <h4 className="hm-graduating-title">
+                  GRADUATING INTO
+                  <br className="hm-mobile-title-break" />
+                  {" "}SUMMER
+                </h4>
 
                 <p>
                   The live broadcast is moving now. Tap in before the last
@@ -2495,73 +2922,75 @@ export default function EventHub() {
             </button>
           </div>
         </div>
-      </section>
 
-      <section className="hm-timeline">
-        <div className="hm-time-head">
-          <p>02 / THE RUN OF SHOW</p>
-
-          <div className="hm-title-row">
-            <h2>
-              KEEP
-              <br />
-              <span>TRACK. CHANGE IT</span>
-            </h2>
-
-            <div className="hm-head-copy">
-              Past, present and next. The signal never stops — it just changes
-              frequency.
-            </div>
+        <div
+          className="hm-past-events"
+          id="hm-past-events"
+          hidden={!showPastEvents}
+        >
+          <div className="hm-past-grid">
+            {pastEvents.map((event, index) => (
+              <article className="hm-past-card" key={event.name}>
+                <img src={event.image} alt="" />
+                <div className="hm-card-overlay">
+                  <span className="hm-status ended">ENDED</span>
+                  <h3>{event.name}</h3>
+                  <div className="hm-event-info">
+                    <strong>{event.date}</strong>
+                  </div>
+                  <div className="hm-card-number">
+                    {String(index + 4).padStart(2, "0")}
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
 
-        <div className="hm-run-list">
-          <div className="hm-run-row">
-            <div className="hm-date-block">
-              <span className="hm-date-badge">JULY 4TH, 2026</span>
+        <button
+          type="button"
+          className="hm-past-toggle"
+          aria-expanded={showPastEvents}
+          aria-controls="hm-past-events"
+          onClick={() => setShowPastEvents((isOpen) => !isOpen)}
+        >
+          {showPastEvents ? "CLOSE PAST EVENTS −" : "EXPLORE PAST EVENTS ↗"}
+        </button>
+      </section>
+
+      <section className="hm-signal" aria-labelledby="hm-signal-title">
+        <div className="hm-signal-inner">
+          <div className="hm-signal-head">
+            <div>
+              <p className="hm-signal-kicker">02 / THE SIGNAL</p>
+              <h2 className="hm-signal-title" id="hm-signal-title">
+                BUILT FOR
+                <br />
+                <span>THE ROOM.</span>
+              </h2>
             </div>
 
-            <div className="hm-row-main">
-              <h3 className="hm-row-title">Buss 22</h3>
-            </div>
-
-            <div className="hm-row-status ended">ENDED</div>
+            <p className="hm-signal-copy">
+              Headless Mary maps the spaces, sounds and people that turn an
+              event into something worth remembering.
+            </p>
           </div>
 
-          <div className="hm-run-row">
-            <div className="hm-date-block">
-              <span className="hm-date-badge">JULY 25TH, 2026</span>
-            </div>
-
-            <div className="hm-row-main">
-              <h3 className="hm-row-title">Warehouse Rave</h3>
-            </div>
-
-            <div className="hm-row-status ended">ENDED</div>
+          <div className="hm-signal-stats">
+            {signalStats.map((stat) => (
+              <div className="hm-signal-stat" key={stat.label}>
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
+            ))}
           </div>
 
-          <div className="hm-run-row">
-            <div className="hm-date-block">
-              <span className="hm-date-badge">AUGUST 4TH, 2026</span>
-            </div>
-
-            <div className="hm-row-main">
-              <h3 className="hm-row-title">Graduating Into Summer</h3>
-            </div>
-
-            <div className="hm-row-status ended">ENDED</div>
-          </div>
-
-          <div className="hm-run-row">
-            <div className="hm-date-block">
-              <span className="hm-date-badge">AUGUST 8TH, 2026</span>
-            </div>
-
-            <div className="hm-row-main">
-              <h3 className="hm-row-title">Private View</h3>
-            </div>
-
-            <div className="hm-row-status ended">ENDED</div>
+          <div className="hm-signal-foot">
+            <p>
+              Every room gets its own frequency.
+              <br />
+              Follow the next transmission, then step inside.
+            </p>
           </div>
         </div>
       </section>
