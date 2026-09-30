@@ -5,7 +5,7 @@ import Footer from "./components/Footer";
 import ScrollToHash from "./components/ScrollToHash";
 
 import Home from "./pages/Home";
-import EventHub from "./pages/EventHub";
+import EventHome from "./pages/EventHome";
 import {
   HeadlessSociety,
   NoCurrentEvents,
@@ -56,7 +56,7 @@ function AppContent() {
       >
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<EventHub />} />
+          <Route path="/" element={<EventHome />} />
           <Route path="/private-view" element={<Home />} />
           <Route path="/headless-society" element={<HeadlessSociety />} />
           <Route path="/no-events" element={<NoCurrentEvents />} />

@@ -4,6 +4,8 @@ export const DEFAULT_SOCIETY_EVENT = {
   eventName: "Headless Society",
   venue: "Five Friends, Asaba",
   eventDateTime: "2026-10-29T21:00",
+  eventEndDateTime: "",
+  imageUrl: "",
   maxCapacity: 60,
   earlyBirdPrice: 10000,
   saintsRebelsPrice: 15000,
@@ -19,6 +21,30 @@ export async function fetchSocietyEvent() {
   }
 
   return data.event;
+}
+
+export async function fetchEventHistory(token) {
+  const response = await fetch(`${API_URL}/api/admin/events`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+
+  if (!response.ok || !data.success || !Array.isArray(data.events)) {
+    throw new Error(data.message || "Unable to load event history.");
+  }
+
+  return data.events;
+}
+
+export async function fetchPublicEvents() {
+  const response = await fetch(`${API_URL}/api/events`);
+  const data = await response.json();
+
+  if (!response.ok || !data.success || !Array.isArray(data.events)) {
+    throw new Error(data.message || "Unable to load event archive.");
+  }
+
+  return data.events;
 }
 
 export function getSocietyTickets(event = DEFAULT_SOCIETY_EVENT) {

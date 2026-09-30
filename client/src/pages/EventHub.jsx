@@ -4,6 +4,7 @@ import useScrollReveal from "../hooks/useScrollReveal";
 import { Link } from "react-router-dom";
 import {
   DEFAULT_SOCIETY_EVENT,
+  fetchPublicEvents,
   fetchSocietyEvent,
   formatEventDateTime,
 } from "../services/eventConfig";
@@ -173,10 +174,9 @@ const pastEvents = [
 ];
 
 const signalStats = [
-  { value: "07", label: "Rooms mapped" },
-  { value: "03", label: "Cities connected" },
-  { value: "02", label: "Ways to enter" },
-  { value: "00", label: "Repeats allowed" },
+  { value: "04", label: "Events" },
+  { value: "04", label: "Cities" },
+  { value: "02", label: "Countries" },
 ];
 
 function GalleryVideoCard({ item, onOpen }) {
@@ -235,6 +235,7 @@ export default function EventHub() {
   const [selectedMedia, setSelectedMedia] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [societyEvent, setSocietyEvent] = useState(DEFAULT_SOCIETY_EVENT);
+  const [eventHistory, setEventHistory] = useState([]);
   const [eventError, setEventError] = useState("");
   const [canScrollGalleryPrev, setCanScrollGalleryPrev] = useState(false);
   const [canScrollGalleryNext, setCanScrollGalleryNext] = useState(false);
@@ -246,9 +247,12 @@ export default function EventHub() {
 
   useEffect(() => {
     let active = true;
-    fetchSocietyEvent()
-      .then((event) => {
-        if (active) setSocietyEvent(event);
+    Promise.all([fetchSocietyEvent(), fetchPublicEvents()])
+      .then(([event, events]) => {
+        if (active) {
+          setSocietyEvent(event);
+          setEventHistory(events);
+        }
       })
       .catch((error) => {
         if (active) setEventError(error.message);
@@ -263,6 +267,17 @@ export default function EventHub() {
     activeFilter === "All"
       ? galleryMedia
       : galleryMedia.filter((item) => item.category === activeFilter);
+  const pastEventCards = [
+    ...eventHistory
+      .filter((event) => event.status === "ENDED")
+      .map((event) => ({
+        id: event.id,
+        name: event.eventName,
+        date: formatEventDateTime(event.eventDateTime),
+        image: event.imageUrl || societyFlyer,
+      })),
+    ...pastEvents,
+  ];
 
   const updateGalleryControls = useCallback(() => {
     const carousel = galleryCarouselRef.current;
@@ -851,7 +866,7 @@ export default function EventHub() {
 
         .hm-signal-stats {
           display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           border-top: 1px solid rgba(255, 198, 41, 0.32);
           border-bottom: 1px solid rgba(255, 198, 41, 0.32);
         }
@@ -1078,22 +1093,9 @@ export default function EventHub() {
         }
 
         @media (max-width: 760px) {
-          .hm-signal-stats {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-
           .hm-signal-stat {
-            min-height: 170px;
-            padding: 24px 20px;
-          }
-
-          .hm-signal-stat:nth-child(3) {
-            border-left: 0;
-            border-top: 1px solid rgba(0, 230, 118, 0.24);
-          }
-
-          .hm-signal-stat:nth-child(4) {
-            border-top: 1px solid rgba(0, 230, 118, 0.24);
+            min-height: 150px;
+            padding: 24px 16px;
           }
         }
 
@@ -2274,9 +2276,10 @@ export default function EventHub() {
           }
 
           .pulse-left h1 {
-            font-size: clamp(52px, 13vw, 78px);
+            font-size: clamp(38px, 10vw, 68px);
             line-height: 0.88;
             letter-spacing: -0.02em;
+            overflow-wrap: anywhere;
           }
 
           .pulse-content p {
@@ -2325,18 +2328,18 @@ export default function EventHub() {
           }
 
           .hm-signal-stat {
-            min-height: 148px;
-            padding: 22px clamp(12px, 4vw, 20px);
+            min-height: 126px;
+            padding: 20px clamp(8px, 2.5vw, 14px);
           }
 
           .hm-signal-stat strong {
-            margin-bottom: 12px;
-            font-size: clamp(58px, 17vw, 84px);
+            margin-bottom: 10px;
+            font-size: clamp(44px, 14vw, 68px);
           }
 
           .hm-signal-stat span {
-            font-size: clamp(8px, 2.5vw, 10px);
-            letter-spacing: 0.11em;
+            font-size: clamp(7px, 2.2vw, 9px);
+            letter-spacing: 0.08em;
           }
 
           .hm-signal-foot {
@@ -2824,16 +2827,19 @@ export default function EventHub() {
             Every event is another chapter in the Headless Mary story.
           </div>
         </div>
+        {eventError && (
+          <p role="alert" className="mb-5 text-sm text-[#ffc629]">
+            {eventError}
+          </p>
+        )}
 
         <div className="hm-radar-grid">
+          {societyEvent.status === "LIVE" || societyEvent.status === "UPCOMING" ? (
           <Link to="/headless-society" className="hm-large-card">
-            <img src={societyFlyer} alt={`${societyEvent.eventName} event flyer`} />
-
+            <img src={societyEvent.imageUrl || societyFlyer} alt={`${societyEvent.eventName} event flyer`} />
             <div className="hm-card-overlay">
-              <span className={`hm-status ${eventError ? "ended" : "live"}`}>
-                {eventError
-                  ? "EVENT DETAILS UNAVAILABLE"
-                  : "TICKETS AVAILABLE"}
+              <span className={`hm-status ${societyEvent.status === "LIVE" ? "live" : "ended"}`}>
+                {eventError ? "EVENT DETAILS UNAVAILABLE" : societyEvent.status === "LIVE" ? "LIVE NOW" : "UPCOMING"}
               </span>
 
               <h3>{societyEvent.eventName.toUpperCase()}</h3>
@@ -2850,11 +2856,34 @@ export default function EventHub() {
                 <span>{societyEvent.venue.toUpperCase()}</span>
               </div>
 
-              <span className="hm-side-button">TICKETS ↗</span>
+              <span className="hm-side-button">
+                {societyEvent.status === "LIVE" ? "TICKETS ↗" : "EXPLORE ↗"}
+              </span>
 
               <div className="hm-card-number">01</div>
             </div>
           </Link>
+          ) : (
+            <article className="hm-large-card">
+              <div className="hm-card-overlay">
+                <span className="hm-status ended">
+                  {eventError ? "EVENT DETAILS UNAVAILABLE" : "NO LIVE EVENT"}
+                </span>
+                <h3>THE NIGHT MOVES ON</h3>
+                <p>
+                  The latest event has ended. Explore the archive for the
+                  nights that came before.
+                </p>
+                <button
+                  type="button"
+                  className="hm-side-button"
+                  onClick={() => setShowPastEvents(true)}
+                >
+                  EXPLORE PAST EVENTS
+                </button>
+              </div>
+            </article>
+          )}
 
           <div className="hm-side-stack">
             <Link to="/private-view" className="hm-side-card">
@@ -2929,8 +2958,8 @@ export default function EventHub() {
           hidden={!showPastEvents}
         >
           <div className="hm-past-grid">
-            {pastEvents.map((event, index) => (
-              <article className="hm-past-card" key={event.name}>
+            {pastEventCards.map((event, index) => (
+              <article className="hm-past-card" key={event.id || event.name}>
                 <img src={event.image} alt="" />
                 <div className="hm-card-overlay">
                   <span className="hm-status ended">ENDED</span>
@@ -3126,10 +3155,9 @@ export default function EventHub() {
       <section className="pulse" id="about">
         <div className="pulse-left">
           <h1>
-            NOT A <br />
-            CALENDAR. <br />A <span>PULSE</span>
+            NOT JUST AN EVENT.
             <br />
-            <span>CHECK.</span>
+            AN <span>EXPERIENCE.</span>
           </h1>
         </div>
 
@@ -3138,14 +3166,16 @@ export default function EventHub() {
 
           <div className="pulse-content">
             <p>
-              Headless Mary is an independent media hub for the live moments
-              that refuse to be background noise. We find the rooms, people and
-              sounds that move culture forward — then bring you right up to the
-              barricade.
+              Headless Mary creates and curates experiences at the intersection
+              of music, art, nightlife and culture. From intimate gatherings to
+              full-scale raves, exhibitions and unexpected collaborations, we
+              create spaces where people come to connect, discover and let the
+              night take its course.
             </p>
 
-            <h3>TURN UP. TUNE IN.</h3>
-            <h3>STAY LATE.</h3>
+            <h3>SHOW UP.</h3>
+            <h3>GET LOST.</h3>
+            <h3>LEAVE WITH A STORY.</h3>
           </div>
         </div>
       </section>

@@ -3,23 +3,41 @@ import { useNavigate } from "react-router-dom";
 import API_URL from "../../config/api";
 import {
   DEFAULT_SOCIETY_EVENT,
+  fetchEventHistory,
   fetchSocietyEvent,
   formatEventDateTime,
 } from "../../services/eventConfig";
 
+const createEventForm = () => ({
+  ...DEFAULT_SOCIETY_EVENT,
+  eventName: "",
+  venue: "",
+  eventDateTime: "",
+  eventEndDateTime: "",
+  imageUrl: "",
+});
+
 export default function Settings() {
   const navigate = useNavigate();
   const [form, setForm] = useState(DEFAULT_SOCIETY_EVENT);
+  const [events, setEvents] = useState([]);
+  const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const currentEvent = events.find((event) => event.isCurrent);
+  const canCreateNextEvent = currentEvent?.status === "ENDED";
 
   useEffect(() => {
     let active = true;
-    fetchSocietyEvent()
-      .then((event) => {
-        if (active) setForm(event);
+    const token = localStorage.getItem("adminToken");
+    Promise.all([fetchSocietyEvent(), fetchEventHistory(token || "")])
+      .then(([event, history]) => {
+        if (active) {
+          setForm(event);
+          setEvents(history);
+        }
       })
       .catch((error) => {
         if (active) setLoadError(error.message);
@@ -49,8 +67,9 @@ export default function Settings() {
     setMessage("");
 
     try {
+      const token = localStorage.getItem("adminToken");
       const response = await fetch(`${API_URL}/api/admin/event-settings`, {
-        method: "PUT",
+        method: isCreating ? "POST" : "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -64,7 +83,9 @@ export default function Settings() {
       }
 
       setForm(data.event);
-      setMessage("Headless Society settings saved successfully.");
+      setIsCreating(false);
+      setEvents(await fetchEventHistory(token || ""));
+      setMessage(isCreating ? "New event created and activated." : "Event settings saved successfully.");
     } catch (error) {
       setMessage(error.message || "Unable to save settings");
     } finally {
@@ -79,15 +100,35 @@ export default function Settings() {
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-[#d4a24d] sm:tracking-[0.35em]">Admin Settings</p>
             <h1 className="mt-2 font-serif text-3xl text-[#d4a24d] sm:text-4xl">Event Configuration</h1>
-            <p className="mt-2 text-sm text-gray-400">Update the public event details, ticket pricing, and capacity.</p>
+            <p className="mt-2 text-sm text-gray-400">
+              Set the start and end times; the homepage and past-event archive follow the schedule automatically.
+            </p>
           </div>
 
-          <button
-            onClick={() => navigate("/admin/dashboard")}
-            className="w-full rounded-lg border border-[#d4a24d] px-4 py-3 text-sm uppercase tracking-[0.15em] text-[#d4a24d] sm:w-auto sm:px-5 sm:tracking-[0.2em]"
-          >
-            Back to Dashboard
-          </button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              disabled={!isCreating && !canCreateNextEvent}
+              title={!isCreating && !canCreateNextEvent ? "Set an end time and wait for the current event to end before creating the next event." : undefined}
+              onClick={() => {
+                setForm(
+                  isCreating
+                    ? events.find((event) => event.isCurrent) || DEFAULT_SOCIETY_EVENT
+                    : createEventForm(),
+                );
+                setIsCreating((creating) => !creating);
+                setMessage("");
+              }}
+              className="w-full rounded-lg border border-[#d4a24d] px-4 py-3 text-sm uppercase tracking-[0.15em] text-[#d4a24d] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:px-5 sm:tracking-[0.2em]"
+            >
+              {isCreating ? "Cancel New Event" : "Create Next Event"}
+            </button>
+            <button
+              onClick={() => navigate("/admin/dashboard")}
+              className="w-full rounded-lg border border-white/20 px-4 py-3 text-sm uppercase tracking-[0.15em] text-gray-300 sm:w-auto sm:px-5 sm:tracking-[0.2em]"
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -103,19 +144,38 @@ export default function Settings() {
                 name="eventName"
                 value={form.eventName}
                 onChange={handleChange}
+                required
               />
               <Field
                 label="Venue"
                 name="venue"
                 value={form.venue}
                 onChange={handleChange}
+                required
               />
               <Field
-                label="Event Date & Time"
+                label="Start Date & Time (WAT)"
                 name="eventDateTime"
                 type="datetime-local"
                 value={form.eventDateTime}
                 onChange={handleChange}
+                required
+              />
+              <Field
+                label="End Date & Time (WAT)"
+                name="eventEndDateTime"
+                type="datetime-local"
+                value={form.eventEndDateTime || ""}
+                onChange={handleChange}
+                required
+              />
+              <Field
+                label="Poster Image URL (Optional)"
+                name="imageUrl"
+                type="url"
+                value={form.imageUrl || ""}
+                onChange={handleChange}
+                placeholder="https://…"
               />
               <Field
                 label="Maximum Capacity"
@@ -138,7 +198,7 @@ export default function Settings() {
               disabled={saving}
               className="h-14 w-full rounded-lg bg-[#d4a24d] px-6 text-sm font-semibold uppercase tracking-[0.25em] text-black transition hover:brightness-110 disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save Society Event"}
+              {saving ? "Saving..." : isCreating ? "Create & Activate Event" : "Save Event Settings"}
             </button>
 
             {message && <p className="text-sm text-[#f1ca7b]">{message}</p>}
@@ -155,6 +215,9 @@ export default function Settings() {
               <p className="mt-2 break-words text-xl font-semibold text-white">{form.eventName}</p>
               <p className="mt-2 break-words text-sm text-gray-400">{form.venue}</p>
               <p className="mt-2 text-sm text-[#f1ca7b]">{formatEventDateTime(form.eventDateTime)}</p>
+              <p className="mt-2 text-sm text-gray-400">
+                Ends: {form.eventEndDateTime ? formatEventDateTime(form.eventEndDateTime) : "Set an end date and time"}
+              </p>
             </div>
 
             <div className="rounded-2xl border border-[#2d1e09] bg-[#140f0a] p-5">
@@ -173,6 +236,26 @@ export default function Settings() {
             </div>
           </div>
         </form>
+        )}
+
+        {!loading && !loadError && (
+          <section className="mt-8 rounded-3xl border border-[#22170a] bg-[#0b0907] p-4 sm:p-8">
+            <h2 className="font-serif text-2xl text-[#d4a24d]">Event History</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {events.map((event) => (
+                <article key={event.id} className="rounded-xl border border-white/10 bg-[#140f0a] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-semibold text-white">{event.eventName}</h3>
+                    <span className="text-xs uppercase tracking-wider text-[#f1ca7b]">
+                      {event.isCurrent ? "CURRENT · " : ""}{event.status}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-400">{event.venue}</p>
+                  <p className="mt-1 text-xs text-gray-500">{formatEventDateTime(event.eventDateTime)}</p>
+                </article>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </section>
