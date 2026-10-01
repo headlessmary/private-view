@@ -302,56 +302,6 @@
     line-height: 0.9;
   }
 
-  .society-page .society-hero-grid > div:first-child,
-  .society-page .society-hero-details,
-  .society-page .society-details section,
-  .society-page .society-details section article,
-  .society-page > footer {
-    text-align: center;
-  }
-
-  .society-page .society-hero-details > div {
-    justify-items: center;
-  }
-
-  .society-page .society-hero-button {
-    justify-content: center;
-  }
-
-  .society-page .society-details section article > span:first-child {
-    display: block;
-    text-align: center;
-  }
-
-  .society-page .society-details section article > p {
-    margin-right: auto;
-    margin-left: auto;
-  }
-
-  .society-page .society-details #about > div > div > span {
-    left: 50%;
-    max-width: calc(100% - 2rem);
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-
-  .society-page .society-details #registration a {
-    margin-right: auto;
-    margin-left: auto;
-  }
-
-  .society-page > footer > div {
-    justify-items: center;
-  }
-
-  .society-page > footer nav {
-    justify-content: center;
-  }
-
-  .society-navbar > nav > div {
-    align-items: center;
-    text-align: center;
-  }
 }
 
 @media (max-width: 420px) {
@@ -376,9 +326,6 @@
     transition: none;
   }
 
-  html {
-    scroll-behavior: auto;
-  }
 }
 
 select {
