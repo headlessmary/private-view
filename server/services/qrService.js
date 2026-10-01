@@ -1,11 +1,11 @@
-const generateQRCode = async (reference) => {
-  const normalizedReference = String(reference || "").trim();
+const generateQRCode = async (qrToken) => {
+  const normalizedToken = String(qrToken || "").trim();
 
-  if (!normalizedReference) {
-    throw new Error("Reference is required to generate QR code.");
+  if (!normalizedToken) {
+    throw new Error("QR token is required to generate QR code.");
   }
 
-  return `/uploads/qr/${encodeURIComponent(normalizedReference)}.png`;
+  return `/uploads/qr/${encodeURIComponent(normalizedToken)}.png`;
 };
 
 module.exports = {

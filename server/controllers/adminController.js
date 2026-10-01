@@ -356,30 +356,21 @@ const checkIn = async (req, res) => {
     const reference = String(req.body?.reference || "").trim();
     const qrToken = String(req.body?.qrToken || "").trim();
     const scannedValue = qrToken || reference;
+    const eventId = String(req.body?.eventId || "").trim();
 
-    if (!scannedValue) {
+    if (!scannedValue || !eventId) {
       return res.status(400).json({
         success: false,
-        message: "Ticket reference is required.",
+        message: "Ticket value and event ID are required.",
       });
     }
 
-    let matchedByQrToken = false;
-
-    let attendee = await prisma.attendee.findFirst({
-      where: {
-        qrToken: scannedValue,
-        qrTokenUsed: false,
-      },
-    });
-
-    if (attendee) {
-      matchedByQrToken = true;
-    } else {
+    let attendee = qrToken
+      ? await prisma.attendee.findUnique({ where: { qrToken: scannedValue } })
+      : null;
+    if (!attendee) {
       attendee = await prisma.attendee.findUnique({
-        where: {
-          reference: scannedValue,
-        },
+        where: { reference: scannedValue },
       });
     }
 
@@ -390,6 +381,13 @@ const checkIn = async (req, res) => {
       });
     }
 
+    if (attendee.eventId !== eventId) {
+      return res.status(409).json({
+        success: false,
+        message: "This ticket belongs to a different event.",
+      });
+    }
+
     if (attendee.paymentStatus !== "SUCCESS") {
       return res.status(400).json({
         success: false,
@@ -397,21 +395,36 @@ const checkIn = async (req, res) => {
       });
     }
 
-    if (attendee.checkedIn) {
+    if (attendee.checkedIn || attendee.qrTokenUsed) {
       return res.status(400).json({
         success: false,
         message: "This ticket has already been used.",
       });
     }
 
-    const updatedAttendee = await prisma.attendee.update({
+    const checkInResult = await prisma.attendee.updateMany({
       where: {
-        reference: attendee.reference,
+        id: attendee.id,
+        eventId,
+        paymentStatus: "SUCCESS",
+        checkedIn: false,
+        qrTokenUsed: false,
       },
       data: {
         checkedIn: true,
-        qrTokenUsed: matchedByQrToken ? true : attendee.qrTokenUsed,
+        qrTokenUsed: true,
       },
+    });
+
+    if (checkInResult.count !== 1) {
+      return res.status(400).json({
+        success: false,
+        message: "This ticket has already been used or is no longer valid.",
+      });
+    }
+
+    const updatedAttendee = await prisma.attendee.findUnique({
+      where: { id: attendee.id },
     });
 
     return res.status(200).json({
@@ -672,7 +685,7 @@ const completePendingRegistration = async (req, res) => {
       });
     }
 
-    if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
+    if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode && attendee.qrToken) {
       return res.status(200).json({
         success: true,
         message: "Payment already completed and QR/barcode ticket is already available.",
@@ -735,7 +748,7 @@ const reverifyPendingPayment = async (req, res) => {
       });
     }
 
-    if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
+    if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode && attendee.qrToken) {
       return res.status(200).json({
         success: true,
         message: "Payment already completed and QR/barcode ticket is already available.",

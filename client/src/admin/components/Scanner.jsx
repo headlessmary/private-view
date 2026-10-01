@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import API_URL from "../../config/api";
+import { fetchCurrentEvent } from "../../services/eventConfig";
 import { formatTicketType } from "../../services/societyTickets";
 
 export default function QRScanner() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [lastScanned, setLastScanned] = useState("");
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const [eventLoading, setEventLoading] = useState(true);
+  const [eventError, setEventError] = useState("");
   const [successState, setSuccessState] = useState(null);
   const [errorState, setErrorState] = useState("");
 
@@ -19,6 +23,43 @@ const playError = () => {
   const audio = new Audio("/sounds/error.mp3");
   audio.play().catch(() => {});
 };
+
+  useEffect(() => {
+    let active = true;
+    let initialLoad = true;
+
+    const loadCurrentEvent = async () => {
+      try {
+        const event = await fetchCurrentEvent();
+        if (!event) {
+          throw new Error("There is no published event available for check-in.");
+        }
+
+        if (active) {
+          setCurrentEvent(event);
+          setEventError("");
+        }
+      } catch (error) {
+        if (active) {
+          setCurrentEvent(null);
+          setEventError(error.message);
+        }
+      } finally {
+        if (active && initialLoad) {
+          initialLoad = false;
+          setEventLoading(false);
+        }
+      }
+    };
+
+    void loadCurrentEvent();
+    const refreshId = window.setInterval(loadCurrentEvent, 30_000);
+
+    return () => {
+      active = false;
+      window.clearInterval(refreshId);
+    };
+  }, []);
 
   useEffect(() => {
     if (!successState && !errorState) return;
@@ -42,14 +83,21 @@ const playError = () => {
     setLoading(false);
   };
 
-  const verifyTicket = async (reference) => {
+  const verifyTicket = async (qrToken) => {
     if (loading) return;
 
-    const normalizedReference = String(reference || "").trim();
+    const normalizedToken = String(qrToken || "").trim();
 
-    if (!normalizedReference) {
-      setErrorState("No ticket reference found in QR code.");
-      setMessage("❌ No ticket reference found in QR code.");
+    if (!normalizedToken) {
+      setErrorState("No ticket token found in QR code.");
+      setMessage("❌ No ticket token found in QR code.");
+      playError();
+      return;
+    }
+
+    if (!currentEvent?.id) {
+      setErrorState(eventError || "The current event could not be determined.");
+      setMessage(`❌ ${eventError || "The current event could not be determined."}`);
       playError();
       return;
     }
@@ -67,7 +115,10 @@ const playError = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ qrToken: normalizedReference }),
+        body: JSON.stringify({
+          qrToken: normalizedToken,
+          eventId: currentEvent.id,
+        }),
       });
 
       const data = await response.json();
@@ -105,12 +156,12 @@ const playError = () => {
   const handleScan = (results) => {
     if (!results?.length) return;
 
-    const reference = String(results[0]?.rawValue || "").trim();
+    const qrToken = String(results[0]?.rawValue || "").trim();
 
-    if (!reference || loading || reference === lastScanned) return;
+    if (!qrToken || loading || qrToken === lastScanned) return;
 
-    setLastScanned(reference);
-    verifyTicket(reference);
+    setLastScanned(qrToken);
+    verifyTicket(qrToken);
   };
 
   return (
@@ -144,20 +195,35 @@ const playError = () => {
                 <span>Ready to Scan</span>
               </div>
 
-              <div className="relative w-full min-w-0 overflow-hidden rounded-[1.25rem] border border-[#2d1e09]">
-                <Scanner
-                  onScan={handleScan}
-                  onError={(err) => console.log(err)}
-                  constraints={{ facingMode: "environment" }}
-                />
+              {eventLoading ? (
+                <p className="py-12 text-center text-sm text-gray-400">
+                  Loading current event...
+                </p>
+              ) : currentEvent ? (
+                <>
+                  <p className="text-center text-xs text-gray-400">
+                    Checking in for {currentEvent.eventName}
+                  </p>
+                  <div className="relative w-full min-w-0 overflow-hidden rounded-[1.25rem] border border-[#2d1e09]">
+                    <Scanner
+                      onScan={handleScan}
+                      onError={(err) => console.error("QR scanner error:", err)}
+                      constraints={{ facingMode: "environment" }}
+                    />
 
-                <div className="pointer-events-none absolute inset-0">
-                  <div className="absolute left-3 top-3 h-10 w-10 rounded-tl-2xl border-l-2 border-t-2 border-[#f1ca7b] sm:left-6 sm:top-6 sm:h-12 sm:w-12" />
-                  <div className="absolute right-3 top-3 h-10 w-10 rounded-tr-2xl border-r-2 border-t-2 border-[#f1ca7b] sm:right-6 sm:top-6 sm:h-12 sm:w-12" />
-                  <div className="absolute bottom-3 left-3 h-10 w-10 rounded-bl-2xl border-b-2 border-l-2 border-[#f1ca7b] sm:bottom-6 sm:left-6 sm:h-12 sm:w-12" />
-                  <div className="absolute bottom-3 right-3 h-10 w-10 rounded-br-2xl border-b-2 border-r-2 border-[#f1ca7b] sm:bottom-6 sm:right-6 sm:h-12 sm:w-12" />
-                </div>
-              </div>
+                    <div className="pointer-events-none absolute inset-0">
+                      <div className="absolute left-3 top-3 h-10 w-10 rounded-tl-2xl border-l-2 border-t-2 border-[#f1ca7b] sm:left-6 sm:top-6 sm:h-12 sm:w-12" />
+                      <div className="absolute right-3 top-3 h-10 w-10 rounded-tr-2xl border-r-2 border-t-2 border-[#f1ca7b] sm:right-6 sm:top-6 sm:h-12 sm:w-12" />
+                      <div className="absolute bottom-3 left-3 h-10 w-10 rounded-bl-2xl border-b-2 border-l-2 border-[#f1ca7b] sm:bottom-6 sm:left-6 sm:h-12 sm:w-12" />
+                      <div className="absolute bottom-3 right-3 h-10 w-10 rounded-br-2xl border-b-2 border-r-2 border-[#f1ca7b] sm:bottom-6 sm:right-6 sm:h-12 sm:w-12" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p role="alert" className="py-12 text-center text-sm text-red-400">
+                  {eventError || "Unable to load the current event for check-in."}
+                </p>
+              )}
             </div>
           )}
         </div>

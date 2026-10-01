@@ -6,13 +6,7 @@ const {
   verifyPayment,
 } = require("../services/flutterwaveService");
 
-const {
-  generateQRCode,
-} = require("../services/qrService");
-
-const {
-  sendTicketEmail,
-} = require("../services/emailService");
+const { completeAttendeePayment } = require("../services/paymentCompletionService");
 const {
   findCurrentEvent,
 } = require("../services/eventService");
@@ -89,6 +83,7 @@ const createTicket = async (req, res) => {
     await prisma.attendee.create({
       data: {
         eventId: event.id,
+        qrToken: uuid(),
         fullName,
         email,
         phone,
@@ -161,46 +156,30 @@ const verifyTicketPayment = async (req, res) => {
       });
     }
 
-    // Prevent duplicate verification
-    if (attendee.paymentStatus === "SUCCESS") {
+    if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode && attendee.qrToken) {
       return res.status(200).json({
         success: true,
         message: "Payment already verified.",
         attendee,
+        qrCode: attendee.qrCode,
       });
     }
 
-    // Generate QR only once
-    const qrCode = attendee.qrCode
-      ? attendee.qrCode
-      : await generateQRCode(reference);
-
-    const updatedAttendee = await prisma.attendee.update({
-      where: {
-        reference,
-      },
-      data: {
-        paymentStatus: "SUCCESS",
-        qrCode,
-      },
-      include: { event: { select: { id: true, eventName: true } } },
-    });
-
-    // Send ticket email
-    await sendTicketEmail({
-      fullName: updatedAttendee.fullName,
-      email: updatedAttendee.email,
-      ticketType: updatedAttendee.ticketType,
-      reference: updatedAttendee.reference,
-      qrCode,
-      eventId: updatedAttendee.eventId,
+    const completion = await completeAttendeePayment({
+      attendee,
+      paymentMethod: "Flutterwave",
+      confirmedBy: "Flutterwave",
+      confirmedAt: new Date(),
+      paymentReference: reference,
     });
 
     return res.status(200).json({
       success: true,
       message: "Payment verified successfully.",
-      attendee: updatedAttendee,
-      qrCode,
+      attendee: completion.attendee,
+      qrCode: completion.qrCode,
+      emailSent: completion.emailSent,
+      emailError: completion.emailError,
     });
 
   } catch (error) {

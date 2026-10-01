@@ -19,8 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Dynamic QR fallback for ticket links in emails and admin views.
-// This keeps older /uploads/qr/<reference>.png links working even when files are not on disk.
+// Generate ticket QR images on demand so production does not depend on local files.
 app.get("/uploads/qr/:filename", async (req, res) => {
   try {
     const rawFilename = String(req.params.filename || "").trim();
@@ -32,24 +31,24 @@ app.get("/uploads/qr/:filename", async (req, res) => {
       });
     }
 
-    const encodedReference = rawFilename.slice(0, -4);
-    const reference = decodeURIComponent(encodedReference);
+    const encodedToken = rawFilename.slice(0, -4);
+    const qrToken = decodeURIComponent(encodedToken);
 
-    if (!reference) {
+    if (!qrToken) {
       return res.status(400).json({
         success: false,
-        message: "QR reference is required.",
+        message: "QR token is required.",
       });
     }
 
-    const qrPng = await QRCode.toBuffer(reference, {
+    const qrPng = await QRCode.toBuffer(qrToken, {
       type: "png",
       margin: 1,
       width: 420,
     });
 
     res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "private, max-age=300");
     return res.send(qrPng);
   } catch (error) {
     console.error("QR FALLBACK ERROR:", error);
@@ -67,7 +66,9 @@ app.use((req, res, next) => {
   console.log("METHOD:", req.method);
   console.log("URL:", req.originalUrl);
   console.log("HEADERS:", req.headers);
-  console.log("BODY:", req.body);
+  const loggedBody = { ...req.body };
+  if (loggedBody.qrToken) loggedBody.qrToken = "[REDACTED]";
+  console.log("BODY:", loggedBody);
   console.log("===============================\n");
   next();
 });

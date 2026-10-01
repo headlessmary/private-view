@@ -31,7 +31,7 @@ const finalizeVerifiedPayment = async (payment) => {
     throw error;
   }
 
-  if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode) {
+  if (attendee.paymentStatus === "SUCCESS" && attendee.qrCode && attendee.qrToken) {
     return {
       attendee,
       qrCode: attendee.qrCode,
@@ -122,6 +122,7 @@ const initializeTransaction = async (req, res) => {
     await prisma.attendee.create({
       data: {
         eventId: event.id,
+        qrToken: uuid(),
         fullName: normalizedFullName,
         email: normalizedEmail,
         phone: normalizedPhone,
@@ -177,7 +178,8 @@ const verifyTransaction = async (req, res) => {
 
       if (
         existingAttendee?.paymentStatus === "SUCCESS" &&
-        existingAttendee.qrCode
+        existingAttendee.qrCode &&
+        existingAttendee.qrToken
       ) {
         let resendError = null;
 

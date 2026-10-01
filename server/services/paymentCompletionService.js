@@ -1,6 +1,7 @@
 const prisma = require("../database/prisma");
 const { generateQRCode } = require("./qrService");
 const { sendTicketEmail } = require("./emailService");
+const { v4: uuid } = require("uuid");
 
 const completeAttendeePayment = async ({
   attendee,
@@ -29,14 +30,15 @@ const completeAttendeePayment = async ({
     throw error;
   }
 
-  let qrCode = attendee.qrCode;
-
-  if (!qrCode) {
-    qrCode = await generateQRCode(reference);
-  }
+  const qrToken = attendee.qrToken || uuid();
+  const qrCode =
+    attendee.qrToken && attendee.qrCode
+      ? attendee.qrCode
+      : await generateQRCode(qrToken);
 
   const updateData = {
     paymentStatus: "SUCCESS",
+    qrToken,
     qrCode,
     paymentMethod: normalizedPaymentMethod,
     ...(normalizedConfirmedBy ? { confirmedBy: normalizedConfirmedBy } : {}),

@@ -43,7 +43,9 @@ const parseSender = (senderValue) => {
 
 const getEmailDiagnostics = () => {
   const sender = parseSender(process.env.MAIL_FROM);
-  const baseUrl = sanitizeEnvValue(process.env.BASE_URL);
+  const baseUrl = sanitizeEnvValue(
+    process.env.RENDER_EXTERNAL_URL || process.env.BASE_URL,
+  );
   const brevoApiKey = sanitizeEnvValue(process.env.BREVO_API_KEY);
 
   return {
@@ -81,7 +83,9 @@ const sendTicketEmail = async ({
 }) => {
   try {
     const sender = parseSender(process.env.MAIL_FROM);
-    const baseUrl = toAbsoluteUrl(process.env.BASE_URL);
+    const baseUrl = toAbsoluteUrl(
+      process.env.RENDER_EXTERNAL_URL || process.env.BASE_URL,
+    );
     const brevoApiKey = sanitizeEnvValue(process.env.BREVO_API_KEY);
     const event = eventId
       ? await prisma.event.findUnique({ where: { id: eventId } })
@@ -99,7 +103,17 @@ const sendTicketEmail = async ({
     }
 
     if (!baseUrl) {
-      throw new Error("BASE_URL must be set for email QR links.");
+      throw new Error("BASE_URL or RENDER_EXTERNAL_URL must be set for email QR links.");
+    }
+
+    const baseHostname = new URL(baseUrl).hostname
+      .toLowerCase()
+      .replace(/^\[|\]$/g, "");
+    if (
+      process.env.NODE_ENV === "production" &&
+      ["localhost", "127.0.0.1", "::1"].includes(baseHostname)
+    ) {
+      throw new Error("Email QR links must use a public production URL.");
     }
 
     if (!brevoApiKey) {
@@ -113,7 +127,7 @@ const sendTicketEmail = async ({
     const qrCodeValue = String(qrCode).trim();
     const qrUrl = qrCodeValue.startsWith("http://") || qrCodeValue.startsWith("https://")
       ? qrCodeValue
-      : `${baseUrl}${qrCodeValue.startsWith("/") ? qrCodeValue : `/${qrCodeValue}`}`;
+      : new URL(qrCodeValue.startsWith("/") ? qrCodeValue : `/${qrCodeValue}`, `${baseUrl}/`).toString();
 
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",

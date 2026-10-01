@@ -10,6 +10,7 @@ export default function PaymentSuccess() {
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [eventName, setEventName] = useState(DEFAULT_SOCIETY_EVENT.eventName);
+  const [qrCode, setQrCode] = useState("");
 
   useEffect(() => {
     console.log("Current URL:", window.location.href);
@@ -111,6 +112,7 @@ export default function PaymentSuccess() {
         if (data.attendee?.event?.eventName) {
           setEventName(data.attendee.event.eventName);
         }
+        setQrCode(data.qrCode || data.attendee?.qrCode || "");
 
         setSuccess(true);
         setMessage(
@@ -146,6 +148,12 @@ export default function PaymentSuccess() {
     );
   }
 
+  const qrImageSrc = qrCode
+    ? qrCode.startsWith("data:") || /^https?:\/\//i.test(qrCode)
+      ? qrCode
+      : `${API_URL || window.location.origin}${qrCode.startsWith("/") ? qrCode : `/${qrCode}`}`
+    : "";
+
   return (
     <section className="min-h-screen bg-black flex items-center justify-center px-6">
       <div className="w-full max-w-xl rounded-3xl border border-[#2a1c08] bg-[#0b0907] p-5 text-center sm:p-10">
@@ -172,6 +180,16 @@ export default function PaymentSuccess() {
                 {eventName}.
               </span>
             </p>
+
+            {qrImageSrc && (
+              <div className="mx-auto mt-7 w-fit rounded-xl bg-white p-3">
+                <img
+                  src={qrImageSrc}
+                  alt={`${eventName} ticket QR code`}
+                  className="h-56 w-56"
+                />
+              </div>
+            )}
 
             {/* Notification Card */}
 
