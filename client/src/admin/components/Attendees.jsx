@@ -7,6 +7,7 @@ export default function Attendees() {
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
+  const [eventFilter, setEventFilter] = useState("ALL");
   const [completionResult, setCompletionResult] = useState(null);
   const [manualConfirmState, setManualConfirmState] = useState({
     open: false,
@@ -191,13 +192,22 @@ export default function Attendees() {
 
   const filtered = attendees.filter((guest) => {
     const value = search.toLowerCase();
+    const matchesEvent =
+      eventFilter === "ALL" || guest.event?.id === eventFilter;
 
-    return (
+    return matchesEvent && (
       guest.fullName.toLowerCase().includes(value) ||
       guest.email.toLowerCase().includes(value) ||
-      guest.reference.toLowerCase().includes(value)
+      (guest.reference || "").toLowerCase().includes(value)
     );
   });
+  const eventOptions = Array.from(
+    new Map(
+      attendees
+        .filter((guest) => guest.event)
+        .map((guest) => [guest.event.id, guest.event.eventName]),
+    ),
+  );
 
   if (loading) {
     return (
@@ -218,6 +228,20 @@ export default function Attendees() {
         <p className="mt-3 text-base text-gray-400 sm:text-lg">
           Total Guests: {filtered.length}
         </p>
+
+        <label className="mt-6 block max-w-md">
+          <span className="sr-only">Filter attendees by event</span>
+          <select
+            value={eventFilter}
+            onChange={(event) => setEventFilter(event.target.value)}
+            className="h-12 w-full rounded-lg border border-[#333] bg-[#141414] px-4 text-white"
+          >
+            <option value="ALL">All events</option>
+            {eventOptions.map(([id, name]) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
+          </select>
+        </label>
 
         <input
           placeholder="Search attendee..."
@@ -328,13 +352,15 @@ export default function Attendees() {
 
         <div className="max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-[#222]">
 
-          <table className="w-full min-w-[56rem]">
+          <table className="w-full min-w-[64rem]">
 
             <thead className="bg-[#111]">
 
               <tr>
 
                 <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Guest</th>
+
+                <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Event</th>
 
                 <th className="whitespace-nowrap p-3 text-left text-xs uppercase tracking-wide sm:p-4 sm:text-sm">Ticket</th>
 
@@ -371,6 +397,10 @@ export default function Attendees() {
                     <div className="text-xs text-gray-400 sm:text-sm">
                       {guest.email}
                     </div>
+                  </td>
+
+                  <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">
+                    {guest.event?.eventName || "Unassigned"}
                   </td>
 
                   <td className="whitespace-nowrap p-3 text-sm sm:p-4 sm:text-base">

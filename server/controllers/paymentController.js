@@ -10,7 +10,8 @@ const {
 const {
   completeAttendeePayment,
 } = require("../services/paymentCompletionService");
-const { getEventConfig, toTicketPrices } = require("../services/eventConfigService");
+const { findCurrentEvent } = require("../services/eventService");
+const { toTicketPrices } = require("../services/eventConfigService");
 
 const finalizeVerifiedPayment = async (payment) => {
   if (payment.status !== "successful") {
@@ -21,6 +22,7 @@ const finalizeVerifiedPayment = async (payment) => {
 
   const attendee = await prisma.attendee.findUnique({
     where: { reference: payment.tx_ref },
+    include: { event: { select: { id: true, eventName: true } } },
   });
 
   if (!attendee) {
@@ -65,8 +67,15 @@ const initializeTransaction = async (req, res) => {
     const normalizedPhone = String(phone || "").trim();
     const normalizedTicketType =
       typeof ticketType === "string" ? ticketType.trim().toUpperCase() : "";
-    const eventConfig = await getEventConfig();
-    const ticketPrices = toTicketPrices(eventConfig);
+    const event = await findCurrentEvent();
+    if (!event) {
+      return res.status(409).json({
+        success: false,
+        message: "There is no published event currently accepting ticket purchases.",
+      });
+    }
+
+    const ticketPrices = toTicketPrices(event);
     const normalizedAmount = Object.prototype.hasOwnProperty.call(
       ticketPrices,
       normalizedTicketType
@@ -82,7 +91,7 @@ const initializeTransaction = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Invalid payment request. Please provide valid attendee details and select a Society ticket.",
+        message: "Invalid payment request. Please provide valid attendee details and select a ticket for the current event.",
       });
     }
     if (amount !== undefined && Number(amount) !== normalizedAmount) {
@@ -106,12 +115,13 @@ const initializeTransaction = async (req, res) => {
       amount: normalizedAmount,
       reference,
       redirectUrl: runtimeRedirectUrl,
-      eventName: eventConfig.eventName,
+      eventName: event.eventName,
     });
 
     // Save attendee after Flutterwave succeeds
     await prisma.attendee.create({
       data: {
+        eventId: event.id,
         fullName: normalizedFullName,
         email: normalizedEmail,
         phone: normalizedPhone,
@@ -162,6 +172,7 @@ const verifyTransaction = async (req, res) => {
     if (txRef) {
       const existingAttendee = await prisma.attendee.findUnique({
         where: { reference: txRef },
+        include: { event: { select: { id: true, eventName: true } } },
       });
 
       if (
@@ -178,6 +189,7 @@ const verifyTransaction = async (req, res) => {
               ticketType: existingAttendee.ticketType,
               reference: existingAttendee.reference,
               qrCode: existingAttendee.qrCode,
+              eventId: existingAttendee.eventId,
             });
           } catch (error) {
             resendError = error.message;

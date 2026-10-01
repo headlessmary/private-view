@@ -1,10 +1,12 @@
 const axios = require("axios");
 const ticketTemplate = require("./emailTemplates/ticketTemplate");
 const { formatTicketType } = require("../constants/societyTickets");
+const prisma = require("../database/prisma");
 const {
   formatEventDateTime,
   getEventConfig,
 } = require("./eventConfigService");
+const { formatWATDateTime } = require("./eventService");
 
 const sanitizeEnvValue = (value) => {
   if (!value || typeof value !== "string") {
@@ -75,12 +77,22 @@ const sendTicketEmail = async ({
   ticketType,
   reference,
   qrCode,
+  eventId,
 }) => {
   try {
     const sender = parseSender(process.env.MAIL_FROM);
     const baseUrl = toAbsoluteUrl(process.env.BASE_URL);
     const brevoApiKey = sanitizeEnvValue(process.env.BREVO_API_KEY);
-    const event = await getEventConfig();
+    const event = eventId
+      ? await prisma.event.findUnique({ where: { id: eventId } })
+      : await getEventConfig();
+
+    if (!event) {
+      throw new Error("The event associated with this ticket was not found.");
+    }
+    const eventDateTime = event.startDateTime
+      ? formatWATDateTime(event.startDateTime)
+      : event.eventDateTime || "";
 
     if (!sender.email) {
       throw new Error("MAIL_FROM is not configured correctly.");
@@ -124,7 +136,9 @@ const sendTicketEmail = async ({
           qrCode: qrUrl,
           eventName: event.eventName,
           venue: event.venue,
-          eventDateTime: formatEventDateTime(event.eventDateTime),
+          eventDateTime: eventDateTime
+            ? formatEventDateTime(eventDateTime)
+            : "Date unavailable",
         }),
       },
       {

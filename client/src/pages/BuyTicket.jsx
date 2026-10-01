@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import API_URL from "../config/api";
 import {
-  DEFAULT_SOCIETY_EVENT,
-  fetchSocietyEvent,
+  fetchCurrentEvent,
   getSocietyTickets,
 } from "../services/eventConfig";
 
@@ -12,10 +11,10 @@ const currency = new Intl.NumberFormat("en-NG");
 export default function BuyTicket() {
   const [searchParams] = useSearchParams();
   const requestedTicket = searchParams.get("ticketType");
-  const [event, setEvent] = useState(DEFAULT_SOCIETY_EVENT);
+  const [event, setEvent] = useState(null);
   const [eventLoading, setEventLoading] = useState(true);
   const [eventError, setEventError] = useState("");
-  const [tickets, setTickets] = useState(() => getSocietyTickets());
+  const [tickets, setTickets] = useState([]);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -29,9 +28,14 @@ export default function BuyTicket() {
 
   useEffect(() => {
     let active = true;
-    fetchSocietyEvent()
+    fetchCurrentEvent()
       .then((nextEvent) => {
         if (!active) return;
+        if (!nextEvent) {
+          setEventError("There is no published event currently accepting ticket purchases.");
+          setTickets([]);
+          return;
+        }
         setEvent(nextEvent);
         const nextTickets = getSocietyTickets(nextEvent);
         setTickets(nextTickets);
@@ -100,7 +104,9 @@ export default function BuyTicket() {
       <div className="mx-auto w-full max-w-2xl">
         <div className="border-b border-white/20 pb-7 text-center">
           <p className="text-sm text-white/60 sm:text-base">
-            Choose your access and secure your place at {event.venue}.
+            {event
+              ? `Choose your access and secure your place at ${event.venue}.`
+              : "Event ticket sales are currently unavailable."}
           </p>
           {eventError && (
             <p role="alert" className="mt-3 text-sm text-red-400">
@@ -140,7 +146,7 @@ export default function BuyTicket() {
                 htmlFor="ticketType"
                 className="mb-3 block font-mono-headless text-[10px] font-semibold uppercase tracking-[0.18em] text-headless-acid sm:text-xs"
               >
-                Select Society Access
+                Select Event Access
               </label>
               <select
                 id="ticketType"
@@ -198,10 +204,10 @@ export default function BuyTicket() {
 
         <p className="mt-6 text-center text-xs text-white/45">
           <Link
-            to="/headless-society#tickets"
+            to="/#tickets"
             className="underline decoration-white/30 underline-offset-4 transition hover:text-headless-acid"
           >
-            Back to Society ticket options
+            Back to the current event
           </Link>
         </p>
       </div>

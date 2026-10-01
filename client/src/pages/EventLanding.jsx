@@ -8,6 +8,7 @@ import SocietyDetails from "./SocietyDetails";
 import {
   DEFAULT_SOCIETY_EVENT,
   fetchSocietyEvent,
+  fetchPublicEvents,
   formatEventDateTime,
 } from "../services/eventConfig";
 
@@ -17,7 +18,7 @@ function EventStyles() {
   );
 }
 
-export function SocietyNavbar() {
+export function SocietyNavbar({ eventName = "Headless Society" }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,7 +28,7 @@ export function SocietyNavbar() {
           to="/headless-society"
           className="society-serif text-xl text-white sm:text-2xl"
         >
-          HEADLESS <span className="text-(--coral)">SOCIETY</span>
+          {eventName}
         </Link>
         <nav className="hidden items-center gap-8 text-[11px] font-bold uppercase tracking-[.18em] text-white lg:flex">
           <a href="#about" className="transition hover:text-(--coral)">
@@ -129,7 +130,7 @@ function LegacyHeadlessSociety() {
           <div className="relative mx-auto w-full max-w-xl">
             <div className="absolute -right-4 -top-4 h-full w-full border-2 border-(--coral)" />
             <img
-              src={societyFlyer}
+              src={event.imageUrl || societyFlyer}
               alt="Headless Society event flyer"
               className="relative w-full border-2 border-(--ink) shadow-[12px_12px_0_var(--teal)]"
             />
@@ -474,18 +475,22 @@ function SocietyFooter() {
   );
 }
 
-export function HeadlessSociety() {
-  const [event, setEvent] = useState(DEFAULT_SOCIETY_EVENT);
+export function HeadlessSociety({ initialEvent = null }) {
+  const [event, setEvent] = useState(initialEvent || DEFAULT_SOCIETY_EVENT);
   const [eventError, setEventError] = useState("");
 
   useEffect(() => {
+    if (initialEvent) {
+      return;
+    }
+
     fetchSocietyEvent()
       .then(setEvent)
       .catch((error) => {
         console.error("Unable to load current event details", error);
         setEventError(error.message);
       });
-  }, []);
+  }, [initialEvent]);
 
   useScrollReveal(
     ".society-navbar, .society-page > .society-hero, .society-details > section, .society-page > footer",
@@ -512,6 +517,25 @@ export function HeadlessSociety() {
 }
 
 export function NoCurrentEvents() {
+  const [events, setEvents] = useState([]);
+  const [eventError, setEventError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    fetchPublicEvents()
+      .then((publicEvents) => {
+        if (active) setEvents(publicEvents);
+      })
+      .catch((error) => {
+        console.error("Unable to load the event archive:", error);
+        if (active) setEventError(error.message);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="society-page">
       <EventStyles />
@@ -555,21 +579,43 @@ export function NoCurrentEvents() {
             From the archive
           </p>
           <h2 className="society-serif mt-5 text-5xl">Past events</h2>
-          <article className="mt-10 max-w-sm overflow-hidden border border-white/20 bg-white/5">
-            <img
-              src={privateViewFlyer}
-              alt="The Private View flyer"
-              className="aspect-4/3 w-full object-cover grayscale"
-            />
-            <div className="p-6">
-              <span className="inline-block bg-white/15 px-3 py-2 text-[10px] font-bold uppercase tracking-[.2em] text-white/65">
-                Event ended
-              </span>
-              <h3 className="society-serif mt-5 text-3xl text-white/80">
-                The Private View
-              </h3>
-            </div>
-          </article>
+          {eventError && (
+            <p role="alert" className="mt-5 text-sm text-red-300">
+              Unable to load past events: {eventError}
+            </p>
+          )}
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {events.map((event) => (
+              <article
+                key={event.id}
+                className="overflow-hidden border border-white/20 bg-white/5"
+              >
+                <img
+                  src={event.imageUrl || (event.slug === "private-view" ? privateViewFlyer : societyFlyer)}
+                  alt={`${event.eventName} flyer`}
+                  className="aspect-4/3 w-full object-cover grayscale"
+                />
+                <div className="p-6">
+                  <span className="inline-block bg-white/15 px-3 py-2 text-[10px] font-bold uppercase tracking-[.2em] text-white/65">
+                    Event ended
+                  </span>
+                  <h3 className="society-serif mt-5 text-3xl text-white/80">
+                    {event.eventName}
+                  </h3>
+                  <p className="mt-2 text-sm text-white/60">
+                    {event.eventDateTime
+                      ? formatEventDateTime(event.eventDateTime)
+                      : "Date unavailable"}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+          {!eventError && events.length === 0 && (
+            <p className="mt-8 text-sm text-white/60">
+              No past events are available yet.
+            </p>
+          )}
         </div>
       </section>
     </div>

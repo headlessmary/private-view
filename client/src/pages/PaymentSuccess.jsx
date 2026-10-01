@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import API_URL from "../config/api";
-import { DEFAULT_SOCIETY_EVENT, fetchSocietyEvent } from "../services/eventConfig";
+import { DEFAULT_SOCIETY_EVENT } from "../services/eventConfig";
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -10,21 +10,6 @@ export default function PaymentSuccess() {
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [eventName, setEventName] = useState(DEFAULT_SOCIETY_EVENT.eventName);
-
-  useEffect(() => {
-    let active = true;
-    fetchSocietyEvent()
-      .then((event) => {
-        if (active) setEventName(event.eventName);
-      })
-      .catch((error) => {
-        console.error("Unable to load current event name", error);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     console.log("Current URL:", window.location.href);
@@ -121,6 +106,10 @@ export default function PaymentSuccess() {
           throw new Error(
             data.message || "Payment verification failed."
           );
+        }
+
+        if (data.attendee?.event?.eventName) {
+          setEventName(data.attendee.event.eventName);
         }
 
         setSuccess(true);

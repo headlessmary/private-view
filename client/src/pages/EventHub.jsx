@@ -160,19 +160,6 @@ const galleryVideoPosters = {
   15: galleryImageOne,
 };
 
-const pastEvents = [
-  {
-    name: "Buss 22",
-    date: "July 4th, 2026",
-    image: galleryImageTwo,
-  },
-  {
-    name: "Warehouse Rave",
-    date: "July 25th, 2026",
-    image: galleryImageFour,
-  },
-];
-
 const signalStats = [
   { value: "04", label: "Events" },
   { value: "04", label: "Cities" },
@@ -267,17 +254,16 @@ export default function EventHub() {
     activeFilter === "All"
       ? galleryMedia
       : galleryMedia.filter((item) => item.category === activeFilter);
-  const pastEventCards = [
-    ...eventHistory
-      .filter((event) => event.status === "ENDED")
-      .map((event) => ({
-        id: event.id,
-        name: event.eventName,
-        date: formatEventDateTime(event.eventDateTime),
-        image: event.imageUrl || societyFlyer,
-      })),
-    ...pastEvents,
-  ];
+  const pastEventCards = eventHistory.map((event) => ({
+    id: event.id,
+    name: event.eventName,
+    date: event.eventDateTime
+      ? formatEventDateTime(event.eventDateTime)
+      : "Date unavailable",
+    image:
+      event.imageUrl ||
+      (event.slug === "private-view" ? privateViewFlyer : societyFlyer),
+  }));
 
   const updateGalleryControls = useCallback(() => {
     const carousel = galleryCarouselRef.current;

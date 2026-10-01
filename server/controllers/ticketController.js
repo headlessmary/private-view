@@ -13,7 +13,12 @@ const {
 const {
   sendTicketEmail,
 } = require("../services/emailService");
-const { getEventConfig, toTicketPrices } = require("../services/eventConfigService");
+const {
+  findCurrentEvent,
+} = require("../services/eventService");
+const {
+  toTicketPrices,
+} = require("../services/eventConfigService");
 
 
 // ==========================================
@@ -43,8 +48,16 @@ const createTicket = async (req, res) => {
 
     const normalizedTicketType = String(ticketType).trim().toUpperCase();
 
-    const eventConfig = await getEventConfig();
-    const ticketPrices = toTicketPrices(eventConfig);
+    const event = await findCurrentEvent();
+
+    if (!event) {
+      return res.status(409).json({
+        success: false,
+        message: "There is no published event currently accepting ticket purchases.",
+      });
+    }
+
+    const ticketPrices = toTicketPrices(event);
     const ticketPrice = Object.prototype.hasOwnProperty.call(
       ticketPrices,
       normalizedTicketType
@@ -55,7 +68,7 @@ const createTicket = async (req, res) => {
     if (!ticketPrice || Number(amount) !== ticketPrice) {
       return res.status(400).json({
         success: false,
-        message: "Invalid Society ticket type or amount.",
+        message: "Invalid ticket type or amount for the current event.",
       });
     }
 
@@ -69,12 +82,13 @@ const createTicket = async (req, res) => {
       phone,
       amount: ticketPrice,
       reference,
-      eventName: eventConfig.eventName,
+      eventName: event.eventName,
     });
 
     // ONLY create attendee if Flutterwave succeeds
     await prisma.attendee.create({
       data: {
+        eventId: event.id,
         fullName,
         email,
         phone,
@@ -137,6 +151,7 @@ const verifyTicketPayment = async (req, res) => {
       where: {
         reference,
       },
+      include: { event: { select: { id: true, eventName: true } } },
     });
 
     if (!attendee) {
@@ -168,6 +183,7 @@ const verifyTicketPayment = async (req, res) => {
         paymentStatus: "SUCCESS",
         qrCode,
       },
+      include: { event: { select: { id: true, eventName: true } } },
     });
 
     // Send ticket email
@@ -177,6 +193,7 @@ const verifyTicketPayment = async (req, res) => {
       ticketType: updatedAttendee.ticketType,
       reference: updatedAttendee.reference,
       qrCode,
+      eventId: updatedAttendee.eventId,
     });
 
     return res.status(200).json({

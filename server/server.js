@@ -8,6 +8,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const path = require("path");
 const adminRoutes = require("./routes/adminRoutes");
 const testRoutes = require("./routes/testRoutes");
+const eventRoutes = require("./routes/eventRoutes");
 const { getPublicEventConfig } = require("./controllers/eventConfigController");
 
 
@@ -84,6 +85,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/event-settings", getPublicEventConfig);
+app.use("/api", eventRoutes);
 
 // Test Route
 app.post("/test", (req, res) => {

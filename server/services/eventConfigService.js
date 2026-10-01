@@ -1,6 +1,10 @@
 const prisma = require("../database/prisma");
+const {
+  formatWATDateTime,
+} = require("./eventService");
 
 const EVENT_CONFIG_ID = "active";
+const HEADLESS_SOCIETY_EVENT_ID = "headless-society";
 
 const DEFAULT_EVENT_CONFIG = Object.freeze({
   id: EVENT_CONFIG_ID,
@@ -13,12 +17,21 @@ const DEFAULT_EVENT_CONFIG = Object.freeze({
   fiveFriendsPrice: 40000,
 });
 
-const getEventConfig = () =>
-  prisma.eventConfig.upsert({
-    where: { id: EVENT_CONFIG_ID },
-    create: DEFAULT_EVENT_CONFIG,
-    update: {},
+const getEventConfig = async () => {
+  const event = await prisma.event.findUnique({
+    where: { id: HEADLESS_SOCIETY_EVENT_ID },
   });
+
+  if (!event) {
+    throw new Error("Headless Society event has not been migrated.");
+  }
+
+  return {
+    ...event,
+    eventDateTime: formatWATDateTime(event.startDateTime),
+    eventEndDateTime: formatWATDateTime(event.endDateTime),
+  };
+};
 
 const toTicketPrices = (eventConfig) => ({
   EARLY_BIRD: eventConfig.earlyBirdPrice,
@@ -47,6 +60,7 @@ const formatEventDateTime = (value) => {
 
 module.exports = {
   DEFAULT_EVENT_CONFIG,
+  EVENT_CONFIG_ID,
   formatEventDateTime,
   getEventConfig,
   toTicketPrices,

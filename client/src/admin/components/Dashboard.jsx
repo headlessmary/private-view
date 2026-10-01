@@ -23,6 +23,8 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [attendees, setAttendees] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [selectedEventId, setSelectedEventId] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
   const [selectedAttendee, setSelectedAttendee] = useState(null);
@@ -56,7 +58,10 @@ export default function Dashboard() {
   const fetchAttendees = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
 
-    const response = await fetch(`${API_URL}/api/admin/attendees`, {
+    const attendeeQuery = selectedEventId
+      ? `?eventId=${encodeURIComponent(selectedEventId)}`
+      : "";
+    const response = await fetch(`${API_URL}/api/admin/attendees${attendeeQuery}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -69,11 +74,14 @@ export default function Dashboard() {
     }
 
     setAttendees(data.attendees || []);
-  }, []);
+  }, [selectedEventId]);
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/dashboard`, {
+      const dashboardQuery = selectedEventId
+        ? `?eventId=${encodeURIComponent(selectedEventId)}`
+        : "";
+      const response = await fetch(`${API_URL}/api/admin/dashboard${dashboardQuery}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
@@ -95,12 +103,41 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [fetchAttendees, navigate]);
+  }, [fetchAttendees, navigate, selectedEventId]);
 
   useEffect(() => {
+    let active = true;
+    const loadEvents = async () => {
+      try {
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch(`${API_URL}/api/admin/events`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Failed to load events.");
+        }
+
+        if (active) {
+          setEvents(data.events || []);
+          setSelectedEventId((current) =>
+            current ||
+            data.events?.find((event) => event.isCurrent)?.id ||
+            data.events?.[0]?.id ||
+            "",
+          );
+        }
+      } catch (error) {
+        if (active) {
+          console.error("Unable to load admin events:", error);
+        }
+      }
+    };
+    void loadEvents();
+
     const loadDashboard = async () => {
       await fetchDashboard();
-      await fetchAttendees();
     };
 
     loadDashboard();
@@ -110,9 +147,10 @@ export default function Dashboard() {
     }, 30000);
 
     return () => {
+      active = false;
       window.clearInterval(refreshInterval);
     };
-  }, [fetchAttendees, fetchDashboard]);
+  }, [fetchDashboard]);
 
   const logout = () => {
     localStorage.removeItem("adminToken");
@@ -160,7 +198,10 @@ export default function Dashboard() {
   const checkInData = [{ name: "Check-in", value: checkInPercent, fill: "#f1ca7b" }];
 
   const downloadFile = async (type) => {
-    const response = await fetch(`${API_URL}/api/admin/export/${type}`, {
+    const eventQuery = selectedEventId
+      ? `?eventId=${encodeURIComponent(selectedEventId)}`
+      : "";
+    const response = await fetch(`${API_URL}/api/admin/export/${type}${eventQuery}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
       },
@@ -254,6 +295,7 @@ export default function Dashboard() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
+        body: JSON.stringify({ eventId: selectedEventId }),
       });
 
       const data = await response.json();
@@ -372,6 +414,20 @@ export default function Dashboard() {
             <p className="mt-2 text-sm text-gray-500 sm:text-base">
               {stats.venue} · {formatEventDateTime(stats.eventDateTime)}
             </p>
+            <label className="mt-4 block max-w-sm">
+              <span className="sr-only">Select event dashboard</span>
+              <select
+                value={selectedEventId}
+                onChange={(event) => setSelectedEventId(event.target.value)}
+                className="h-11 w-full rounded-lg border border-[#2d1e09] bg-[#0b0907] px-3 text-sm text-white"
+              >
+                {events.map((event) => (
+                  <option key={event.id} value={event.id}>
+                    {event.eventName} · {event.status}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           <nav className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 text-sm sm:justify-end sm:gap-6 sm:text-base">

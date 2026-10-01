@@ -18,7 +18,11 @@ const {
 const {
   completeAttendeePayment,
 } = require("../services/paymentCompletionService");
-const { getEventConfig } = require("../services/eventConfigService");
+const {
+  findCurrentEvent,
+  getEvent,
+  toEventResponse,
+} = require("../services/eventService");
 
 const isPaymentSuccessful = (status) => {
   const normalized = String(status || "").trim().toLowerCase();
@@ -30,6 +34,30 @@ const isPaymentSuccessful = (status) => {
     "completed",
     "paid",
   ].includes(normalized);
+};
+
+const getSelectedEvent = async (requestedId) => {
+  if (requestedId) {
+    const event = await getEvent(requestedId);
+    if (!event) {
+      const error = new Error("Event not found.");
+      error.statusCode = 404;
+      throw error;
+    }
+    return event;
+  }
+
+  const currentEvent = await findCurrentEvent();
+  return currentEvent || prisma.event.findFirst({
+    orderBy: [{ createdAt: "desc" }, { eventName: "asc" }],
+  });
+};
+
+const getEventFilter = (req, fallbackEvent) => {
+  const requestedId =
+    typeof req.query.eventId === "string" ? req.query.eventId.trim() : "";
+  const eventId = requestedId || fallbackEvent?.id;
+  return eventId ? { eventId } : {};
 };
 
 // ==============================
@@ -102,7 +130,7 @@ console.log("Admin found:", admin);
   } catch (error) {
     console.error(error.response?.data || error);
 
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
       message: error.response?.data?.message || error.message,
     });
@@ -114,11 +142,37 @@ console.log("Admin found:", admin);
 // ==============================
 const dashboard = async (req, res) => {
   try {
-    const [event, attendees] = await Promise.all([
-      getEventConfig(),
+    const event = await getSelectedEvent(
+      typeof req.query.eventId === "string" ? req.query.eventId : "",
+    );
+    if (!event) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalTickets: 0,
+          maxCapacity: 0,
+          eventName: "",
+          venue: "",
+          eventDateTime: "",
+          checkedIn: 0,
+          remainingTickets: 0,
+          revenue: 0,
+        },
+      });
+    }
+
+    const attendeeWhere = {
+      ...getEventFilter(req, event),
+      paymentStatus: "SUCCESS",
+    };
+    const [attendees, revenue] = await Promise.all([
       prisma.attendee.findMany({
-        where: { paymentStatus: "SUCCESS" },
+        where: attendeeWhere,
         select: { ticketType: true, checkedIn: true },
+      }),
+      prisma.attendee.aggregate({
+        _sum: { amount: true },
+        where: attendeeWhere,
       }),
     ]);
     const admissionCount = {
@@ -138,15 +192,6 @@ const dashboard = async (req, res) => {
       0
     );
 
-    const revenue = await prisma.attendee.aggregate({
-      _sum: {
-        amount: true,
-      },
-      where: {
-        paymentStatus: "SUCCESS",
-      },
-    });
-
     return res.status(200).json({
       success: true,
       data: {
@@ -154,7 +199,7 @@ const dashboard = async (req, res) => {
         maxCapacity: event.maxCapacity,
         eventName: event.eventName,
         venue: event.venue,
-        eventDateTime: event.eventDateTime,
+        eventDateTime: toEventResponse(event).eventDateTime,
         checkedIn,
         remainingTickets: Math.max(0, event.maxCapacity - totalTickets),
         revenue: revenue._sum.amount || 0,
@@ -176,6 +221,12 @@ const dashboard = async (req, res) => {
 const getAttendees = async (req, res) => {
   try {
     const attendees = await prisma.attendee.findMany({
+      where: getEventFilter(req),
+      include: {
+        event: {
+          select: { id: true, eventName: true, slug: true },
+        },
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -201,11 +252,12 @@ const getAttendees = async (req, res) => {
 // ==============================
 const searchAttendees = async (req, res) => {
   try {
-    const { keyword } = req.query;
+    const keyword = typeof req.query.keyword === "string" ? req.query.keyword.trim() : "";
 
     const attendees = await prisma.attendee.findMany({
       where: {
-        OR: [
+        ...getEventFilter(req),
+        ...(keyword ? { OR: [
           {
             fullName: {
               contains: keyword,
@@ -223,7 +275,12 @@ const searchAttendees = async (req, res) => {
               contains: keyword,
             },
           },
-        ],
+        ] } : {}),
+      },
+      include: {
+        event: {
+          select: { id: true, eventName: true, slug: true },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -258,11 +315,17 @@ const filterAttendees = async (req, res) => {
 
     const attendees = await prisma.attendee.findMany({
       where: {
+        ...getEventFilter(req),
         ...(ticketType && { ticketType }),
         ...(paymentStatus && { paymentStatus }),
         ...(checkedIn !== undefined && {
           checkedIn: checkedIn === "true",
         }),
+      },
+      include: {
+        event: {
+          select: { id: true, eventName: true, slug: true },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -371,16 +434,43 @@ const checkIn = async (req, res) => {
 // ==============================
 const reports = async (req, res) => {
   try {
-    const [totalAttendees, successfulAttendees, event, revenue] = await Promise.all([
-      prisma.attendee.count(),
+    const event = await getSelectedEvent(
+      typeof req.query.eventId === "string" ? req.query.eventId : "",
+    );
+    if (!event) {
+      return res.json({
+        success: true,
+        report: {
+          totalAttendees: 0,
+          vipTickets: 0,
+          regularTickets: 0,
+          earlyBirdTickets: 0,
+          saintsRebelsTickets: 0,
+          fiveFriendsTickets: 0,
+          checkedIn: 0,
+          remaining: 0,
+          totalAdmissions: 0,
+          checkedInAdmissions: 0,
+          remainingAdmissions: 0,
+          maxCapacity: 0,
+          eventName: "",
+          venue: "",
+          eventDateTime: "",
+          revenue: 0,
+        },
+      });
+    }
+
+    const eventWhere = getEventFilter(req, event);
+    const [totalAttendees, successfulAttendees, revenue] = await Promise.all([
+      prisma.attendee.count({ where: eventWhere }),
       prisma.attendee.findMany({
-        where: { paymentStatus: "SUCCESS" },
+        where: { ...eventWhere, paymentStatus: "SUCCESS" },
         select: { ticketType: true, checkedIn: true },
       }),
-      getEventConfig(),
       prisma.attendee.aggregate({
         _sum: { amount: true },
-        where: { paymentStatus: "SUCCESS" },
+        where: { ...eventWhere, paymentStatus: "SUCCESS" },
       }),
     ]);
     const admissionCount = {
@@ -425,7 +515,7 @@ const reports = async (req, res) => {
         maxCapacity: event.maxCapacity,
         eventName: event.eventName,
         venue: event.venue,
-        eventDateTime: event.eventDateTime,
+        eventDateTime: toEventResponse(event).eventDateTime,
         revenue: revenue._sum.amount || 0,
       },
     });
@@ -443,48 +533,61 @@ const reports = async (req, res) => {
 // Export Excel
 // ============================
 const exportExcel = async (req, res) => {
+  try {
+    const event = await getSelectedEvent(
+      typeof req.query.eventId === "string" ? req.query.eventId : "",
+    );
+    if (!event) {
+      return res.status(404).json({ success: false, message: "No event is available to export." });
+    }
+    const attendees = await prisma.attendee.findMany({
+      where: getEventFilter(req, event),
+      include: { event: { select: { eventName: true } } },
+    });
+    const workbook = await generateExcel(attendees, toEventResponse(event));
 
-  const attendees = await prisma.attendee.findMany();
-  const event = await getEventConfig();
-
-  const workbook = await generateExcel(attendees, event);
-
-  res.setHeader(
-    "Content-Type",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-
-  res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=attendees.xlsx"
-  );
-
-  await workbook.xlsx.write(res);
-
-  res.end();
-
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", "attachment; filename=attendees.xlsx");
+    await workbook.xlsx.write(res);
+    return res.end();
+  } catch (error) {
+    console.error("EXPORT EXCEL ERROR:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Unable to export attendees.",
+    });
+  }
 };
 
 // ============================
 // Export PDF
 // ============================
 const exportPDF = async (req, res) => {
+  try {
+    const event = await getSelectedEvent(
+      typeof req.query.eventId === "string" ? req.query.eventId : "",
+    );
+    if (!event) {
+      return res.status(404).json({ success: false, message: "No event is available to export." });
+    }
+    const attendees = await prisma.attendee.findMany({
+      where: getEventFilter(req, event),
+      include: { event: { select: { eventName: true } } },
+    });
 
-  const attendees = await prisma.attendee.findMany();
-  const event = await getEventConfig();
-
-  res.setHeader(
-    "Content-Type",
-    "application/pdf"
-  );
-
-  res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=attendees.pdf"
-  );
-
-  generatePDF(attendees, res, event);
-
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=attendees.pdf");
+    return generatePDF(attendees, res, toEventResponse(event));
+  } catch (error) {
+    console.error("EXPORT PDF ERROR:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Unable to export attendees.",
+    });
+  }
 };
 
 // ==============================
@@ -527,6 +630,7 @@ const resendTicket = async (req, res) => {
       ticketType: attendee.ticketType,
       reference: attendee.reference,
       qrCode: attendee.qrCode,
+      eventId: attendee.eventId,
     });
 
     return res.status(200).json({
@@ -678,8 +782,11 @@ const reverifyPendingPayment = async (req, res) => {
 
 const reverifyPendingPayments = async (req, res) => {
   try {
+    const eventId =
+      typeof req.body?.eventId === "string" ? req.body.eventId.trim() : "";
     const pendingAttendees = await prisma.attendee.findMany({
       where: {
+        ...(eventId ? { eventId } : {}),
         paymentStatus: {
           not: "SUCCESS",
         },

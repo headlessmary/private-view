@@ -48,6 +48,11 @@ const completeAttendeePayment = async ({
   const updatedAttendee = await prisma.attendee.update({
     where: { reference },
     data: updateData,
+    include: {
+      event: {
+        select: { id: true, eventName: true, venue: true, startDateTime: true },
+      },
+    },
   });
 
   let emailSent = true;
@@ -60,6 +65,7 @@ const completeAttendeePayment = async ({
       ticketType: updatedAttendee.ticketType,
       reference: updatedAttendee.reference,
       qrCode: updatedAttendee.qrCode,
+      eventId: updatedAttendee.eventId,
     });
   } catch (error) {
     emailSent = false;

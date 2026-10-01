@@ -22,12 +22,11 @@ export default function Settings() {
   const [form, setForm] = useState(DEFAULT_SOCIETY_EVENT);
   const [events, setEvents] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingEventId, setEditingEventId] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const currentEvent = events.find((event) => event.isCurrent);
-  const canCreateNextEvent = currentEvent?.status === "ENDED";
 
   useEffect(() => {
     let active = true;
@@ -68,7 +67,12 @@ export default function Settings() {
 
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await fetch(`${API_URL}/api/admin/event-settings`, {
+      const endpoint = isCreating
+        ? `${API_URL}/api/admin/events`
+        : editingEventId
+          ? `${API_URL}/api/admin/events/${editingEventId}`
+          : `${API_URL}/api/admin/event-settings`;
+      const response = await fetch(endpoint, {
         method: isCreating ? "POST" : "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -84,12 +88,40 @@ export default function Settings() {
 
       setForm(data.event);
       setIsCreating(false);
+      setEditingEventId(data.event.id || "");
       setEvents(await fetchEventHistory(token || ""));
-      setMessage(isCreating ? "New event created and activated." : "Event settings saved successfully.");
+      setMessage(
+        isCreating
+          ? "Draft event created. Publish it when ready."
+          : "Event settings saved successfully.",
+      );
     } catch (error) {
       setMessage(error.message || "Unable to save settings");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const publishEvent = async (eventId) => {
+    setMessage("");
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(`${API_URL}/api/admin/events/${eventId}/publish`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `******"adminToken")}`,
+        },
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to publish event.");
+      }
+
+      setEvents(await fetchEventHistory(token || ""));
+      setMessage(`${data.event.eventName} is now published.`);
+    } catch (error) {
+      setMessage(error.message || "Unable to publish event.");
     }
   };
 
@@ -107,20 +139,19 @@ export default function Settings() {
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
-              disabled={!isCreating && !canCreateNextEvent}
-              title={!isCreating && !canCreateNextEvent ? "Set an end time and wait for the current event to end before creating the next event." : undefined}
               onClick={() => {
                 setForm(
                   isCreating
-                    ? events.find((event) => event.isCurrent) || DEFAULT_SOCIETY_EVENT
+                    ? events.find((event) => event.slug === "headless-society") || DEFAULT_SOCIETY_EVENT
                     : createEventForm(),
                 );
                 setIsCreating((creating) => !creating);
+                setEditingEventId("");
                 setMessage("");
               }}
               className="w-full rounded-lg border border-[#d4a24d] px-4 py-3 text-sm uppercase tracking-[0.15em] text-[#d4a24d] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:px-5 sm:tracking-[0.2em]"
             >
-              {isCreating ? "Cancel New Event" : "Create Next Event"}
+              {isCreating ? "Cancel New Event" : "Create Event"}
             </button>
             <button
               onClick={() => navigate("/admin/dashboard")}
@@ -198,7 +229,7 @@ export default function Settings() {
               disabled={saving}
               className="h-14 w-full rounded-lg bg-[#d4a24d] px-6 text-sm font-semibold uppercase tracking-[0.25em] text-black transition hover:brightness-110 disabled:opacity-60"
             >
-              {saving ? "Saving..." : isCreating ? "Create & Activate Event" : "Save Event Settings"}
+              {saving ? "Saving..." : isCreating ? "Create Draft Event" : "Save Event Settings"}
             </button>
 
             {message && <p className="text-sm text-[#f1ca7b]">{message}</p>}
@@ -252,6 +283,31 @@ export default function Settings() {
                   </div>
                   <p className="mt-2 text-sm text-gray-400">{event.venue}</p>
                   <p className="mt-1 text-xs text-gray-500">{formatEventDateTime(event.eventDateTime)}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {!event.isHistorical && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm(event);
+                          setIsCreating(false);
+                          setEditingEventId(event.id);
+                          setMessage("");
+                        }}
+                        className="rounded border border-white/20 px-3 py-2 text-xs text-gray-200"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {!event.published && (
+                      <button
+                        type="button"
+                        onClick={() => publishEvent(event.id)}
+                        className="rounded border border-[#d4a24d] px-3 py-2 text-xs text-[#f1ca7b]"
+                      >
+                        Publish
+                      </button>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>
