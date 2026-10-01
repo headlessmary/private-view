@@ -138,7 +138,7 @@ function LegacyHeadlessSociety({ event }) {
         </div>
       </section>
       <section
-        id="about"
+        id="legacy-about"
         className="bg-(--paper) px-5 py-20 text-(--ink) sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
@@ -172,7 +172,7 @@ function LegacyHeadlessSociety({ event }) {
         <div className="relative left-1/2 mt-16 w-screen -translate-x-1/2 border-t-2 border-white/30" />
       </section>{" "}
       <section
-        id="experience"
+        id="legacy-experience"
         className="bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto max-w-7xl">
@@ -220,7 +220,7 @@ function LegacyHeadlessSociety({ event }) {
         </div>
       </section>{" "}
       <section
-        id="event-info"
+        id="legacy-event-info"
         className="relative bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="absolute left-1/2 top-0 w-screen -translate-x-1/2 border-t-2 border-white/30" />
@@ -253,7 +253,7 @@ function LegacyHeadlessSociety({ event }) {
         <div className="relative left-1/2 mt-16 w-screen -translate-x-1/2 border-t-2 border-white/30" />
       </section>{" "}
       <section
-        id="tickets"
+        id="legacy-tickets"
         className="bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto max-w-7xl">
@@ -312,7 +312,7 @@ function LegacyHeadlessSociety({ event }) {
         </div>
       </section>{" "}
       <section
-        id="registration"
+        id="legacy-registration"
         className="bg-headless-plum px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto max-w-7xl">
@@ -343,7 +343,7 @@ function LegacyHeadlessSociety({ event }) {
         </div>
       </section>{" "}
       <section
-        id="contact"
+        id="legacy-contact"
         className="border-t border-white/20 bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_.9fr] lg:gap-20">
@@ -393,11 +393,7 @@ function SocietyHero({ event }) {
     <section className="society-hero border-b society-hero-rule px-5 pb-16 pt-28 sm:px-8 lg:px-12 lg:pb-20">
       <div className="society-hero-grid mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_.9fr] lg:gap-20">
         <div>
-          <div className="society-hero-meta society-hero-enter flex items-center justify-between society-hero-label">
-            <span>// System.state: active event</span>
-            <span>HS / {formatEventDateTime(event.eventDateTime)}</span>
-          </div>
-          <h1 className="society-serif society-hero-title society-hero-enter society-hero-enter-2 mt-10 max-w-3xl">
+          <h1 className="society-serif society-hero-title society-hero-enter society-hero-enter-2 mt-20 max-w-3xl">
             {event.eventName}
           </h1>
           <div className="society-hero-details society-hero-enter society-hero-enter-3 mt-10 border-y society-hero-rule py-7">

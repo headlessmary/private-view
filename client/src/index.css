@@ -324,6 +324,11 @@
     justify-content: center;
     gap: 0.75rem;
   }
+
+  .society-page .society-details #about > div > div > span {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 @media (max-width: 420px) {
