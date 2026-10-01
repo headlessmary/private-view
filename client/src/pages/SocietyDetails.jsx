@@ -17,7 +17,7 @@ export default function SocietyDetails({ event }) {
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
           <div>
             <p className="font-mono-headless text-xs uppercase tracking-[.18em] text-(--lime)">01 / About the transmission</p>
-            <h2 className="society-serif mt-7 max-w-xl text-5xl leading-[.92] text-headless-amber sm:text-6xl">A Triple A<br />Threat After<br />Dark.</h2>
+            <h2 className="society-serif mt-7 max-w-xl text-4xl leading-[.92] text-headless-amber sm:text-6xl">A Triple A<br />Threat After<br />Dark.</h2>
             <p className="mt-8 max-w-xl text-lg leading-8 text-headless-muted sm:text-xl">
               {event.eventName} is a gathering built around three sounds and one shared pulse. Afrobeats, Amapiano and Afrohouse meet for a night without quiet corners.
             </p>
@@ -35,7 +35,7 @@ export default function SocietyDetails({ event }) {
       <section id="experience" className="bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
         <div className="mx-auto max-w-7xl">
           <p className="font-mono-headless text-xs uppercase tracking-[.12em] text-(--lime)">02 / Frequency range</p>
-          <h2 className="society-serif mt-7 text-5xl leading-none text-headless-amber sm:text-7xl">The Experience</h2>
+          <h2 className="society-serif mt-7 text-4xl leading-none text-headless-amber sm:text-6xl lg:text-7xl">The Experience</h2>
           <div className="mt-12 grid border border-white/20 lg:grid-cols-3">
             {experiences.map(([icon, title, description], index) => (
               <article key={title} className="min-h-72 border-b border-white/20 p-7 last:border-b-0 sm:p-9 lg:border-b-0 lg:border-r lg:last:border-r-0">
@@ -76,7 +76,7 @@ export default function SocietyDetails({ event }) {
           <div className="flex items-end justify-between gap-6">
             <div>
               <p className="font-mono-headless text-xs uppercase tracking-[.12em] text-(--lime)">04 / Select access</p>
-              <h2 className="society-serif mt-7 text-5xl leading-none text-headless-amber sm:text-7xl">Tickets</h2>
+              <h2 className="society-serif mt-7 text-4xl leading-none text-headless-amber sm:text-6xl lg:text-7xl">Tickets</h2>
             </div>
             <p className="hidden font-mono-headless text-[10px] uppercase tracking-[.08em] text-headless-muted sm:block">Active / Reservations open</p>
           </div>
@@ -90,7 +90,7 @@ export default function SocietyDetails({ event }) {
                 <h3 className="society-serif mt-14 text-3xl text-headless-amber">{ticket.name}</h3>
                 <p className="mt-2 text-base text-headless-muted">{ticket.description}</p>
                 <p className="society-serif mt-10 text-5xl text-headless-acid">₦{ticket.amount.toLocaleString("en-NG")}</p>
-                <Link to={`/buy-ticket?ticketType=${ticket.value}`} className="mt-auto flex items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid">
+                <Link to={`/buy-ticket?ticketType=${ticket.value}`} className="society-motion mt-auto flex items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid">
                   Reserve ticket <span aria-hidden="true" className="text-lg">→</span>
                 </Link>
               </article>
@@ -104,10 +104,10 @@ export default function SocietyDetails({ event }) {
           <p className="font-mono-headless text-xs uppercase tracking-[.12em] text-(--lime)">05 / Registration</p>
           <div className="mt-8 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="society-serif max-w-4xl text-5xl leading-[.92] text-headless-amber sm:text-7xl">Choose your access. Enter<br className="hidden sm:block" /> the Society.</h2>
+              <h2 className="society-serif max-w-4xl text-4xl leading-[.92] text-headless-amber sm:text-6xl lg:text-7xl">Choose your access. Enter<br className="hidden sm:block" /> the Society.</h2>
               <p className="mt-7 max-w-2xl text-base leading-6 text-headless-muted">Reservations for this event are handled securely online. Select a ticket to begin.</p>
             </div>
-            <Link to="/buy-ticket" className="flex shrink-0 items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid">Start registration <span aria-hidden="true" className="text-lg">→</span></Link>
+            <Link to="/buy-ticket" className="society-motion flex shrink-0 items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid">Start registration <span aria-hidden="true" className="text-lg">→</span></Link>
           </div>
         </div>
       </section>
@@ -116,7 +116,7 @@ export default function SocietyDetails({ event }) {
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_.9fr] lg:gap-20">
           <div>
             <p className="font-mono-headless text-xs uppercase tracking-[.12em] text-(--lime)">06 / Contact</p>
-            <h2 className="society-serif mt-7 text-5xl leading-none text-headless-amber sm:text-7xl">Open Channel</h2>
+            <h2 className="society-serif mt-7 text-4xl leading-none text-headless-amber sm:text-6xl lg:text-7xl">Open Channel</h2>
           </div>
           <div className="space-y-7 text-sm text-headless-muted">
             <p>Questions about {event.eventName}? Get in touch with Headless Mary Events.</p>

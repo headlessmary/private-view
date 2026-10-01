@@ -49,7 +49,7 @@ export function SocietyNavbar({ eventName = "Headless Society" }) {
         </nav>
         <Link
           to="/buy-ticket"
-          className="hidden border-2 border-headless-paper bg-headless-paper px-4 py-3 text-[10px] font-bold uppercase tracking-[.15em] text-headless-ink transition hover:border-headless-acid hover:bg-headless-acid sm:block sm:px-6"
+          className="society-motion hidden border-2 border-headless-paper bg-headless-paper px-4 py-3 text-[10px] font-bold uppercase tracking-[.15em] text-headless-ink transition hover:border-headless-acid hover:bg-headless-acid sm:block sm:px-6"
         >
           Headless Society Tickets
         </Link>
@@ -58,7 +58,7 @@ export function SocietyNavbar({ eventName = "Headless Society" }) {
           onClick={() => setOpen((current) => !current)}
           aria-expanded={open}
           aria-label="Toggle Headless Society navigation"
-          className="ml-3 border-2 border-(--ink) px-3 py-2 text-lg leading-none lg:hidden"
+          className="society-motion ml-3 border-2 border-(--ink) px-3 py-2 text-lg leading-none lg:hidden"
         >
           {open ? "×" : "☰"}
         </button>
@@ -85,7 +85,7 @@ export function SocietyNavbar({ eventName = "Headless Society" }) {
           <Link
             to="/buy-ticket"
             onClick={() => setOpen(false)}
-            className="inline-flex w-full items-center justify-center border-2 border-headless-paper bg-headless-paper px-5 py-4 text-center text-headless-ink"
+            className="society-motion inline-flex w-full items-center justify-center border-2 border-headless-paper bg-headless-paper px-5 py-4 text-center text-headless-ink"
           >
             Headless Society Tickets
           </Link>
@@ -95,7 +95,7 @@ export function SocietyNavbar({ eventName = "Headless Society" }) {
   );
 }
 
-function LegacyHeadlessSociety() {
+function LegacyHeadlessSociety({ event }) {
   return (
     <div className="society-page">
       <EventStyles />
@@ -138,7 +138,7 @@ function LegacyHeadlessSociety() {
         </div>
       </section>
       <section
-        id="about"
+        id="legacy-about"
         className="bg-(--paper) px-5 py-20 text-(--ink) sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
@@ -172,7 +172,7 @@ function LegacyHeadlessSociety() {
         <div className="relative left-1/2 mt-16 w-screen -translate-x-1/2 border-t-2 border-white/30" />
       </section>{" "}
       <section
-        id="experience"
+        id="legacy-experience"
         className="bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto max-w-7xl">
@@ -220,7 +220,7 @@ function LegacyHeadlessSociety() {
         </div>
       </section>{" "}
       <section
-        id="event-info"
+        id="legacy-event-info"
         className="relative bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="absolute left-1/2 top-0 w-screen -translate-x-1/2 border-t-2 border-white/30" />
@@ -253,7 +253,7 @@ function LegacyHeadlessSociety() {
         <div className="relative left-1/2 mt-16 w-screen -translate-x-1/2 border-t-2 border-white/30" />
       </section>{" "}
       <section
-        id="tickets"
+        id="legacy-tickets"
         className="bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto max-w-7xl">
@@ -312,7 +312,7 @@ function LegacyHeadlessSociety() {
         </div>
       </section>{" "}
       <section
-        id="registration"
+        id="legacy-registration"
         className="bg-headless-plum px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto max-w-7xl">
@@ -343,7 +343,7 @@ function LegacyHeadlessSociety() {
         </div>
       </section>{" "}
       <section
-        id="contact"
+        id="legacy-contact"
         className="border-t border-white/20 bg-(--paper) px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_.9fr] lg:gap-20">
@@ -393,14 +393,10 @@ function SocietyHero({ event }) {
     <section className="society-hero border-b society-hero-rule px-5 pb-16 pt-28 sm:px-8 lg:px-12 lg:pb-20">
       <div className="society-hero-grid mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_.9fr] lg:gap-20">
         <div>
-          <div className="flex items-center justify-between society-hero-label">
-            <span>// System.state: active event</span>
-            <span>HS / {formatEventDateTime(event.eventDateTime)}</span>
-          </div>
-          <h1 className="society-serif society-hero-title mt-10 max-w-3xl">
+          <h1 className="society-serif society-hero-title society-hero-enter society-hero-enter-2 max-w-3xl">
             {event.eventName}
           </h1>
-          <div className="mt-10 border-y society-hero-rule py-7">
+          <div className="society-hero-details society-hero-enter society-hero-enter-3 mt-10 border-y society-hero-rule py-7">
             <div className="grid gap-7 sm:grid-cols-3 lg:grid-cols-1">
               <div>
                 <p className="society-hero-label">Terminal</p>
@@ -422,7 +418,7 @@ function SocietyHero({ event }) {
           </div>
           <Link
             to="/buy-ticket"
-            className="society-hero-button mt-8 inline-flex items-center gap-5 px-5 py-4"
+            className="society-hero-button society-motion society-hero-enter society-hero-enter-4 mt-8 inline-flex items-center gap-5 px-5 py-4"
           >
             Reserve ticket{" "}
             <span aria-hidden="true" className="text-lg">
@@ -430,7 +426,7 @@ function SocietyHero({ event }) {
             </span>
           </Link>
         </div>
-        <div className="society-hero-art p-3 sm:p-5">
+        <div className="society-hero-art society-hero-enter society-hero-enter-2 p-3 sm:p-5">
           <img
             src={societyFlyer}
             alt={`${event.eventName} event flyer`}
@@ -508,9 +504,11 @@ export function HeadlessSociety({ initialEvent = null }) {
       )}
       <SocietyHero event={event} />
       <div className="society-legacy">
-        <LegacyHeadlessSociety />
+        <LegacyHeadlessSociety event={event} />
       </div>
-      <SocietyDetails event={event} />
+      <div className="society-details">
+        <SocietyDetails event={event} />
+      </div>
       <SocietyFooter />
     </div>
   );

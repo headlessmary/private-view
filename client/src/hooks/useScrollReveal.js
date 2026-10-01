@@ -19,7 +19,7 @@ export default function useScrollReveal(selector) {
         });
       },
       {
-        threshold: 0.08,
+        threshold: 0.15,
         rootMargin: "0px 0px -5% 0px",
       }
     );
