@@ -302,6 +302,28 @@
     line-height: 0.9;
   }
 
+  .society-page .society-details #experience article,
+  .society-page .society-details #event-info article,
+  .society-page .society-details #tickets article {
+    text-align: center;
+  }
+
+  .society-page .society-details #experience article > span:first-child,
+  .society-page .society-details #event-info article > span:first-child {
+    display: block;
+  }
+
+  .society-page .society-details #experience article > p,
+  .society-page .society-details #event-info article > p,
+  .society-page .society-details #tickets article > p {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .society-page .society-details #tickets article > div:first-child {
+    justify-content: center;
+    gap: 0.75rem;
+  }
 }
 
 @media (max-width: 420px) {
