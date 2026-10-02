@@ -330,15 +330,17 @@ function LegacyHeadlessSociety({ event }) {
                 Mary Events. Send your ticket choice to begin.
               </p>
             </div>
-            <Link
-              to="/buy-ticket"
+            <a
+              href="https://chat.whatsapp.com/JVWpnm5ROelAvywBeV087j?s=cl&p=i&mlu=0&ilr=4"
+              target="_blank"
+              rel="noreferrer"
               className="flex shrink-0 items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid"
             >
-              Start registration{" "}
+              Join the Community{" "}
               <span aria-hidden="true" className="text-lg">
                 →
               </span>
-            </Link>
+            </a>
           </div>
         </div>
       </section>{" "}

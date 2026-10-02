@@ -107,7 +107,7 @@ export default function SocietyDetails({ event }) {
               <h2 className="society-serif max-w-4xl text-4xl leading-[.92] text-headless-amber sm:text-6xl lg:text-7xl">Choose your access. Enter<br className="hidden sm:block" /> the Society.</h2>
               <p className="mt-7 max-w-2xl text-base leading-6 text-headless-muted">Reservations for this event are handled securely online. Select a ticket to begin.</p>
             </div>
-            <Link to="/buy-ticket" className="society-motion flex shrink-0 items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid">Start registration <span aria-hidden="true" className="text-lg">→</span></Link>
+            <a href="https://chat.whatsapp.com/JVWpnm5ROelAvywBeV087j?s=cl&p=i&mlu=0&ilr=4" target="_blank" rel="noreferrer" className="society-motion flex shrink-0 items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid">Join the Community <span aria-hidden="true" className="text-lg">→</span></a>
           </div>
         </div>
       </section>
