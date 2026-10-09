@@ -12,8 +12,8 @@ const DEFAULT_EVENT_CONFIG = Object.freeze({
   venue: "Five Friends, Asaba",
   eventDateTime: "2026-10-29T21:00",
   maxCapacity: 60,
-  earlyBirdPrice: 10000,
-  saintsRebelsPrice: 15000,
+  earlyBirdPrice: 15000,
+  saintsRebelsPrice: 20000,
   fiveFriendsPrice: 40000,
 });
 
