@@ -392,7 +392,7 @@ function LegacyHeadlessSociety({ event }) {
 
 function SocietyHero({ event }) {
   return (
-    <section className="society-hero border-b society-hero-rule px-5 pb-10 pt-20 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
+    <section className="society-hero border-b society-hero-rule px-5 pb-10 pt-28 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
       <div className="society-hero-grid mx-auto grid max-w-7xl items-center gap-8 lg:min-h-[calc(100vh-5rem)] lg:grid-cols-[1fr_.9fr] lg:gap-20">
         <div>
           <h1 className="society-serif society-hero-title society-hero-enter society-hero-enter-2 mt-6 max-w-3xl lg:mt-20">
