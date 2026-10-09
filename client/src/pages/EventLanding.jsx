@@ -14,7 +14,7 @@ import {
 
 function EventStyles() {
   return (
-    <style>{`.society-page{--ink:#f5f1e8;--paper:#050509;--coral:#e33a36;--teal:#222d59;--lime:#e7c84d;font-family:var(--font-headless-body);background:var(--paper);color:var(--ink)}.society-page [class~="bg-(--ink)"]{background-color:var(--paper)}.society-page [class~="text-(--paper)"]{color:var(--ink)}.society-navbar{font-family:var(--font-headless-body)}.society-serif{font-family:var(--font-headless)}.society-grid{background-image:linear-gradient(rgba(245,241,232,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(245,241,232,.12) 1px,transparent 1px);background-size:32px 32px}.society-legacy{display:none}.society-hero{background:var(--paper);color:var(--ink)}.society-hero-grid{min-height:calc(100vh - 5rem)}.society-hero-title{color:var(--headless-amber);font-size:clamp(3rem,6vw,6rem);line-height:.85;text-transform:uppercase}.society-hero-rule{border-color:rgba(245,241,232,.18)}.society-hero-label{color:var(--headless-acid);font-family:var(--font-mono-headless);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase}.society-hero-value{color:var(--headless-paper);font-size:1rem;font-weight:500;text-transform:uppercase}.society-hero-art{border:1px solid rgba(245,241,232,.18);background:#000}.society-hero-button{background:var(--headless-paper);color:var(--headless-ink);font-size:.7rem;font-weight:700;text-transform:uppercase;transition:background-color 180ms ease,color 180ms ease}.society-hero-button:hover{background:var(--headless-acid)}.society-full-divider{width:100vw;margin-left:calc(50% - 50vw)}`}</style>
+    <style>{`.society-page{--ink:#f5f1e8;--paper:#050509;--coral:#e33a36;--teal:#222d59;--lime:#e7c84d;font-family:var(--font-headless-body);background:var(--paper);color:var(--ink)}.society-page [class~="bg-(--ink)"]{background-color:var(--paper)}.society-page [class~="text-(--paper)"]{color:var(--ink)}.society-navbar{font-family:var(--font-headless-body)}.society-serif{font-family:var(--font-headless)}.society-grid{background-image:linear-gradient(rgba(245,241,232,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(245,241,232,.12) 1px,transparent 1px);background-size:32px 32px}.society-legacy{display:none}.society-hero{background:var(--paper);color:var(--ink)}.society-hero-title{color:var(--headless-amber);font-size:clamp(3rem,6vw,6rem);line-height:.85;text-transform:uppercase}.society-hero-rule{border-color:rgba(245,241,232,.18)}.society-hero-label{color:var(--headless-acid);font-family:var(--font-mono-headless);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase}.society-hero-value{color:var(--headless-paper);font-size:1rem;font-weight:500;text-transform:uppercase}.society-hero-art{border:1px solid rgba(245,241,232,.18);background:#000}.society-hero-button{background:var(--headless-paper);color:var(--headless-ink);font-size:.7rem;font-weight:700;text-transform:uppercase;transition:background-color 180ms ease,color 180ms ease}.society-hero-button:hover{background:var(--headless-acid)}.society-full-divider{width:100vw;margin-left:calc(50% - 50vw)}`}</style>
   );
 }
 
@@ -272,10 +272,10 @@ function LegacyHeadlessSociety({ event }) {
           </div>
           <div className="mt-12 grid border border-white/20 lg:grid-cols-3">
             {[
-              ["Early Bird", "Ticket for one", "N10K"],
-              ["Saints & Rebels", "Ticket for two", "N15K"],
-              ["Five Friends", "Ticket for four", "N40K"],
-            ].map(([title, subtitle, price], index) => (
+              ["Early Bird", "Ticket for one", "N15K", "EARLY_BIRD"],
+              ["Saints & Rebels", "Ticket for two", "N20K", "SAINTS_REBELS"],
+              ["Five Friends", "Ticket for four", "N40K", "FIVE_FRIENDS"],
+            ].map(([title, subtitle, price, ticketType], index) => (
               <article
                 key={title}
                 className="relative flex min-h-88 flex-col border-b border-white/20 p-7 last:border-b-0 sm:p-9 lg:border-b-0 lg:border-r lg:last:border-r-0"
@@ -298,7 +298,7 @@ function LegacyHeadlessSociety({ event }) {
                   {price}
                 </p>
                 <Link
-                  to="/buy-ticket"
+                  to={`/buy-ticket?ticketType=${ticketType}`}
                   className="mt-auto flex items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid"
                 >
                   Reserve ticket{" "}
@@ -392,14 +392,14 @@ function LegacyHeadlessSociety({ event }) {
 
 function SocietyHero({ event }) {
   return (
-    <section className="society-hero border-b society-hero-rule px-5 pb-16 pt-28 sm:px-8 lg:px-12 lg:pb-20">
-      <div className="society-hero-grid mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_.9fr] lg:gap-20">
+    <section className="society-hero border-b society-hero-rule px-5 pb-10 pt-20 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
+      <div className="society-hero-grid mx-auto grid max-w-7xl items-center gap-8 lg:min-h-[calc(100vh-5rem)] lg:grid-cols-[1fr_.9fr] lg:gap-20">
         <div>
-          <h1 className="society-serif society-hero-title society-hero-enter society-hero-enter-2 mt-20 max-w-3xl">
+          <h1 className="society-serif society-hero-title society-hero-enter society-hero-enter-2 mt-6 max-w-3xl lg:mt-20">
             {event.eventName}
           </h1>
-          <div className="society-hero-details society-hero-enter society-hero-enter-3 mt-10 border-y society-hero-rule py-7">
-            <div className="grid gap-7 sm:grid-cols-3 lg:grid-cols-1">
+          <div className="society-hero-details society-hero-enter society-hero-enter-3 mt-7 border-y society-hero-rule py-5 sm:mt-10 sm:py-7">
+            <div className="grid gap-5 sm:grid-cols-3 sm:gap-7 lg:grid-cols-1">
               <div>
                 <p className="society-hero-label">Terminal</p>
                 <p className="society-hero-value mt-3">{event.venue}</p>
@@ -420,7 +420,7 @@ function SocietyHero({ event }) {
           </div>
           <Link
             to="/buy-ticket"
-            className="society-hero-button society-motion society-hero-enter society-hero-enter-4 mt-8 inline-flex items-center gap-5 px-5 py-4"
+            className="society-hero-button society-motion society-hero-enter society-hero-enter-4 mt-6 inline-flex items-center gap-5 px-5 py-4 sm:mt-8"
           >
             Reserve ticket{" "}
             <span aria-hidden="true" className="text-lg">

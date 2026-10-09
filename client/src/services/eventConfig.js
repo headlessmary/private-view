@@ -7,8 +7,8 @@ export const DEFAULT_SOCIETY_EVENT = {
   eventEndDateTime: "2026-10-30T12:00",
   imageUrl: "",
   maxCapacity: 60,
-  earlyBirdPrice: 10000,
-  saintsRebelsPrice: 15000,
+  earlyBirdPrice: 15000,
+  saintsRebelsPrice: 20000,
   fiveFriendsPrice: 40000,
 };
 
