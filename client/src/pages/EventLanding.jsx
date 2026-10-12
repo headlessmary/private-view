@@ -272,7 +272,7 @@ function LegacyHeadlessSociety({ event }) {
           </div>
           <div className="mt-12 grid border border-white/20 lg:grid-cols-3">
             {[
-              ["Early Bird", "Ticket for one", "N15K", "EARLY_BIRD"],
+              ["Regular", "Ticket for one", "N15K", "REGULAR"],
               ["Saints & Rebels", "Ticket for two", "N20K", "SAINTS_REBELS"],
               ["Five Friends", "Ticket for four", "N40K", "FIVE_FRIENDS"],
             ].map(([title, subtitle, price, ticketType], index) => (

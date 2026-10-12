@@ -168,8 +168,8 @@ export async function fetchPublicEvents() {
 export function getSocietyTickets(event = DEFAULT_SOCIETY_EVENT) {
   return [
     {
-      value: "EARLY_BIRD",
-      name: "Early Bird",
+      value: "REGULAR",
+      name: "Regular",
       description: "Ticket for one",
       amount: event.earlyBirdPrice,
     },

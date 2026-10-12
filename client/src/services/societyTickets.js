@@ -1,9 +1,9 @@
 const TICKET_LABELS = {
-  EARLY_BIRD: "Early Bird",
+  EARLY_BIRD: "Regular",
   SAINTS_REBELS: "Saints & Rebels",
   FIVE_FRIENDS: "Five Friends",
   VIP: "Legacy VIP",
-  REGULAR: "Legacy Regular",
+  REGULAR: "Regular",
 };
 
 export function formatTicketType(type) {
