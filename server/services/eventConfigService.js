@@ -34,7 +34,7 @@ const getEventConfig = async () => {
 };
 
 const toTicketPrices = (eventConfig) => ({
-  EARLY_BIRD: eventConfig.earlyBirdPrice,
+  REGULAR: eventConfig.earlyBirdPrice,
   SAINTS_REBELS: eventConfig.saintsRebelsPrice,
   FIVE_FRIENDS: eventConfig.fiveFriendsPrice,
 });
