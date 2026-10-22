@@ -144,8 +144,7 @@ export default function HeroSection() {
 </div>
 
   <p className="mx-auto lg:mx-0 max-w-md lg:max-w-xl text-center lg:text-left text-base sm:text-lg lg:text-2xl leading-7 lg:leading-9 font-light text-[#D9D9D9]">
-    Only <span className="text-[#C89A3D] font-medium">{settings.maxCapacity || 60} guests.</span> One
-    night of art, sound, ink and indulgence presented by{" "}
+    Join us for a night of art, sound, ink and indulgence presented by{" "}
     <span className="text-[#C89A3D] font-medium">
       Headless Mary Events.
     </span>

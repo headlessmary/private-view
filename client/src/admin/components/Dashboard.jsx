@@ -35,8 +35,6 @@ export default function Dashboard() {
   const [stats, setStats] = useState({
     totalTickets: 0,
     checkedIn: 0,
-    remainingTickets: 0,
-    maxCapacity: 60,
     eventName: "Headless Society",
     venue: "Five Friends, Asaba",
     eventDateTime: "2026-10-29T21:00",
@@ -176,10 +174,10 @@ export default function Dashboard() {
     counts[person.ticketType] = (counts[person.ticketType] || 0) + 1;
     return counts;
   }, {});
-  const capacity = Math.max(1, stats.maxCapacity || 60);
-  const capacityPercent = Math.min(100, Math.round((stats.checkedIn / capacity) * 100));
-  
-  const checkInPercent = Math.min(100, Math.round((stats.checkedIn / capacity) * 100));
+  const checkInPercent = stats.totalTickets > 0
+    ? Math.min(100, Math.round((stats.checkedIn / stats.totalTickets) * 100))
+    : 0;
+  const notCheckedIn = Math.max(0, stats.totalTickets - stats.checkedIn);
   const revenueSeries = [
     { name: "Mon", revenue: Math.max(0, stats.revenue * 0.28) },
     { name: "Tue", revenue: Math.max(0, stats.revenue * 0.35) },
@@ -540,18 +538,18 @@ export default function Dashboard() {
 
                 <div className="rounded-2xl border border-[#3a240d] bg-[#15110b] px-4 py-3 text-left sm:text-right">
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
-                    Capacity
+                    Admissions Sold
                   </p>
                   <p className="mt-1 text-2xl font-semibold text-[#e7bc67]">
-                    {stats.checkedIn}/{capacity}
+                    {stats.totalTickets}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <Card title="Admissions Sold" value={stats.totalTickets} subtitle={`of ${capacity}`} />
-              <Card title="Remaining" value={stats.remainingTickets} subtitle="seats" />
+              <Card title="Admissions Sold" value={stats.totalTickets} subtitle="paid admissions" />
+              <Card title="Not Checked In" value={notCheckedIn} subtitle="admissions" />
               <Card title="Checked In" value={stats.checkedIn} subtitle="guests" />
               <Card
                 title="Revenue"
@@ -568,25 +566,25 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="uppercase tracking-[0.3em] text-[#d4a24d] text-xs font-semibold">
-                      Capacity
+                      Attendance
                     </p>
-                    <h3 className="mt-2 text-xl font-semibold text-white">Venue readiness</h3>
+                    <h3 className="mt-2 text-xl font-semibold text-white">Check-in progress</h3>
                   </div>
-                  <span className="text-sm text-[#d4a24d]">{capacityPercent}%</span>
+                  <span className="text-sm text-[#d4a24d]">{checkInPercent}%</span>
                 </div>
 
                 <div className="mt-6 flex items-center gap-0.5 overflow-hidden text-sm tracking-[0.08em] text-[#d4a24d] sm:gap-1 sm:text-xl sm:tracking-[0.2em]">
                   {Array.from({ length: 20 }).map((_, index) => (
-                    <span key={index}>{index < Math.round(capacityPercent / 5) ? "█" : "░"}</span>
+                    <span key={index}>{index < Math.round(checkInPercent / 5) ? "█" : "░"}</span>
                   ))}
                 </div>
 
                 <div className="mt-5 text-2xl font-semibold text-white">
-                  {stats.checkedIn} / {capacity}
+                  {stats.checkedIn} / {stats.totalTickets}
                 </div>
 
                 <div className="mt-2 text-sm text-gray-400">
-                  {stats.remainingTickets} seats remaining
+                  admissions checked in
                 </div>
               </div>
 
@@ -736,7 +734,7 @@ export default function Dashboard() {
 
                 <div className="-mt-10 text-center">
                   <p className="text-4xl font-semibold text-[#e7bc67]">{checkInPercent}%</p>
-                  <p className="mt-2 text-sm text-gray-400">{stats.checkedIn} of {capacity} guests checked in</p>
+                  <p className="mt-2 text-sm text-gray-400">{stats.checkedIn} of {stats.totalTickets} admissions checked in</p>
                 </div>
               </div>
             </div>

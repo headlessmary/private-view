@@ -32,9 +32,9 @@ export default function EventInfo() {
     },
     {
       icon: ticket,
-      label: "CAPACITY",
-      title: `${settings.maxCapacity || 60} Guests`,
-      subtitle: "Strictly limited",
+      label: "REGISTRATION",
+      title: "Open",
+      subtitle: "Tickets available",
     },
     {
       icon: rides,
