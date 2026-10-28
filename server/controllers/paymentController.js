@@ -13,6 +13,8 @@ const {
 const { findCurrentEvent } = require("../services/eventService");
 const { toTicketPrices } = require("../services/eventConfigService");
 
+const SOLD_OUT_TICKET_TYPES = new Set(["SAINTS_REBELS", "FIVE_FRIENDS"]);
+
 const finalizeVerifiedPayment = async (payment) => {
   if (payment.status !== "successful") {
     const error = new Error("Payment was not successful.");
@@ -72,6 +74,13 @@ const initializeTransaction = async (req, res) => {
       return res.status(409).json({
         success: false,
         message: "There is no published event currently accepting ticket purchases.",
+      });
+    }
+
+    if (SOLD_OUT_TICKET_TYPES.has(normalizedTicketType)) {
+      return res.status(409).json({
+        success: false,
+        message: "This ticket type is sold out.",
       });
     }
 

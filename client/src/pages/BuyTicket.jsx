@@ -41,7 +41,9 @@ export default function BuyTicket() {
         setTickets(nextTickets);
         setForm((current) => ({
           ...current,
-          ticketType: nextTickets.some((ticket) => ticket.value === requestedTicket)
+          ticketType: nextTickets.some(
+            (ticket) => ticket.value === requestedTicket && !ticket.soldOut
+          )
             ? requestedTicket
             : "",
         }));
@@ -161,8 +163,13 @@ export default function BuyTicket() {
                   Choose your ticket
                 </option>
                 {tickets.map((ticket) => (
-                  <option key={ticket.value} value={ticket.value}>
+                  <option
+                    key={ticket.value}
+                    value={ticket.value}
+                    disabled={ticket.soldOut}
+                  >
                     {ticket.name} — ₦{currency.format(ticket.amount)}
+                    {ticket.soldOut ? " — Sold out" : ""}
                   </option>
                 ))}
               </select>

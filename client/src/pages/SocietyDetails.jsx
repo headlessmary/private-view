@@ -171,15 +171,36 @@ export default function SocietyDetails({ event }) {
                 <p className="society-serif mt-7 text-5xl text-headless-acid sm:mt-10">
                   ₦{ticket.amount.toLocaleString("en-NG")}
                 </p>
-                <Link
-                  to={`/buy-ticket?ticketType=${ticket.value}`}
-                  className="society-motion mt-auto flex items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid"
-                >
-                  Reserve ticket{" "}
-                  <span aria-hidden="true" className="text-lg">
-                    →
-                  </span>
-                </Link>
+                {ticket.soldOut ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="mt-auto cursor-not-allowed bg-white/10 px-5 py-4 text-center text-[10px] font-bold uppercase text-white/60"
+                  >
+                    Sold out
+                  </button>
+                ) : (
+                  <Link
+                    to={`/buy-ticket?ticketType=${ticket.value}`}
+                    className="society-motion mt-auto flex items-center justify-center gap-5 bg-headless-paper px-5 py-4 text-center text-[10px] font-bold uppercase text-headless-ink transition hover:bg-headless-acid"
+                  >
+                    Reserve ticket{" "}
+                    <span aria-hidden="true" className="text-lg">
+                      →
+                    </span>
+                  </Link>
+                )}
+                {ticket.soldOut && (
+                  <div
+                    role="status"
+                    aria-label={`${ticket.name} ticket sold out`}
+                    className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/55"
+                  >
+                    <span className="-rotate-12 border-y-4 border-headless-acid bg-headless-acid px-8 py-3 font-mono-headless text-2xl font-bold uppercase tracking-[0.18em] text-black shadow-lg sm:text-3xl">
+                      Sold out
+                    </span>
+                  </div>
+                )}
               </article>
             ))}
           </div>

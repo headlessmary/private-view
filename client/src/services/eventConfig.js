@@ -172,18 +172,21 @@ export function getSocietyTickets(event = DEFAULT_SOCIETY_EVENT) {
       name: "Regular",
       description: "Ticket for one",
       amount: event.earlyBirdPrice,
+      soldOut: false,
     },
     {
       value: "SAINTS_REBELS",
       name: "Saints & Rebels",
       description: "Ticket for two",
       amount: event.saintsRebelsPrice,
+      soldOut: true,
     },
     {
       value: "FIVE_FRIENDS",
       name: "Five Friends",
       description: "Ticket for four",
       amount: event.fiveFriendsPrice,
+      soldOut: true,
     },
   ];
 }
