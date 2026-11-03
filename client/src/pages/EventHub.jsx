@@ -578,6 +578,17 @@ export default function EventHub() {
           transform: translateY(-2px);
         }
 
+        .hm-white-btn > span {
+          display: inline-block;
+          margin-left: 0.4rem;
+          transition: transform 180ms ease;
+        }
+
+        .event-hub .hm-white-btn:hover > span,
+        .event-hub .hm-white-btn:focus-visible > span {
+          transform: translateX(4px);
+        }
+
         .hm-outline-btn {
           border: 1px solid rgba(255, 255, 255, 0.32);
           border-radius: 999px;
@@ -659,6 +670,12 @@ export default function EventHub() {
           height: 0.8em;
           margin-left: 0.35em;
           vertical-align: -0.05em;
+          transition: transform 180ms ease;
+        }
+
+        .hm-hero-feature:hover .hm-arrow-icon,
+        .hm-hero-feature:focus-visible .hm-arrow-icon {
+          transform: translate(2px, -2px);
         }
 
         .hm-bottom-row {
@@ -4363,6 +4380,20 @@ export default function EventHub() {
           .hm-footer-column .socials a {
             width: 34px;
             height: 34px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hm-white-btn > span,
+          .hm-arrow-icon {
+            transition: none;
+          }
+
+          .event-hub .hm-white-btn:hover > span,
+          .event-hub .hm-white-btn:focus-visible > span,
+          .hm-hero-feature:hover .hm-arrow-icon,
+          .hm-hero-feature:focus-visible .hm-arrow-icon {
+            transform: none;
           }
         }
       `}</style>
