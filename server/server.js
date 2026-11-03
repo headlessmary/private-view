@@ -114,8 +114,20 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const resolvePort = (value) => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : 5000;
+};
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+const PORT = resolvePort(process.env.PORT);
+
+const startServer = (port = PORT) =>
+  app.listen(port, () => {
+    console.log(`🚀 Server running on port ${port}`);
+  });
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, startServer };
