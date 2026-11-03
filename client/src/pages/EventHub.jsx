@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { FaPhone, FaSnapchatGhost, FaWhatsapp } from "react-icons/fa";
+import {
+  FaArrowUp,
+  FaExternalLinkAlt,
+  FaPhone,
+  FaPlay,
+  FaSnapchatGhost,
+  FaWhatsapp,
+} from "react-icons/fa";
 import useScrollReveal from "../hooks/useScrollReveal";
 import { Link } from "react-router-dom";
 import {
@@ -207,7 +214,9 @@ function GalleryVideoCard({ item, onOpen }) {
         preload={videoIsNearViewport ? "metadata" : "none"}
       />
 
-      <span className="hm-media-play" aria-hidden="true">▶</span>
+      <span className="hm-media-play" aria-hidden="true">
+        <FaPlay />
+      </span>
       <span className="hm-media-caption">
         <strong>{item.label}</strong>
         <small>{item.event}</small>
@@ -635,12 +644,21 @@ export default function EventHub() {
         }
 
         .hm-hero-feature-cta {
-          display: block;
+          display: inline-flex;
+          align-items: center;
           margin-top: 13px;
           color: #f4f0e8;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.04em;
+          white-space: nowrap;
+        }
+
+        .hm-arrow-icon {
+          width: 0.8em;
+          height: 0.8em;
+          margin-left: 0.35em;
+          vertical-align: -0.05em;
         }
 
         .hm-bottom-row {
@@ -3167,7 +3185,8 @@ export default function EventHub() {
 
         .hm-past-arrow {
           justify-self: end;
-          font-size: 12px;
+          width: 12px;
+          height: 12px;
         }
 
         .hm-empty-archive {
@@ -3318,17 +3337,24 @@ export default function EventHub() {
           height: 28px;
           display: grid;
           place-items: center;
-          padding-left: 2px;
           border-radius: 50%;
           background: #f4f0e8;
           color: #111;
-          font-size: 10px;
           transform: translate(-50%, -50%);
           pointer-events: none;
         }
 
+        .hm-media-play svg {
+          width: 10px;
+          height: 10px;
+          margin-left: 2px;
+        }
+
         .hm-gallery-more {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
           margin: 16px auto 0;
           padding: 7px 12px;
           border: 1px solid rgba(244, 240, 232, 0.14);
@@ -3343,6 +3369,11 @@ export default function EventHub() {
         .hm-gallery-more:hover {
           border-color: #ffc629;
           color: #ffc629;
+        }
+
+        .hm-gallery-more svg {
+          width: 10px;
+          height: 10px;
         }
 
         .hm-signal {
@@ -4290,14 +4321,21 @@ export default function EventHub() {
           }
 
           .copyright {
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            gap: 8px;
+            display: grid;
+            grid-template-columns: auto auto;
+            justify-content: center;
+            align-items: center;
+            gap: 8px 12px;
             padding: 16px 20px 20px;
             font-size: 10px;
             line-height: 1.4;
-            white-space: normal;
+            white-space: nowrap;
+          }
+
+          .copyright span:last-child {
+            grid-column: 1 / -1;
+            justify-self: center;
+            text-align: center;
           }
         }
 
@@ -4431,7 +4469,10 @@ export default function EventHub() {
                 </span>
                 <span>{societyEvent.venue}</span>
               </span>
-              <span className="hm-hero-feature-cta">Reserve a spot ↗</span>
+              <span className="hm-hero-feature-cta">
+                Reserve a spot
+                <FaExternalLinkAlt className="hm-arrow-icon" aria-hidden="true" />
+              </span>
             </Link>
           ) : (
             <a href="#archive" className="hm-hero-feature">
@@ -4440,7 +4481,10 @@ export default function EventHub() {
               <span className="hm-hero-feature-meta">
                 <span>New dates and details announced here first.</span>
               </span>
-              <span className="hm-hero-feature-cta">Explore the archive ↗</span>
+              <span className="hm-hero-feature-cta">
+                Explore the archive
+                <FaExternalLinkAlt className="hm-arrow-icon" aria-hidden="true" />
+              </span>
             </a>
           )}
         </div>
@@ -4572,7 +4616,10 @@ export default function EventHub() {
                   <time>{event.date}</time>
                   <strong>{event.name}</strong>
                   <span>{event.venue || "Location to be announced"}</span>
-                  <span className="hm-past-arrow" aria-hidden="true">↗</span>
+                  <FaExternalLinkAlt
+                    className="hm-past-arrow"
+                    aria-hidden="true"
+                  />
                 </Link>
               ))}
             </div>
@@ -4651,7 +4698,16 @@ export default function EventHub() {
             aria-expanded={showAllMedia}
             onClick={() => setShowAllMedia((isExpanded) => !isExpanded)}
           >
-            {showAllMedia ? "Show fewer memories ↑" : "View full archive ↗"}
+            {showAllMedia ? (
+              <>
+                Show fewer memories <FaArrowUp aria-hidden="true" />
+              </>
+            ) : (
+              <>
+                View full archive
+                <FaExternalLinkAlt aria-hidden="true" />
+              </>
+            )}
           </button>
         )}
       </section>
