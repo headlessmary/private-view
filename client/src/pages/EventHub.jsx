@@ -4232,6 +4232,101 @@ export default function EventHub() {
         .hm-proof {
           border-top-color: rgba(24, 215, 104, 0.38);
         }
+
+        @media (max-width: 600px) {
+          .dispatch-bottom {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 28px;
+            padding: 28px 20px;
+          }
+
+          .brand {
+            display: grid;
+            grid-template-columns: 64px minmax(0, 1fr);
+            align-items: center;
+            column-gap: 14px;
+          }
+
+          .dispatch-brand-heading .hm-logo {
+            width: 64px;
+            height: 48px;
+          }
+
+          .brand p {
+            max-width: none;
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+          }
+
+          .hm-footer-navigation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            justify-content: stretch;
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(244, 240, 232, 0.1);
+          }
+
+          .hm-footer-column {
+            min-width: 0;
+            gap: 8px;
+          }
+
+          .hm-footer-column .socials {
+            gap: 8px;
+            max-width: 100%;
+            flex-wrap: wrap;
+          }
+
+          .hm-footer-column .socials a {
+            width: 36px;
+            height: 36px;
+          }
+
+          .hm-footer-column .socials a svg {
+            width: 14px;
+            height: 14px;
+          }
+
+          .copyright {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 8px;
+            padding: 16px 20px 20px;
+            font-size: 10px;
+            line-height: 1.4;
+            white-space: normal;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .dispatch-bottom,
+          .copyright {
+            padding-right: 16px;
+            padding-left: 16px;
+          }
+
+          .brand {
+            grid-template-columns: 52px minmax(0, 1fr);
+            column-gap: 10px;
+          }
+
+          .dispatch-brand-heading .hm-logo {
+            width: 52px;
+            height: 40px;
+          }
+
+          .hm-footer-column .socials {
+            gap: 6px;
+          }
+
+          .hm-footer-column .socials a {
+            width: 34px;
+            height: 34px;
+          }
+        }
       `}</style>
 
       {/* =========================================================
