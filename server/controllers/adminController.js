@@ -10,6 +10,7 @@ const {
 const {
   sendTicketEmail,
 } = require("../services/emailService");
+const { toCheckInAttendee } = require("../utils/checkInAttendee");
 
 const {
   verifyPaymentByReference,
@@ -80,11 +81,6 @@ const login = async (req, res) => {
         email,
       },
     });
-
-
-console.log("Login email:", email);
-console.log("Admin found:", admin);
-
     if (!admin) {
       return res.status(401).json({
         success: false,
@@ -423,14 +419,10 @@ const checkIn = async (req, res) => {
       });
     }
 
-    const updatedAttendee = await prisma.attendee.findUnique({
-      where: { id: attendee.id },
-    });
-
     return res.status(200).json({
       success: true,
       message: "Check-in successful.",
-      attendee: updatedAttendee,
+      attendee: toCheckInAttendee(attendee),
     });
 
   } catch (error) {

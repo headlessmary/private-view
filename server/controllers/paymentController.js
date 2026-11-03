@@ -12,6 +12,7 @@ const {
 } = require("../services/paymentCompletionService");
 const { findCurrentEvent } = require("../services/eventService");
 const { toTicketPrices } = require("../services/eventConfigService");
+const { toPublicPaymentAttendee } = require("../utils/publicPaymentAttendee");
 
 const SOLD_OUT_TICKET_TYPES = new Set(["SAINTS_REBELS", "FIVE_FRIENDS"]);
 
@@ -149,15 +150,11 @@ const initializeTransaction = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      "INITIALIZE PAYMENT ERROR:",
-      error.response?.data || error
-    );
+    console.error("INITIALIZE PAYMENT ERROR:", error.message);
 
     return res.status(500).json({
       success: false,
       message:
-        error.response?.data?.message ||
         error.message ||
         "Payment initialization failed",
     });
@@ -168,10 +165,6 @@ const initializeTransaction = async (req, res) => {
 // VERIFY PAYMENT
 // =====================================
 const verifyTransaction = async (req, res) => {
-   console.log("=========== VERIFY START ===========");
-  console.log(req.query);
-  console.log(req.params);
-
   try {
     const resendEmail = req.query.resend_email === "1";
     const txRef =
@@ -214,7 +207,7 @@ const verifyTransaction = async (req, res) => {
               ? "Payment verified, but the ticket email could not be resent right now."
               : "Ticket email resent successfully."
             : "Payment already verified.",
-          attendee: existingAttendee,
+          attendee: toPublicPaymentAttendee(existingAttendee),
           qrCode: existingAttendee.qrCode,
           emailSent: !resendError,
           emailError: resendError,
@@ -232,8 +225,6 @@ const verifyTransaction = async (req, res) => {
         message: "Transaction ID or payment reference is required.",
       });
     }
-
-    console.log("STEP 1");
 
     let payment;
 
@@ -258,8 +249,6 @@ const verifyTransaction = async (req, res) => {
       });
     }
 
-    console.log("STEP 2");
-
     const {
       attendee,
       qrCode,
@@ -267,26 +256,18 @@ const verifyTransaction = async (req, res) => {
       emailError,
     } = await finalizeVerifiedPayment(payment);
 
-    console.log("STEP 7");
-
     return res.json({
       success: true,
       message: emailSent
         ? "Payment verified successfully."
         : "Payment verified successfully, but the ticket email could not be sent right now.",
-      attendee,
+      attendee: toPublicPaymentAttendee(attendee),
       qrCode,
       emailSent,
       emailError,
     });
   } catch (error) {
-    console.log("========== VERIFY ERROR ==========");
-    console.log(error);
-
-    if (error.response) {
-      console.log("STATUS:", error.response.status);
-      console.log("DATA:", error.response.data);
-    }
+    console.error("VERIFY PAYMENT ERROR:", error.message);
 
     return res.status(500).json({
       success: false,
@@ -340,7 +321,7 @@ const handleFlutterwaveWebhook = async (req, res) => {
     });
   } catch (error) {
     console.error("========== WEBHOOK ERROR ==========");
-    console.error(error.response?.data || error);
+    console.error(error.message);
 
     return res.status(error.statusCode || 500).json({
       success: false,

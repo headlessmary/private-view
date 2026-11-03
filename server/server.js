@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const QRCode = require("qrcode");
+const { createCorsOptions } = require("./config/cors");
 
 const ticketRoutes = require("./routes/ticketRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
@@ -15,7 +16,7 @@ const { getPublicEventConfig } = require("./controllers/eventConfigController");
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors(createCorsOptions()));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -60,16 +61,8 @@ app.get("/uploads/qr/:filename", async (req, res) => {
   }
 });
 
-// Debug Middleware
 app.use((req, res, next) => {
-  console.log("\n===============================");
-  console.log("METHOD:", req.method);
-  console.log("URL:", req.originalUrl);
-  console.log("HEADERS:", req.headers);
-  const loggedBody = { ...req.body };
-  if (loggedBody.qrToken) loggedBody.qrToken = "[REDACTED]";
-  console.log("BODY:", loggedBody);
-  console.log("===============================\n");
+  console.log(`${req.method} ${req.path}`);
   next();
 });
 
@@ -90,8 +83,6 @@ app.use("/api", eventRoutes);
 
 // Test Route
 app.post("/test", (req, res) => {
-  console.log("TEST BODY:", req.body);
-
   res.json({
     success: true,
     body: req.body,

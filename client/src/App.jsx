@@ -15,6 +15,7 @@ import {
 } from "./pages/EventLanding";
 import BuyTicket from "./pages/BuyTicket";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 import AdminLogin from "./admin/AdminLogin";
 import Dashboard from "./admin/components/Dashboard";
@@ -111,15 +112,22 @@ function AppContent() {
   const isSocietyPage = location.pathname === "/headless-society";
 
   const isHubRoute = location.pathname === "/";
+  const isPrivacyPolicyRoute = location.pathname === "/privacy-policy";
 
   const hasNavbar =
-    !isAdminRoute && !isHubRoute && (!isSocietyRoute || isSocietyPage);
+    !isAdminRoute &&
+    !isHubRoute &&
+    !isPrivacyPolicyRoute &&
+    (!isSocietyRoute || isSocietyPage);
 
   return (
     <>
       <PageTracker />
 
-      {!isAdminRoute && !isSocietyRoute && !isHubRoute && <Navbar />}
+      {!isAdminRoute &&
+        !isSocietyRoute &&
+        !isHubRoute &&
+        !isPrivacyPolicyRoute && <Navbar />}
 
       {isSocietyPage && <SocietyNavbar />}
 
@@ -148,6 +156,9 @@ function AppContent() {
 
           {/* Payment success */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
+
+          {/* Privacy policy */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Admin Login */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -194,7 +205,10 @@ function AppContent() {
         </Routes>
       </main>
 
-      {!isAdminRoute && !isSocietyRoute && !isHubRoute && <Footer />}
+      {!isAdminRoute &&
+        !isSocietyRoute &&
+        !isHubRoute &&
+        !isPrivacyPolicyRoute && <Footer />}
     </>
   );
 }

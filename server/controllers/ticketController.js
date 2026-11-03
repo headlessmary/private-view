@@ -13,6 +13,7 @@ const {
 const {
   toTicketPrices,
 } = require("../services/eventConfigService");
+const { toPublicPaymentAttendee } = require("../utils/publicPaymentAttendee");
 
 
 // ==========================================
@@ -101,15 +102,11 @@ const createTicket = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      "CREATE TICKET ERROR:",
-      error.response?.data || error
-    );
+    console.error("CREATE TICKET ERROR:", error.message);
 
     return res.status(500).json({
       success: false,
-      message:
-        error.response?.data?.message || error.message,
+      message: error.message,
     });
   }
 };
@@ -160,7 +157,7 @@ const verifyTicketPayment = async (req, res) => {
       return res.status(200).json({
         success: true,
         message: "Payment already verified.",
-        attendee,
+        attendee: toPublicPaymentAttendee(attendee),
         qrCode: attendee.qrCode,
       });
     }
@@ -176,22 +173,18 @@ const verifyTicketPayment = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Payment verified successfully.",
-      attendee: completion.attendee,
+      attendee: toPublicPaymentAttendee(completion.attendee),
       qrCode: completion.qrCode,
       emailSent: completion.emailSent,
       emailError: completion.emailError,
     });
 
   } catch (error) {
-    console.error(
-      "VERIFY PAYMENT ERROR:",
-      error.response?.data || error
-    );
+    console.error("VERIFY PAYMENT ERROR:", error.message);
 
     return res.status(500).json({
       success: false,
-      message:
-        error.response?.data?.message || error.message,
+      message: error.message,
     });
   }
 };

@@ -1,12 +1,17 @@
 const axios = require("axios");
-
+const { getFlutterwaveSecretKey } = require("../config/flutterwaveCredentials");
+const { requestFlutterwave } = require("../config/flutterwaveRequest");
 
 const flutterwave = axios.create({
   baseURL: "https://api.flutterwave.com/v3",
   headers: {
-    Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,
     "Content-Type": "application/json",
   },
+});
+
+flutterwave.interceptors.request.use((config) => {
+  config.headers.Authorization = `Bearer ${getFlutterwaveSecretKey()}`;
+  return config;
 });
 
 const toAbsoluteUrl = (value) => {
@@ -66,45 +71,41 @@ const initializePayment = async ({
     customizations.logo = `${frontendUrl}/logo.png`;
   }
 
-  const response = await flutterwave.post("/payments", {
-    tx_ref: reference,
-    amount: normalizedAmount,
-    currency: "NGN",
-    redirect_url: toAbsoluteUrl(finalRedirectUrl) || safeFallbackRedirectUrl,
-
-    customer: {
-      email: customerEmail,
-      phonenumber: customerPhone,
-      phone_number: customerPhone,
-      name: customerName,
-    },
-
-    customizations,
-  });
-
-  return response.data.data;
-};
-
-const verifyPayment = async (transactionId) => {
-  const response = await flutterwave.get(
-    `/transactions/${transactionId}/verify`
-  );
-
-  return response.data.data;
-};
-
-const verifyPaymentByReference = async (reference) => {
-  const response = await flutterwave.get(
-    "/transactions/verify_by_reference",
-    {
-      params: {
+  return requestFlutterwave(
+    () =>
+      flutterwave.post("/payments", {
         tx_ref: reference,
-      },
-    }
+        amount: normalizedAmount,
+        currency: "NGN",
+        redirect_url: toAbsoluteUrl(finalRedirectUrl) || safeFallbackRedirectUrl,
+        customer: {
+          email: customerEmail,
+          phonenumber: customerPhone,
+          phone_number: customerPhone,
+          name: customerName,
+        },
+        customizations,
+      }),
+    "payment initialization",
+  );
+};
+
+const verifyPayment = (transactionId) =>
+  requestFlutterwave(
+    () => flutterwave.get(`/transactions/${transactionId}/verify`),
+    "transaction verification",
   );
 
-  return response.data.data;
-};
+const verifyPaymentByReference = (reference) =>
+  requestFlutterwave(
+    () =>
+      flutterwave.get("/transactions/verify_by_reference", {
+        params: {
+          tx_ref: reference,
+        },
+      }),
+    "transaction verification",
+  );
 
 module.exports = {
   initializePayment,

@@ -169,22 +169,17 @@ const sendTicketEmail = async ({
 
     return response.data;
   } catch (error) {
-    console.error("❌ Brevo Email Error");
-
-    if (error.response) {
-      console.error(error.response.data);
-      const providerMessage =
-        error.response.data?.message ||
-        error.response.data?.code ||
-        error.message;
-
-      const wrappedError = new Error(providerMessage);
-      wrappedError.response = error.response;
-      throw wrappedError;
-    } else {
-      console.error(error.message);
-      throw error;
+    if (error.isAxiosError) {
+      const status = Number(error.response?.status);
+      const statusText = Number.isInteger(status)
+        ? ` (HTTP ${status})`
+        : "";
+      console.error(`BREVO_EMAIL_ERROR: Request failed${statusText}.`);
+      throw new Error(`Ticket email delivery failed${statusText}.`);
     }
+
+    console.error("BREVO_EMAIL_ERROR:", error.message);
+    throw error;
   }
 };
 

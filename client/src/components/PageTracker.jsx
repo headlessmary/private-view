@@ -1,19 +1,32 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import ReactGA from "../utils/analytics";
+import { trackPageView } from "../utils/analytics.js";
+import {
+  getAnalyticsConsent,
+  subscribeToAnalyticsConsent,
+} from "../utils/analyticsConsentStore.js";
 
 export default function PageTracker() {
   const location = useLocation();
+  const [consent, setConsent] = useState(getAnalyticsConsent);
+
+  useEffect(
+    () => subscribeToAnalyticsConsent(() => setConsent(getAnalyticsConsent())),
+    [],
+  );
 
   useEffect(() => {
-    // Don't track admin pages
-    if (location.pathname.startsWith("/admin")) return;
+    if (consent !== "granted" || location.pathname.startsWith("/admin")) {
+      return;
+    }
 
-    ReactGA.send({
-      hitType: "pageview",
-      page: location.pathname + location.search,
-    });
-  }, [location]);
+    const pageLocation = new URL(
+      location.pathname,
+      window.location.origin,
+    ).toString();
+
+    trackPageView(location.pathname, pageLocation);
+  }, [consent, location.pathname]);
 
   return null;
 }

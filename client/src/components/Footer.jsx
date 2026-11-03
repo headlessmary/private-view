@@ -1,4 +1,5 @@
 import { FaInstagram, FaSnapchatGhost } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -68,6 +69,12 @@ export default function Footer() {
             <p className="mt-2 text-[10px] font-medium text-[#C8922E] sm:text-[11px]">
               Powered by Picasso Media Hub
             </p>
+            <Link
+              to="/privacy-policy"
+              className="mt-3 inline-block text-xs text-[#D8D2CB] underline underline-offset-4 transition hover:text-[#C8922E]"
+            >
+              Privacy Policy
+            </Link>
           </div>
 
         </div>

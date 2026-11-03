@@ -25,8 +25,9 @@ export function SocietyNavbar({ eventName = "Headless Society" }) {
     <header className="society-navbar fixed inset-x-0 top-0 z-50 border-b-2 border-(--ink) bg-(--paper)/95 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
         <Link
-          to="/headless-society"
+          to="/"
           className="society-serif text-xl text-white sm:text-2xl"
+          aria-label="Headless Mary homepage"
         >
           {eventName}
         </Link>
@@ -463,6 +464,12 @@ function SocietyFooter() {
           >
             Archive
           </a>
+          <Link
+            to="/privacy-policy"
+            className="transition hover:text-headless-acid"
+          >
+            Privacy Policy
+          </Link>
         </nav>
         <div className="text-sm lg:text-right">
           <p>© 2026 Headless Mary Events</p>
