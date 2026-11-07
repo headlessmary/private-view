@@ -7,6 +7,12 @@ const {
   getAllowedOrigins,
 } = require("./cors");
 
+const FRONTEND_ORIGINS = [
+  "https://private-view-two.vercel.app",
+  "https://headlessmary.com",
+  "https://www.headlessmary.com",
+];
+
 const servers = [];
 
 after(async () => {
@@ -24,6 +30,9 @@ const startCorsServer = async (env) => {
   const app = express();
   app.use(cors(createCorsOptions(env)));
   app.get("/health", (_req, res) => res.status(200).json({ ok: true }));
+  app.get("/api/current-event", (_req, res) =>
+    res.json({ success: true, active: false, event: null }),
+  );
 
   const server = app.listen(0, "127.0.0.1");
   servers.push(server);
@@ -35,36 +44,46 @@ const startCorsServer = async (env) => {
   return `http://127.0.0.1:${server.address().port}`;
 };
 
-test("CORS allows configured production origins and answers preflight", async () => {
-  const apiUrl = await startCorsServer({
-    NODE_ENV: "production",
-    CORS_ALLOWED_ORIGINS: "https://headlessmary.example",
-  });
+test("CORS allows each frontend to request the current event with credentials", async () => {
+  const apiUrl = await startCorsServer({ NODE_ENV: "production" });
 
-  const response = await fetch(`${apiUrl}/health`, {
-    method: "OPTIONS",
-    headers: {
-      Origin: "https://headlessmary.example",
-      "Access-Control-Request-Method": "POST",
-      "Access-Control-Request-Headers": "content-type,authorization",
-    },
-  });
+  for (const origin of FRONTEND_ORIGINS) {
+    const response = await fetch(`${apiUrl}/api/current-event`, {
+      headers: { Origin: origin },
+    });
 
-  assert.equal(response.status, 204);
-  assert.equal(
-    response.headers.get("access-control-allow-origin"),
-    "https://headlessmary.example",
-  );
-  assert.match(
-    response.headers.get("access-control-allow-methods"),
-    /POST/,
-  );
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("access-control-allow-origin"), origin);
+    assert.equal(response.headers.get("access-control-allow-credentials"), "true");
+    assert.deepEqual(await response.json(), {
+      success: true,
+      active: false,
+      event: null,
+    });
+
+    const preflight = await fetch(`${apiUrl}/api/current-event`, {
+      method: "OPTIONS",
+      headers: {
+        Origin: origin,
+        "Access-Control-Request-Method": "GET",
+        "Access-Control-Request-Headers": "authorization,content-type",
+      },
+    });
+
+    assert.equal(preflight.status, 204);
+    assert.equal(preflight.headers.get("access-control-allow-origin"), origin);
+    assert.equal(preflight.headers.get("access-control-allow-credentials"), "true");
+    assert.match(preflight.headers.get("access-control-allow-methods"), /GET/);
+    assert.match(
+      preflight.headers.get("access-control-allow-headers"),
+      /authorization/i,
+    );
+  }
 });
 
 test("CORS omits allow-origin for unlisted production websites", async () => {
   const apiUrl = await startCorsServer({
     NODE_ENV: "production",
-    CORS_ALLOWED_ORIGINS: "https://headlessmary.example",
   });
 
   const response = await fetch(`${apiUrl}/health`, {
@@ -78,14 +97,21 @@ test("CORS omits allow-origin for unlisted production websites", async () => {
 test("development allows the Vite localhost origins", () => {
   assert.deepEqual(
     getAllowedOrigins({ NODE_ENV: "development" }),
-    ["http://localhost:5173", "http://127.0.0.1:5173"],
+    [
+      ...FRONTEND_ORIGINS,
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+    ],
   );
 });
 
-test("production requires explicitly configured origins", () => {
-  assert.throws(
-    () => createCorsOptions({ NODE_ENV: "production" }),
-    /CORS_ALLOWED_ORIGINS/,
+test("production also allows configured additional origins", () => {
+  assert.deepEqual(
+    getAllowedOrigins({
+      NODE_ENV: "production",
+      CORS_ALLOWED_ORIGINS: "https://extra.example",
+    }),
+    [...FRONTEND_ORIGINS, "https://extra.example"],
   );
 });
 

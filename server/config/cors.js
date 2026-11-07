@@ -1,3 +1,9 @@
+const FRONTEND_ORIGINS = [
+  "https://private-view-two.vercel.app",
+  "https://headlessmary.com",
+  "https://www.headlessmary.com",
+];
+
 const DEVELOPMENT_ORIGINS = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
@@ -33,13 +39,8 @@ const getAllowedOrigins = (env = process.env) => {
     .filter(Boolean)
     .map(normalizeOrigin);
 
-  if (env.NODE_ENV === "production" && configuredOrigins.length === 0) {
-    throw new Error(
-      "CORS_ALLOWED_ORIGINS must be configured with the production frontend origin.",
-    );
-  }
-
   return [
+    ...FRONTEND_ORIGINS,
     ...(env.NODE_ENV === "production" ? [] : DEVELOPMENT_ORIGINS),
     ...new Set(configuredOrigins),
   ];
@@ -54,6 +55,7 @@ const createCorsOptions = (env = process.env) => {
   return {
     origin: (origin, callback) =>
       callback(null, isOriginAllowed(origin, allowedOrigins)),
+    credentials: true,
     methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     optionsSuccessStatus: 204,
     maxAge: 600,

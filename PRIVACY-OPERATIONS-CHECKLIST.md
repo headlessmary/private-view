@@ -8,9 +8,9 @@ before updating the policy.
 
 - [ ] Configure `VITE_API_URL` with the actual backend URL when frontend and
   backend are on different origins.
-- [ ] Configure `CORS_ALLOWED_ORIGINS` with the exact production frontend
-  origin(s). Production backend startup intentionally fails when the list is
-  empty.
+- [ ] Confirm the backend CORS allowlist in `server/config/cors.js` matches
+  the production frontend origins. Use `CORS_ALLOWED_ORIGINS` only for
+  additional exact origins needed by a deployment.
 - [ ] Configure `FLW_SECRET_KEY` and `FLW_WEBHOOK_SECRET` as backend-only
   secrets. Never use `VITE_` variables for payment or server credentials.
 - [ ] Verify and rotate any Flutterwave credential that was previously
