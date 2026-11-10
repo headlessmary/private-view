@@ -4,7 +4,6 @@ import {
   FaArrowRight,
   FaArrowUp,
   FaExternalLinkAlt,
-  FaEnvelope,
   FaPhone,
   FaPlay,
   FaSnapchatGhost,
@@ -172,7 +171,7 @@ const galleryVideoPosters = {
 
 const signalStats = [
   { value: "04", label: "Events" },
-  { value: "04", label: "Cities" },
+  { value: "03", label: "Cities" },
   { value: "02", label: "Countries" },
 ];
 
@@ -5020,11 +5019,15 @@ export default function EventHub() {
         }
 
         .hm-archive-card-cta {
+          position: relative;
+          z-index: 2;
           min-height: 27px;
           padding: 0 12px;
           flex: 0 0 auto;
           gap: 12px;
           font-size: 7px;
+          cursor: pointer;
+          pointer-events: auto;
         }
 
         .hm-archive-card:hover .hm-archive-card-cta,
@@ -5461,6 +5464,45 @@ export default function EventHub() {
           color: rgba(244, 240, 232, 0.6);
           font-size: 10px;
           line-height: 1.6;
+        }
+
+        .hm-community-cta {
+          min-height: 64px;
+          padding: 0 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          border: 1px solid rgba(24, 215, 104, 0.35);
+          background: #091a12;
+          color: #ffc629;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.14em;
+          text-decoration: none;
+          text-transform: uppercase;
+          transition: background-color 180ms ease, color 180ms ease;
+        }
+
+        .hm-community-cta:hover {
+          background: #ffc629;
+          color: #08100b;
+        }
+
+        .hm-community-cta-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .hm-community-cta svg {
+          width: 18px;
+          height: 18px;
+          flex: 0 0 auto;
+        }
+
+        .hm-community-cta-arrow {
+          transform: rotate(45deg);
         }
 
         .subscribe {
@@ -6649,13 +6691,25 @@ export default function EventHub() {
               </p>
               <span className="hm-archive-card-footer">
                 <span className="hm-archive-card-meta">
-                  <span>08.08.25</span>
-                  <span>Lagos, Nigeria</span>
+                  <span>04.08.26</span>
+                  <span>Coventry, United Kingdom</span>
                 </span>
-                <span className="hm-archive-card-cta">
+                <button
+                  type="button"
+                  className="hm-archive-card-cta"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setSelectedMedia({
+                      type: "video",
+                      event: "Graduating Into Summer",
+                      label: "Full video",
+                      src: galleryVideoOne,
+                    });
+                  }}
+                >
                   Watch live
                   <FaArrowUp aria-hidden="true" />
-                </span>
+                </button>
               </span>
             </article>
 
@@ -6672,12 +6726,11 @@ export default function EventHub() {
                 <span className="hm-archive-card-number">04</span>
                 <h3>The Private View</h3>
                 <p className="hm-archive-card-copy">
-                  A midnight collision of sound, art and 2,400 people who
-                  refused to go home.
+                  An intimate private gathering limited to 60 guests.
                 </p>
                 <span className="hm-archive-card-footer">
                   <span className="hm-archive-card-meta">
-                    <span>18.10.24</span>
+                    <span>08.08.26</span>
                     <span>Asaba, Delta State</span>
                   </span>
                   <span className="hm-archive-card-cta">
@@ -6868,9 +6921,8 @@ export default function EventHub() {
                 src={selectedMedia.src}
                 controls
                 autoPlay
-                muted
-                loop
-                preload="none"
+                playsInline
+                preload="auto"
               />
             ) : (
               <img
@@ -6925,26 +6977,22 @@ export default function EventHub() {
             </h2>
 
             <p className="sub">
-              One sharp email when the next room opens. No filler, no daily
-              digest.
+              Connect with the Headless Mary community on WhatsApp.
             </p>
           </div>
 
-          <form className="subscribe">
-            <div className="hm-subscribe-field">
-              <FaEnvelope className="dispatch-mail-icon" aria-hidden="true" />
-              <input
-                id="dispatch-email"
-                type="email"
-                placeholder="Your email address"
-                aria-label="Your email address"
-                required
-              />
-              <button type="submit">
-                Join <FaArrowUp aria-hidden="true" />
-              </button>
-            </div>
-          </form>
+          <a
+            className="hm-community-cta"
+            href="https://chat.whatsapp.com/JVWpnm5ROelAvywBeV087j?s=sw&p=a&iam=2"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="hm-community-cta-label">
+              <FaWhatsapp aria-hidden="true" />
+              Join the WhatsApp community
+            </span>
+            <FaArrowUp className="hm-community-cta-arrow" aria-hidden="true" />
+          </a>
         </div>
 
         <div className="dispatch-bottom">
