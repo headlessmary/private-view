@@ -6388,14 +6388,16 @@ export default function EventHub() {
             justify-content: space-between;
             align-items: baseline;
             flex-wrap: nowrap;
-            gap: 4px;
-            padding: 12px;
-            font-size: 6px;
+            gap: 2px;
+            padding: 8px;
+            font-size: 7px;
+            letter-spacing: 0.08em;
             line-height: 1;
             white-space: nowrap;
           }
 
           .copyright > * {
+            font-size: 7px;
             line-height: 1;
           }
 
@@ -6406,7 +6408,7 @@ export default function EventHub() {
 
           .copyright span:last-child {
             flex: 0 0 auto;
-            font-size: 5px;
+            font-size: 6.5px;
             text-align: right;
             white-space: nowrap;
           }
